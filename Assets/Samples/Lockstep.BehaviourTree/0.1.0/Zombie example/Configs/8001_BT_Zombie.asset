@@ -1,0 +1,283 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b479034dc8b5495d8270db7451704859, type: 3}
+  m_Name: 8001_BT_Zombie
+  m_EditorClassIdentifier: 
+  serializedNodes: []
+  nodes:
+  - rid: 0
+  - rid: 1
+  - rid: 2
+  - rid: 3
+  - rid: 4
+  - rid: 5
+  - rid: 6
+  - rid: 7
+  edges:
+  - GUID: a032725d-274f-4c19-8f32-f788bf9ffb83
+    owner: {fileID: 11400000}
+    inputNodeGUID: 0d8ff56e-9563-4bd7-a3e2-4d6cdb310542
+    outputNodeGUID: 6f73bd5e-f847-432b-95b9-40bc25c33331
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 7a2b7632-62f3-44d6-b542-7ad74a2eaaf8
+    owner: {fileID: 11400000}
+    inputNodeGUID: 4f12ed5e-38ef-4e72-b4a5-01a2e9d5aa16
+    outputNodeGUID: 6f73bd5e-f847-432b-95b9-40bc25c33331
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 28438937-e6cd-4961-b9e2-2f1bfce61bcc
+    owner: {fileID: 11400000}
+    inputNodeGUID: 840893de-fcdd-4ddc-9171-794a1516bb4c
+    outputNodeGUID: 0d8ff56e-9563-4bd7-a3e2-4d6cdb310542
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 54d2ea65-e805-41e1-9d13-2dca3dc59925
+    owner: {fileID: 11400000}
+    inputNodeGUID: 66564490-75e0-4fc4-bc7a-c71adea9ce05
+    outputNodeGUID: 0d8ff56e-9563-4bd7-a3e2-4d6cdb310542
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 080805b5-fd54-42f8-803a-3e7498b8e477
+    owner: {fileID: 11400000}
+    inputNodeGUID: d2a7b826-0662-4997-98b3-3017993b12da
+    outputNodeGUID: 0d8ff56e-9563-4bd7-a3e2-4d6cdb310542
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 366690b9-a963-41bb-ac25-a7ccc0f0f79b
+    owner: {fileID: 11400000}
+    inputNodeGUID: 73a8c097-055b-4639-95b4-0a7246a54a30
+    outputNodeGUID: 4f12ed5e-38ef-4e72-b4a5-01a2e9d5aa16
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 402b38c7-ccc6-4ab8-a0dd-a5770c27fe1f
+    owner: {fileID: 11400000}
+    inputNodeGUID: 5cf335d1-2eed-4a68-8672-c0f8efb59dbb
+    outputNodeGUID: 4f12ed5e-38ef-4e72-b4a5-01a2e9d5aa16
+    inputFieldName: __input
+    outputFieldName: __output
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  groups: []
+  stackNodes: []
+  pinnedElements:
+  - position:
+      serializedVersion: 2
+      x: 111
+      y: 334
+      width: 372
+      height: 435
+    opened: 0
+    editorType:
+      serializedType: GraphProcessor.ExposedParameterView, com.alelievr.NodeGraphProcessor.Editor,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - position:
+      serializedVersion: 2
+      x: 158
+      y: 118
+      width: 150
+      height: 200
+    opened: 0
+    editorType:
+      serializedType: GraphProcessor.ProcessorView, com.alelievr.NodeGraphProcessor.Editor,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  exposedParameters: []
+  blackboardKeys:
+  - rid: 5073097343960875008
+  - rid: 5073097343960875009
+  serializedParameterList: []
+  stickyNotes:
+  - position:
+      serializedVersion: 2
+      x: 1009.3974
+      y: -179.25504
+      width: 149
+      height: 139
+    title: "\u751F\u6D3B\u5A11\u5A46"
+    content: "\u7279\u6B8A\u7684\u4E16\u754C"
+  nodeInspectorReference: {fileID: 0}
+  position: {x: 3, y: 378, z: 0}
+  scale: {x: 0.8695652, y: 0.8695652, z: 1}
+  references:
+    version: 2
+    RefIds:
+    - rid: 0
+      type: {class: BTActionRoot, ns: Lockstep.AI, asm: Lockstep.AI.BehaviourTree}
+      data:
+        nodeCustomName: 
+        GUID: 6f73bd5e-f847-432b-95b9-40bc25c33331
+        computeOrder: 0
+        position:
+          serializedVersion: 2
+          x: 430.44998
+          y: -257.30002
+          width: 178
+          height: 67
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __output: 0
+        IsPriority: 1
+    - rid: 1
+      type: {class: BTActionSequence, ns: Lockstep.AI, asm: Lockstep.AI.BehaviourTree}
+      data:
+        nodeCustomName: 
+        GUID: 0d8ff56e-9563-4bd7-a3e2-4d6cdb310542
+        computeOrder: 1
+        position:
+          serializedVersion: 2
+          x: 182.02748
+          y: -153.895
+          width: 100
+          height: 54
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        __output: 0
+    - rid: 2
+      type: {class: BTActionSequence, ns: Lockstep.AI, asm: Lockstep.AI.BehaviourTree}
+      data:
+        nodeCustomName: 
+        GUID: 4f12ed5e-38ef-4e72-b4a5-01a2e9d5aa16
+        computeOrder: 2
+        position:
+          serializedVersion: 2
+          x: 768.08746
+          y: -143.47974
+          width: 100
+          height: 54
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        __output: 0
+    - rid: 3
+      type: {class: CON_HasReachedTarget, ns: AIToolkitDemo, asm: Lockstep.AI.BehaviourTree.Demo01}
+      data:
+        nodeCustomName: 
+        GUID: 840893de-fcdd-4ddc-9171-794a1516bb4c
+        computeOrder: 3
+        position:
+          serializedVersion: 2
+          x: 47.57649
+          y: -51.24445
+          width: 187
+          height: 88
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        IsInvert: 1
+        Distance: 1.5
+    - rid: 4
+      type: {class: NOD_TurnTo, ns: AIToolkitDemo, asm: Lockstep.AI.BehaviourTree.Demo01}
+      data:
+        nodeCustomName: 
+        GUID: 66564490-75e0-4fc4-bc7a-c71adea9ce05
+        computeOrder: 4
+        position:
+          serializedVersion: 2
+          x: 261.9477
+          y: -31.999992
+          width: 179
+          height: 69
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        TurnSpeed: 3
+    - rid: 5
+      type: {class: NOD_MoveTo, ns: AIToolkitDemo, asm: Lockstep.AI.BehaviourTree.Demo01}
+      data:
+        nodeCustomName: 
+        GUID: d2a7b826-0662-4997-98b3-3017993b12da
+        computeOrder: 5
+        position:
+          serializedVersion: 2
+          x: 510.2326
+          y: -31.560772
+          width: 100
+          height: 100
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        MoveSpeed: 1
+        StopDistance: 1.5
+    - rid: 6
+      type: {class: NOD_TurnTo, ns: AIToolkitDemo, asm: Lockstep.AI.BehaviourTree.Demo01}
+      data:
+        nodeCustomName: 
+        GUID: 73a8c097-055b-4639-95b4-0a7246a54a30
+        computeOrder: 6
+        position:
+          serializedVersion: 2
+          x: 740.69806
+          y: -18.465303
+          width: 179
+          height: 69
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+        TurnSpeed: 3
+    - rid: 7
+      type: {class: NOD_Attack, ns: AIToolkitDemo, asm: Lockstep.AI.BehaviourTree.Demo01}
+      data:
+        nodeCustomName: 
+        GUID: 5cf335d1-2eed-4a68-8672-c0f8efb59dbb
+        computeOrder: 7
+        position:
+          serializedVersion: 2
+          x: 975.09656
+          y: -9.205216
+          width: 100
+          height: 100
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        __input: 0
+    - rid: 5073097343960875008
+      type: {class: BlackboardKey, ns: Lockstep.AI, asm: Lockstep.AI.BehaviourTree}
+      data:
+        Name: TargetPos
+        Type: 3
+        FloatValue: 0
+        IntValue: 0
+        LongValue: 0
+        BooleanValue: 0
+        Vector2Value: {x: 0, y: 0}
+        Vector3Value: {x: 0, y: 0, z: 0}
+    - rid: 5073097343960875009
+      type: {class: BlackboardKey, ns: Lockstep.AI, asm: Lockstep.AI.BehaviourTree}
+      data:
+        Name: MoveSpd
+        Type: 0
+        FloatValue: 0
+        IntValue: 0
+        LongValue: 0
+        BooleanValue: 0
+        Vector2Value: {x: 0, y: 0}
+        Vector3Value: {x: 0, y: 0, z: 0}
