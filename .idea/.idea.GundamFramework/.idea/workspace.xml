@@ -4,213 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/GundamFrame/SingClass/MonoBeSingleton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/ActionBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/ActionBase.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/ActionManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/ActionManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/DelayAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Actions/DelayAction.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Anim.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Anim/AnimEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Anim/AnimEvent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Anim/CharacterAnim.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Anim/CharacterAnim.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/EventLogic.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/EventLogic.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/IEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/IEvent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/IEventManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Event/IEventManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/ResLoad.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/ResLoad/LuaManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/ResLoad/LuaManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/ResLoad/ResourcesManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/ResLoad/ResourcesManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Singleton.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Singleton/MonoSingleton.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Singleton/MonoSingleton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Singleton/Singleton.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/Singleton/Singleton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Aspose.Cells.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Aspose.Cells.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/DisplayOnlyDrawer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/DisplayOnlyDrawer.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExcelClass.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExcelClass.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportConfigManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportConfigManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToCS.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToCS.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToData.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToData.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToJsonData.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/ExportToJsonData.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/TextWriter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/Excel/TextWriter.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/ExportTools.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/ExcelTool/Editor/ExportTools.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Editor.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Editor/ExampleConfig.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Editor/ExampleConfig.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Editor/XLuaUnityDefaultConfig.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Editor/XLuaUnityDefaultConfig.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/arm64-v8a.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/arm64-v8a/libxlua.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/arm64-v8a/libxlua.so.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/armeabi-v7a.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/armeabi-v7a/libxlua.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/armeabi-v7a/libxlua.so.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/x86.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/x86/libxlua.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/Android/libs/x86/libxlua.so.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM64.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM64/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/ARM64/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x64.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x64/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x64/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x86.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x86/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WSA/x86/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WebGL.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WebGL/xlua_webgl.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/WebGL/xlua_webgl.cpp.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/libxlua.dylib" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/libxlua.dylib.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/xlua.bundle.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/xlua.bundle/Contents.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/xlua.bundle/Contents/MacOS.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/xlua.bundle/Contents/MacOS/xlua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/arm64/xlua.bundle/Contents/MacOS/xlua.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/iOS.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/iOS/HotfixFlags.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/iOS/HotfixFlags.cpp.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/iOS/libxlua.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/iOS/libxlua.a.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86/libxlua.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86/libxlua.so.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86_64.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86_64/libxlua.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86_64/libxlua.so.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86_64/xlua.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/x86_64/xlua.dll.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents/Info.plist.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents/MacOS.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents/MacOS/xlua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Plugins/xlua.bundle/Contents/MacOS/xlua.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/CodeEmit.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/CodeEmit.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/CopyByValue.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/CopyByValue.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/DelegateBridge.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/DelegateBridge.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Generator.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Generator.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Hotfix.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Hotfix.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/LinkXmlGen.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/LinkXmlGen/LinkXmlGen.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/LinkXmlGen/LinkXmlGen.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/LinkXmlGen/LinkXmlGen.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/LinkXmlGen/LinkXmlGen.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Report.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Report.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaClassWrap.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaClassWrap.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaClassWrapGCM.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaClassWrapGCM.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaDelegateBridge.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaDelegateBridge.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaDelegateWrap.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaDelegateWrap.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaEnumWrap.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaEnumWrap.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaEnumWrapGCM.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaEnumWrapGCM.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaInterfaceBridge.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaInterfaceBridge.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaRegister.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaRegister.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaRegisterGCM.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaRegisterGCM.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaWrapPusher.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/LuaWrapPusher.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/PackUnpack.tpl.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/PackUnpack.tpl.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/TemplateCommon.lua.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/Template/TemplateCommon.lua.txt.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/TemplateRef.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Editor/TemplateRef.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/GenAttributes.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/GenAttributes.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/GenericDelegateBridge.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/GenericDelegateBridge.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/InternalGlobals.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/InternalGlobals.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaBase.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaDLL.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaDLL.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaEnv.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaEnv.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaException.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaException.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaFunction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaFunction.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaTable.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/LuaTable.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/MethodWarpsCache.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/MethodWarpsCache.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectCasters.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectCasters.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectPool.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectPool.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectTranslator.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectTranslator.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectTranslatorPool.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/ObjectTranslatorPool.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/RawObject.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/RawObject.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/SignatureLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/SignatureLoader.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/StaticLuaCallbacks.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/StaticLuaCallbacks.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/TemplateEngine.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/TemplateEngine/TemplateEngine.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/TemplateEngine/TemplateEngine.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/TypeExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/TypeExtensions.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Utils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/XLua/Src/Utils.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -269,7 +63,7 @@
       <workItem from="1729080130869" duration="60000" />
       <workItem from="1729080276456" duration="258000" />
       <workItem from="1729134825006" duration="212000" />
-      <workItem from="1729135155695" duration="316000" />
+      <workItem from="1729135155695" duration="509000" />
     </task>
     <task id="LOCAL-00001" summary="[feat] 合并主分支">
       <created>1710177589421</created>
@@ -299,7 +93,14 @@
       <option name="project" value="LOCAL" />
       <updated>1729080498980</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="[feat] 优化代码">
+      <created>1729135494969</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1729135494969</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -319,7 +120,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="master" />
+                        <option value="gundamframework/gundam_framework" />
                       </list>
                     </value>
                   </entry>
@@ -335,6 +136,7 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="[feat] 合并主分支" />
     <MESSAGE value="[feat] 增加代码" />
-    <option name="LAST_COMMIT_MESSAGE" value="[feat] 增加代码" />
+    <MESSAGE value="[feat] 优化代码" />
+    <option name="LAST_COMMIT_MESSAGE" value="[feat] 优化代码" />
   </component>
 </project>
