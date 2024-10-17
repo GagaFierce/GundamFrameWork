@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{4842b70d-5516-bfa9-cf0e-8105dc9e4557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lofelt.NiceVibrations.Editor", "Lofelt.NiceVibrations.Editor.csproj", "{04581def-d788-38eb-984c-193a07c10df1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lockstep.AI.BehaviourTree.Demo01", "Lockstep.AI.BehaviourTree.Demo01.csproj", "{43e35021-7a02-c05b-02a6-c928c3c1c2e9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,8 +16,8 @@ Global
 		{20706d6c-9f1a-3a3a-6a70-9353dc246768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4842b70d-5516-bfa9-cf0e-8105dc9e4557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4842b70d-5516-bfa9-cf0e-8105dc9e4557}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04581def-d788-38eb-984c-193a07c10df1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04581def-d788-38eb-984c-193a07c10df1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43e35021-7a02-c05b-02a6-c928c3c1c2e9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43e35021-7a02-c05b-02a6-c928c3c1c2e9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

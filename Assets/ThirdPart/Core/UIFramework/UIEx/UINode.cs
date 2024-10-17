@@ -266,11 +266,11 @@ namespace Core.UIFramework
 
         public void MoveToLocalPosition(Vector3 pos, float time)
         {
-            DG.Tweening.DOTween.To(() => transform.localPosition, x => transform.localPosition = x, pos, time);
+          //  DG.Tweening.DOTween.To(() => transform.localPosition, x => transform.localPosition = x, pos, time);
         }
         public void MoveToWorldPosition(Vector3 pos, float time)
         {
-            DG.Tweening.DOTween.To(() => transform.position, x => transform.position = x, pos, time);
+          //  DG.Tweening.DOTween.To(() => transform.position, x => transform.position = x, pos, time);
         }
 
         public void MoveToAlpha(float alpha, float time)
@@ -278,7 +278,7 @@ namespace Core.UIFramework
             CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
             if (canvasGroup)
             {
-                DG.Tweening.DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, alpha, time);
+             //   DG.Tweening.DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, alpha, time);
                 //DG.Tweening.DOTween.ToAlpha(() => canvasGroup.alpha, x => canvasGroup.alpha = x, pos, time);
             }
         }

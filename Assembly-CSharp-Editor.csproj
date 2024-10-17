@@ -801,8 +801,14 @@
     <Reference Include="Unity.2D.Sprite.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Lockstep.Math.Editor">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="Lockstep.Serializer">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Serializer.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Services.Core.Environments">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.Environments.dll</HintPath>
@@ -821,6 +827,9 @@
     </Reference>
     <Reference Include="Lockstep.AI.BehaviourTree">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.dll</HintPath>
+    </Reference>
+    <Reference Include="Lockstep.Math">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
@@ -852,9 +861,9 @@
       <Project>{20706d6c-9f1a-3a3a-6a70-9353dc246768}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="Lofelt.NiceVibrations.Editor.csproj">
-      <Project>{04581def-d788-38eb-984c-193a07c10df1}</Project>
-      <Name>Lofelt.NiceVibrations.Editor</Name>
+    <ProjectReference Include="Lockstep.AI.BehaviourTree.Demo01.csproj">
+      <Project>{43e35021-7a02-c05b-02a6-c928c3c1c2e9}</Project>
+      <Name>Lockstep.AI.BehaviourTree.Demo01</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
