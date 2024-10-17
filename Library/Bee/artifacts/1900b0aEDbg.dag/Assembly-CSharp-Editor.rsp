@@ -348,6 +348,7 @@
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.UI.ref.dll"
 -analyzer:"D:/Unity/UnityEditor/2022.3.21f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"D:/Unity/UnityEditor/2022.3.21f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
+"Assets/ThirdPart/Active Jelly/JellyShader/Editor/MKGlassFreeEditor.cs"
 "Assets/ThirdPart/ExcelTool/Editor/DisplayOnlyDrawer.cs"
 "Assets/ThirdPart/ExcelTool/Editor/Excel/ExcelClass.cs"
 "Assets/ThirdPart/ExcelTool/Editor/Excel/ExportConfigManager.cs"
