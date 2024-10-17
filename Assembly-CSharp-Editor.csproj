@@ -735,6 +735,9 @@
     <Reference Include="System.Xml.XPath.XDocument">
       <HintPath>D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
@@ -743,9 +746,6 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
