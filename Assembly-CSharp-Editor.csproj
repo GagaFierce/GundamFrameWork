@@ -45,6 +45,7 @@
     <Analyzer Include="D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UIPageImplForLuaEditor.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Hotfix.cs" />
     <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\LuaFilesIndexer.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Editor\ExampleConfig.cs" />
@@ -55,7 +56,6 @@
     <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\UIEx\EditorTools.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Generator.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Editor\XLuaUnityDefaultConfig.cs" />
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UIPageImplForLuaEditor.cs" />
     <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaInterfaceBridge.tpl.txt" />
     <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\ConfLuaTemplate.txt" />
     <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaWrapPusher.tpl.txt" />
@@ -341,18 +341,6 @@
     </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.analytics@3.8.1\Unity.Analytics.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Plastic.Antlr3.Runtime">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.collab-proxy@2.2.0\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="unityplastic">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.collab-proxy@2.2.0\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Plastic.Newtonsoft.Json">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.collab-proxy@2.2.0\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="log4netPlastic">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.collab-proxy@2.2.0\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
@@ -756,6 +744,9 @@
     <Reference Include="Unity.Services.Analytics.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Analytics.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Lockstep.AI.BehaviourTree.Editor">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Purchasing.Stores">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Stores.dll</HintPath>
     </Reference>
@@ -764,9 +755,6 @@
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing.SecurityStub">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
@@ -782,9 +770,6 @@
     </Reference>
     <Reference Include="UnityEditor.SpatialTracking">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VisualStudio.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
@@ -834,6 +819,9 @@
     <Reference Include="UnityEngine.Purchasing.Codeless">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Codeless.dll</HintPath>
     </Reference>
+    <Reference Include="Lockstep.AI.BehaviourTree">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
@@ -854,9 +842,6 @@
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VSCode.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.dll</HintPath>
