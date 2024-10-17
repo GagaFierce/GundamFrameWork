@@ -51,6 +51,7 @@
     <Compile Include="Assets\ThirdPart\SpriteAtlasTool\Editor\DeleteAllAtlas.cs" />
     <Compile Include="Assets\ThirdPart\ExcelTool\Editor\DisplayOnlyDrawer.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Editor\ExampleConfig.cs" />
+    <Compile Include="Assets\ThirdPart\Active Jelly\JellyShader\Editor\MKGlassFreeEditor.cs" />
     <Compile Include="Assets\ThirdPart\SpriteAtlasTool\Editor\SpriteAtlasMap.cs" />
     <Compile Include="Assets\ThirdPart\ExcelTool\Editor\Excel\ExportToCS.cs" />
     <Compile Include="Assets\ThirdPart\ExcelTool\Editor\Excel\TextWriter.cs" />
