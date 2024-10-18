@@ -11,12 +11,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
-    <ProjectGuid>{4842b70d-5516-bfa9-cf0e-8105dc9e4557}</ProjectGuid>
+    <RootNamespace>SingularityGroup.HotReload</RootNamespace>
+    <ProjectGuid>{ee0889cb-a72d-8e0f-c89e-6d456a51abae}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
+    <AssemblyName>SingularityGroup.HotReload.Editor</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>.</BaseDirectory>
@@ -25,7 +25,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>Temp\Bin\Debug\Assembly-CSharp-Editor\</OutputPath>
+    <OutputPath>Temp\Bin\Debug\SingularityGroup.HotReload.Editor\</OutputPath>
     <DefineConstants>UNITY_2022_3_21;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_4_6;NET_UNITY_4_8;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER;UNITY_EDITOR_ONLY_COMPILATION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -45,36 +45,83 @@
     <Analyzer Include="D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Hotfix.cs" />
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\LuaFilesIndexer.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Editor\ExampleConfig.cs" />
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UICellEditor.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Src\Editor\TemplateRef.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Report.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Src\Editor\LinkXmlGen\LinkXmlGen.cs" />
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\UIEx\EditorTools.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Generator.cs" />
-    <Compile Include="Assets\ThirdPart\XLua\Editor\XLuaUnityDefaultConfig.cs" />
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UIPageImplForLuaEditor.cs" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaInterfaceBridge.tpl.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\ConfLuaTemplate.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaWrapPusher.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaDelegateWrap.tpl.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\LuaTemplate_Cell.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaRegister.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaClassWrap.tpl.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\ConfigsBaseTemplate.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaRegisterGCM.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\LinkXmlGen\LinkXmlGen.tpl.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\LuaFilesDefTemplate.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\PackUnpack.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaEnumWrapGCM.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaClassWrapGCM.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\TemplateCommon.lua.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\LuaTemplate.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaDelegateBridge.tpl.txt" />
-    <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaEnumWrap.tpl.txt" />
-    <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\LuaBindFunc.txt" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\HotReloadWindow.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\GUIHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\HotReloadState.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\LinuxCliController.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\ICliController.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Attribution\VSAttribution.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\ProjectPart.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\HotReloadPrefs.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Installation\ServerDownloader.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Options\Base\HotReloadOptionBase.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\WindowsCliController.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\HotReloadSettingsTab.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\SolutionGuidGenerator.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\HotReloadAboutTab.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\PlayerBuild\PostbuildSendProjectState.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\IGUIComponent.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\HotReloadOptionsSection.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Options\AllowAndroidAppToMakeHttpRequestsOption.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\HotReloadOverlay.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\ProjectGenerationFlag.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\HotReloadSettingsEditor.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\Styles\HotReloadWindowStyles.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\Spinner.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ServerHealthCheck.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\UnitySettingsHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\Util\StringUtils.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\PlayerBuild\HotReloadBuildHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Installation\DownloadUtility.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\ShowOnStartupEnum.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\EditorCodePatcher.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Versioning\SemVer.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\EditorWindowHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\Util\FileSystemUtil.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Installation\ExponentialBackoff.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\ProjectGenenerationPostProcessor.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\StartArgs.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\Base\HotReloadTabBase.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Installation\InstallUtility.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\PlayerBuild\PrebuildIncludeResources.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\HotReloadTimelineHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\PlayerBuild\PostbuildModifyAndroidManifest.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\EditorIndicationState.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\HotReloadEventPopup.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\HotReloadSuggestionsHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CompileChecker\DefaultCompileChecker.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\OsxCliController.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Constants.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Options\IncludeInBuildOption.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\FallbackCliController.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\IHotReloadProjectGenerationPostProcessor.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\GitUtil.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\EditorTextures.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\CliUtils.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Attribution\Attribution.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\RequiredSettings\RequiredSettingChecker.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CompileChecker\LegacyCompileChecker.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\GUIDProvider.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\PlayerBuild\BuildGenerateBuildInfo.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CompileChecker\ICompileChecker.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\BuildInfoHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Buttons\OpenURLButton.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\IGUIDGenerator.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\Helpers\RedeemLicenseHelper.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Options\ExposeServerOption.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\ProjectGeneration.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Buttons\OpenDialogueButton.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Helpers\AssemblyOmission.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Demo\EditorDemo.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Options\Base\OptionInterfaces.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\CLI\HotReloadCli.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Versioning\PackageUpdateChecker.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\FileIOProvider.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Installation\UpdateUtility.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\Window\GUI\Tabs\HotReloadRunTab.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\ProjectGeneration\IFileIO.cs" />
+    <Compile Include="Packages\com.singularitygroup.hotreload\Editor\InspectorFreezeFix.cs" />
+    <None Include="Packages\com.singularitygroup.hotreload\Editor\SingularityGroup.HotReload.Editor.asmdef" />
     <Reference Include="UnityEngine">
       <HintPath>D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
@@ -336,20 +383,23 @@
     <Reference Include="UnityEditor.WindowsStandalone.Extensions">
       <HintPath>D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.analytics@3.8.1\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.analytics@3.8.1\Unity.Analytics.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.analytics@3.8.1\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="SingularityGroup.HotReload.RuntimeDependencies">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Packages\com.singularitygroup.hotreload\Runtime\Libs\EditorOnly\SingularityGroup.HotReload.RuntimeDependencies.dll</HintPath>
+    </Reference>
+    <Reference Include="SingularityGroup.HotReload.RuntimeDependencies2019">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Packages\com.singularitygroup.hotreload\Runtime\Libs\EditorOnly\SingularityGroup.HotReload.RuntimeDependencies2019.dll</HintPath>
+    </Reference>
+    <Reference Include="SingularityGroup.HotReload.RuntimeDependencies2020">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Packages\com.singularitygroup.hotreload\Runtime\Libs\EditorOnly\SingularityGroup.HotReload.RuntimeDependencies2020.dll</HintPath>
+    </Reference>
+    <Reference Include="SingularityGroup.HotReload.RuntimeDependencies2022">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Packages\com.singularitygroup.hotreload\Runtime\Libs\EditorOnly\SingularityGroup.HotReload.RuntimeDependencies2022.dll</HintPath>
+    </Reference>
+    <Reference Include="SingularityGroup.HotReload.EditorDependencies">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Packages\com.singularitygroup.hotreload\Editor\SingularityGroup.HotReload.EditorDependencies.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Android.Types">
       <HintPath>D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
@@ -735,135 +785,27 @@
     <Reference Include="System.Xml.XPath.XDocument">
       <HintPath>D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.TestRunner">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TestRunner">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.AI.BehaviourTree.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Analytics.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Analytics.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Stores">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Stores.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.AI.Navigation">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.AI.Navigation.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityStub">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.Math.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.AI.BehaviourTree">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.dll</HintPath>
-    </Reference>
-    <Reference Include="Purchasing.Common">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Purchasing.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.SpatialTracking">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Core">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SpatialTracking">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
-    </Reference>
-    <Reference Include="Analytics">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Rider.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.XR.LegacyInputHelpers">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.Serializer">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Serializer.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Core.Environments">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.Environments.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Analytics">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityCore">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.AI.Navigation.Updater">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.AI.Navigation.Updater.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Codeless">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Codeless.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.Math">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Purchasing">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.Purchasing.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Core.Analytics">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.AI.Navigation.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.AI.Navigation.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.AI.Navigation.Editor.ConversionSystem">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.AI.Navigation.Editor.ConversionSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Tilemap.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.dll</HintPath>
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp.csproj">
-      <Project>{20706d6c-9f1a-3a3a-6a70-9353dc246768}</Project>
-      <Name>Assembly-CSharp</Name>
-    </ProjectReference>
     <ProjectReference Include="SingularityGroup.HotReload.Runtime.Public.csproj">
       <Project>{6700c9d8-1e40-c3bf-db4d-d45c27e814a7}</Project>
       <Name>SingularityGroup.HotReload.Runtime.Public</Name>
+    </ProjectReference>
+    <ProjectReference Include="SingularityGroup.HotReload.Runtime.csproj">
+      <Project>{8411d287-465e-bb27-d868-2327ff4c06a2}</Project>
+      <Name>SingularityGroup.HotReload.Runtime</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
