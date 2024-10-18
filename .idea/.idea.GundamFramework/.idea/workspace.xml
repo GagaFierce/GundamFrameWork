@@ -4,14 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="">
+    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="[feat] 删除无用资源">
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhDisposeNode.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhDisposeNode/BhDisposeMonsterMove.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhDisposeNode/BhDisposeMonsterMove.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhManager.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhManager.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhSearcNode.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhSearcNode/BhSequenceNode.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhSearcNode/BhSequenceNode.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhTree.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/BhTree.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/IBhNode.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/BehaviorTree/BHNode/IBhNode.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GundamFramework.sln" beforeDir="false" afterPath="$PROJECT_DIR$/GundamFramework.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp-Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp-Editor.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,9 +32,9 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4ef563b0d1c742a1a428da9cde3cc41c1fe00/fc/7a47c76c/Physics.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b9f607e27b8644e0bf609b59dfb1c8525735b0/b8/fe3e309f/Path.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameStarter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Editor/BTGraphWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Editor/EditorTools/EditorTools.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Core/BTNode.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Core/BTWorkingData.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Core/BehaviourTree.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Extension/SerializationExt.cs" root0="SKIP_HIGHLIGHTING" />
@@ -125,7 +133,7 @@
       <workItem from="1729148910207" duration="5000" />
       <workItem from="1729148932449" duration="5000" />
       <workItem from="1729148981620" duration="1719000" />
-      <workItem from="1729218823314" duration="8710000" />
+      <workItem from="1729218823314" duration="14450000" />
     </task>
     <task id="LOCAL-00001" summary="[feat] 合并主分支">
       <created>1710177589421</created>
@@ -183,7 +191,14 @@
       <option name="project" value="LOCAL" />
       <updated>1729167044412</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="[feat] 删除无用资源">
+      <created>1729239134742</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1729239134742</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,7 +218,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="gundamframework/gundam_framework" />
+                        <option value="origin/master" />
                       </list>
                     </value>
                   </entry>
@@ -225,6 +240,7 @@
     <MESSAGE value="[feat] 增加行为树插件" />
     <MESSAGE value="[feat] 增加行为树测试插件" />
     <MESSAGE value="[feat]增加行为树测试插件" />
-    <option name="LAST_COMMIT_MESSAGE" value="[feat]增加行为树测试插件" />
+    <MESSAGE value="[feat] 删除无用资源" />
+    <option name="LAST_COMMIT_MESSAGE" value="[feat] 删除无用资源" />
   </component>
 </project>
