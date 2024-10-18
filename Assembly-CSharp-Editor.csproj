@@ -45,7 +45,6 @@
     <Analyzer Include="D:\Unity\UnityEditor\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UIPageImplForLuaEditor.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Hotfix.cs" />
     <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\LuaFilesIndexer.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Editor\ExampleConfig.cs" />
@@ -56,6 +55,7 @@
     <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\UIEx\EditorTools.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Src\Editor\Generator.cs" />
     <Compile Include="Assets\ThirdPart\XLua\Editor\XLuaUnityDefaultConfig.cs" />
+    <Compile Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\UIPageImplForLuaEditor.cs" />
     <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaInterfaceBridge.tpl.txt" />
     <None Include="Assets\ThirdPart\Core\UIFramework\Editor\LuaAutoGen\TemplateFiles\ConfLuaTemplate.txt" />
     <None Include="Assets\ThirdPart\XLua\Src\Editor\Template\LuaWrapPusher.tpl.txt" />
@@ -741,11 +741,11 @@
     <Reference Include="UnityEngine.TestRunner">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Services.Analytics.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Analytics.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Lockstep.AI.BehaviourTree.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Services.Analytics.Editor">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Analytics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing.Stores">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Stores.dll</HintPath>
@@ -756,26 +756,35 @@
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Analytics.DataPrivacy">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Purchasing.SecurityStub">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
+    <Reference Include="Lockstep.Math.Editor">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Services.Core">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.dll</HintPath>
+    <Reference Include="Lockstep.AI.BehaviourTree">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.dll</HintPath>
+    </Reference>
+    <Reference Include="Purchasing.Common">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Purchasing.Common.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.SpatialTracking">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Advertisements.Editor">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Purchasing.Common">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Purchasing.Common.dll</HintPath>
+    <Reference Include="Unity.Services.Core">
+      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Services.Core.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
@@ -795,14 +804,8 @@
     <Reference Include="UnityEditor.XR.LegacyInputHelpers">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.Math.Editor">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
@@ -824,9 +827,6 @@
     </Reference>
     <Reference Include="UnityEngine.Purchasing.Codeless">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\UnityEngine.Purchasing.Codeless.dll</HintPath>
-    </Reference>
-    <Reference Include="Lockstep.AI.BehaviourTree">
-      <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.AI.BehaviourTree.dll</HintPath>
     </Reference>
     <Reference Include="Lockstep.Math">
       <HintPath>D:\Unity\Project\GundamFrameWork\GundamFrameWork\Library\ScriptAssemblies\Lockstep.Math.dll</HintPath>
@@ -861,9 +861,9 @@
       <Project>{20706d6c-9f1a-3a3a-6a70-9353dc246768}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="Lockstep.AI.BehaviourTree.Demo01.csproj">
-      <Project>{43e35021-7a02-c05b-02a6-c928c3c1c2e9}</Project>
-      <Name>Lockstep.AI.BehaviourTree.Demo01</Name>
+    <ProjectReference Include="SingularityGroup.HotReload.Runtime.Public.csproj">
+      <Project>{6700c9d8-1e40-c3bf-db4d-d45c27e814a7}</Project>
+      <Name>SingularityGroup.HotReload.Runtime.Public</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

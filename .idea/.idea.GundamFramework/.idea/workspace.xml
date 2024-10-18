@@ -4,173 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="[feat]增加行为树测试插件">
-      <change afterPath="$PROJECT_DIR$/Assets/Samples.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/.sample.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model/Materials.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model/Materials/cube_diffuse.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model/Materials/cube_diffuse.mat.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model/Materials/ground_diffuse.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Model/Materials/ground_diffuse.mat.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Texture.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Texture/Ground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Misc/Texture/Ground.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/Materials.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/Materials/body_diffuse.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/Materials/body_diffuse.mat.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@attack.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@attack.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@back_fall.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@back_fall.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@left_fall.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@left_fall.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@right_fall.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@right_fall.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@walk.FBX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Model/z@walk.FBX.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Arts/Zombie/Textures.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/BTProjectSettings.asset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/BTProjectSettings.asset.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Configs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Configs/8001_BT_Zombie.asset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Configs/8001_BT_Zombie.asset.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/AttackTarget.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/AttackTarget.prefab.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Configs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Configs/8001_BT_Zombie.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Configs/8001_BT_Zombie.json.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Ground.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Ground.prefab.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Zombie.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/Zombie.prefab.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/ZombieAnimationController.controller" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Resources/ZombieAnimationController.controller.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scenes.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scenes/Demo.unity" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scenes/Demo.unity.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIBehaviorRequest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIBehaviorRequest.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIBehaviors.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIBehaviors.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEnityManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEnityManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/BTNodeFactoryInjector.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/BTNodeFactoryInjector.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/CodeGen.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/CodeGen/_CodeGen_BTNodeExt.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/CodeGen/_CodeGen_BTNodeExt.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/CodeGen/_CodeGen_BTNodeExtSerialization.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/CodeGen/_CodeGen_BTNodeExtSerialization.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameResourceManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameResourceManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameStarter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameStarter.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameTimer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameTimer.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameUpdater.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameUpdater.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/Lockstep.AI.BehaviourTree.Demo01.asmdef" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/Lockstep.AI.BehaviourTree.Demo01.asmdef.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/LeanTween.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/LeanTween.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Misc.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Misc/THoverCameraController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Misc/THoverCameraController.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TAIToolkit.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TAIToolkit.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TsiU.Core.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TsiU.Core/TTimeAbs.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TsiU.Core/TTimeAbs.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TsiU.Core/TTimeRel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/TsiU.Core/TTimeRel.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TLogger.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TLogger.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TMathUtils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TMathUtils.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TStaticHelperBase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TStaticHelperBase.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/UnityAIToolkit.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/UnityAIToolkit.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit/PanelSettings.asset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit/PanelSettings.asset.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit/UnityThemes.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lockstep.AI.BehaviourTree.Demo01.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/Lockstep.AI.BehaviourTree.Demo01.csproj.AssemblyReference.cache" afterDir="false" />
+    <list default="true" id="70b5b7eb-0a9a-4b4f-be2c-39ee1ef77911" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GundamFramework/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp-Editor.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Launch.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Launch.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Launch.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Launch.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/Core/UIFramework/UIEx/UINode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/ThirdPart/Core/UIFramework/UIEx/UINode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Plugins.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Plugins/Windows.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Plugins/Windows/x64.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Plugins/Windows/x64/nice_vibrations_editor_plugin.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Plugins/Windows/x64/nice_vibrations_editor_plugin.dll.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/AssemblyInfo.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/AssemblyInfo.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/DeviceCapabilities.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/DeviceCapabilities.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Gamepad.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Gamepad.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticClip.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticClip.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticController.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticPatterns.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticPatterns.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticReceiver.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticReceiver.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticSource.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/HapticSource.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Icons.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Icons/HapticReceiverIcon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Icons/HapticReceiverIcon.png.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Icons/HapticSourceIcon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Icons/HapticSourceIcon.png.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/JNIHelpers.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/JNIHelpers.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/LofeltHaptics.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/LofeltHaptics.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-constant-template.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-constant-template.txt.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-emphasis-template.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-emphasis-template.txt.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-pattern-template.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Components/Resources/nv-pattern-template.txt.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/HapticImporter.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/HapticImporter.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/HapticSourceInspector.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/HapticSourceInspector.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/Lofelt.NiceVibrations.Editor.asmdef" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/Scripts/Editor/Lofelt.NiceVibrations.Editor.asmdef.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/readme.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/ThirdPart/NiceVibrations/readme.txt.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/AIEntity.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/TsiU/Util/TSingleton.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GundamFramework.sln" beforeDir="false" afterPath="$PROJECT_DIR$/GundamFramework.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp-Editor.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp-Editor.csproj.AssemblyReference.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache" afterDir="false" />
@@ -187,11 +25,14 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4ef563b0d1c742a1a428da9cde3cc41c1fe00/fc/7a47c76c/Physics.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b9f607e27b8644e0bf609b59dfb1c8525735b0/b8/fe3e309f/Path.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Samples/Lockstep.BehaviourTree/0.1.0/Zombie example/Scripts/GameStarter.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://D:/Unity/Project/GundamFrameWork/GundamFrameWork/Assets/ThirdPart/Core/Actions/ActionBase.cs.meta" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/Unity/Project/GundamFrameWork/GundamFrameWork/Assets/ThirdPart/NiceVibrations/Scripts/Editor/HapticSourceInspector.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Editor/BTGraphWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Editor/EditorTools/EditorTools.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Core/BTWorkingData.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Core/BehaviourTree.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Extension/SerializationExt.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Node/BTActionLeaf.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepaibehaviourtree@c17e940821/Runtime/Node/BTNodeFactory.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.gamestan.lockstepserializer@f3d2b0865a/Runtime/TestSerializationExt.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -284,6 +125,7 @@
       <workItem from="1729148910207" duration="5000" />
       <workItem from="1729148932449" duration="5000" />
       <workItem from="1729148981620" duration="1719000" />
+      <workItem from="1729218823314" duration="8710000" />
     </task>
     <task id="LOCAL-00001" summary="[feat] 合并主分支">
       <created>1710177589421</created>
@@ -334,7 +176,14 @@
       <option name="project" value="LOCAL" />
       <updated>1729158932378</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="[feat]增加行为树测试插件">
+      <created>1729167044412</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1729167044412</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
