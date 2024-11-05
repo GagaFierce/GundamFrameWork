@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "displayName": "Core Library",
   "description": "常用代码仓库，日后不断完善.",
-  "unity": "2022.3.21",
+  "unity": "2022.3.21f",
   "keywords": [
     "unity",
     "library"
