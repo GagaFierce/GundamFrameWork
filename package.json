@@ -1,7 +1,7 @@
 {
   "name": "com.gagafierce.gundamframework",
   "version": "1.0.0",
-  "displayName": "Core Library",
+  "displayName": "GFramework",
   "description": "常用代码仓库，日后不断完善.",
   "unity": "2022.3",
   "keywords": [
