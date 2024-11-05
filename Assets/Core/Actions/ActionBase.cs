@@ -1,4 +1,4 @@
-namespace Core.Action
+namespace Core.Actions
 {
     public class ActionBase
     {

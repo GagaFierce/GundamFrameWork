@@ -5,7 +5,7 @@
  * description  : IBhNode
  * 
  *****************************************************************************/
-namespace ThirdPart.Core.BehaviorTree.BhNode
+namespace Core.BehaviorTree.BHNode
 {
     public interface  IBhNode
     {

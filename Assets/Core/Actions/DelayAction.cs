@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-namespace Core.Action
+
+namespace Core.Actions
 {
     public class DelayAction
     {

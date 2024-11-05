@@ -1,4 +1,4 @@
-﻿namespace ThirdPart.Core.BehaviorTree.BhNode
+﻿namespace Core.BehaviorTree.BHNode
 {
     public class BhManager
     {
