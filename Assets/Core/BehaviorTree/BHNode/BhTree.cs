@@ -1,4 +1,11 @@
-﻿using System.Collections.Generic;
+/**************************************************
+ *
+ * author       : WangJian
+ * create date  : 2024 11 05
+ * description  : Core
+ *
+***************************************************/ 
+using System.Collections.Generic;
 
 namespace Core.BehaviorTree.BHNode
 {

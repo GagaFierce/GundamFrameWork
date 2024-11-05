@@ -1,3 +1,10 @@
+/**************************************************
+ *
+ * author       : WangJian
+ * create date  : 2024 11 05
+ * description  : Core
+ *
+***************************************************/ 
 using System;
 using System.Collections.Generic;
 using System.Linq;
