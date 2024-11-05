@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ThirdPart.Core.BehaviorTree.BhNode.BhSearcNode
+namespace Core.BehaviorTree.BHNode.BhSearcNode
 {
     public class BhSequenceNode : IBhFrameUpdateNode
     {

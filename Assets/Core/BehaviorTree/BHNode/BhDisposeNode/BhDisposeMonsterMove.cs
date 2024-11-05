@@ -1,4 +1,4 @@
-﻿namespace ThirdPart.Core.BehaviorTree.BhNode.BhDisposeNode
+﻿namespace Core.BehaviorTree.BHNode.BhDisposeNode
 {
     public class BhDisposeMonsterMove : IBhStatedDisposeNode
     {

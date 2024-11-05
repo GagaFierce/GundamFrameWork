@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ThirdPart.Core.BehaviorTree.BhNode
+namespace Core.BehaviorTree.BHNode
 {
     public class BhTree :IBhNode
     {
