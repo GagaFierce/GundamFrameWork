@@ -1,6 +1,7 @@
 /**************************************************
  *
- * Copyright (c) 2024 [WangJian] , Licensed under the MIT License.  See LICENSE file in the project root for full license information.
+ * Copyright (c) 2024 WangJian 
+ * Licensed under the MIT License. See LICENSE file in the project root for full license information.
  * author       : WangJian
  * create date  : 2024 11 05
  * description  : Core
@@ -81,22 +82,24 @@ namespace Core.Editor
             // 添加注释行
             string a = "/**************************************************"; // 这里可以替换为你的名字
             string b = " *";
-            string w = " * Copyright (c) 2024 [WangJian] , Licensed under the MIT License.  See LICENSE file in the project root for full license information.";
+            string w = " * Copyright (c) 2024 WangJian ";
+            string j = " * Licensed under the MIT License. See LICENSE file in the project root for full license information.";
             string c = " * author       : WangJian";
             string d = " * create date  : 2024 11 05";
             string e = " * description  : Core";
             string f = " *";
             string g = "***************************************************/ "; // 这里可以替换为你的名字
-            string[] newLines = new string[lines.Length + 8];
+            string[] newLines = new string[lines.Length + 9];
             newLines[0] = a;
             newLines[1] = b;
             newLines[2] = w;
-            newLines[3] = c;
-            newLines[4] = d;
-            newLines[5] = e;
-            newLines[6] = f;
-            newLines[7] = g;
-            Array.Copy(lines, 0, newLines, 8, lines.Length);
+            newLines[3] = j;
+            newLines[4] = c;
+            newLines[5] = d;
+            newLines[6] = e;
+            newLines[7] = f;
+            newLines[8] = g;
+            Array.Copy(lines, 0, newLines, 9, lines.Length);
 
             // 写入文件
             File.WriteAllLines(filePath, newLines);
