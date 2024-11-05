@@ -1,0 +1,18 @@
+{
+  "name": "com.wangjian.coreibrary",
+  "version": "1.0.0",
+  "displayName": "Core Library",
+  "description": "常用代码仓库，日后不断完善.",
+  "unity": "2022.3.21",
+  "keywords": [
+    "unity",
+    "library"
+  ],
+  "author": {
+    "name": "Wang Jian",
+    "email": "5469549@qq.com"
+  },
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.9"
+  }
+}
