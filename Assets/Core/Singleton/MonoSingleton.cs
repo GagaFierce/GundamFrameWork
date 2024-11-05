@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+/**************************************************
+ *
+ * author       : WangJian
+ * create date  : 2024 11 05
+ * description  : Core
+ *
+***************************************************/ 
+using UnityEngine;
 namespace Core.Singleton
 {
 
