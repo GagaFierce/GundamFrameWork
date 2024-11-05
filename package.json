@@ -10,7 +10,8 @@
   ],
   "author": {
     "name": "Wang Jian",
-    "email": "5469549@qq.com"
+    "email": "5469549@qq.com",
+    "url": "https://github.com/GagaFierce/GundamFrameWork.git"
   },
   "dependencies": {
     "com.unity.textmeshpro": "3.0.9"
