@@ -1,10 +1,3 @@
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2024 06 25
- * description  : DelayAction
- * 
- *****************************************************************************/
 using System.Collections.Generic;
 namespace Core.Action
 {

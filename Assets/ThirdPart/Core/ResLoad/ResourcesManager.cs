@@ -1,17 +1,9 @@
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2023 06 20
- * description  : Core.ResLoad ResourcesManager ResourcesManagerImpl
- * 
- *****************************************************************************/
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
-
 namespace Core.ResLoad
 {
 

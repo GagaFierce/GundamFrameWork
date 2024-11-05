@@ -1,14 +1,4 @@
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2023 06 20
- * description  : Core.Event IEventManager EventManager EventManagerImpl
- * 
- *****************************************************************************/
-
 using System.Collections.Generic;
-
-
 namespace Core.Event
 {
     public interface IEventManager

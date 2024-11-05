@@ -1,16 +1,7 @@
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2023 06 20
- * description  : Core.Event IAnimEvent AnimEventBase
- * 
- *****************************************************************************/
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 namespace Core.Anim
 {
     public interface IAnimEvent

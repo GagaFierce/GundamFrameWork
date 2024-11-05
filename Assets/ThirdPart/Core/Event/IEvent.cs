@@ -1,12 +1,3 @@
-
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2023 06 20
- * description  : Core.Event IEvent
- * 
- *****************************************************************************/
-
 namespace Core.Event
 {
     public interface IEvent
