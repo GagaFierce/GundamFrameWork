@@ -1,11 +1,3 @@
-/*****************************************************************************
- * 
- * author       : DuanGuangxiang
- * create date  : 2023 06 20
- * description  : Core.Event IEventLogic EventLogic
- * 
- *****************************************************************************/
-
 using System;
 
 namespace Core.Event
