@@ -7,7 +7,7 @@
  * description  : Core
  *
 ***************************************************/ 
-namespace Core.BehaviorTree.BHNode.BhDisposeNode
+namespace WFrameWork.Core.BehaviorTree.BHNode.BhDisposeNode
 {
     public class BhDisposeMonsterMove : IBhStatedDisposeNode
     {

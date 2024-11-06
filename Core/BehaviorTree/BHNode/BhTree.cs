@@ -6,10 +6,11 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System.Collections.Generic;
 
-namespace Core.BehaviorTree.BHNode
+namespace WFrameWork.Core.BehaviorTree.BHNode
 {
     public class BhTree :IBhNode
     {

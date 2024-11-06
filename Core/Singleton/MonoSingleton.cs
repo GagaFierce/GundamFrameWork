@@ -6,9 +6,11 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using UnityEngine;
-namespace Core.Singleton
+
+namespace WFrameWork.Core.Singleton
 {
 
     public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>

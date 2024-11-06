@@ -6,9 +6,11 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System;
-namespace Core.Singleton
+
+namespace WFrameWork.Core.Singleton
 {
     public abstract class Singleton<T> where T : class, new()
     {

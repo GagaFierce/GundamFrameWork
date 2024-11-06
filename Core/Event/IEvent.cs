@@ -7,7 +7,7 @@
  * description  : Core
  *
 ***************************************************/ 
-namespace Core.Event
+namespace WFrameWork.Core.Event
 {
     public interface IEvent
     {

@@ -6,10 +6,11 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System;
 
-namespace Core.Event
+namespace WFrameWork.Core.Event
 {
     public interface IEventLogic
     {
