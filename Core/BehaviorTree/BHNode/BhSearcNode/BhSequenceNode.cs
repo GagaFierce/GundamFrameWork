@@ -6,11 +6,12 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System;
 using System.Collections.Generic;
 
-namespace Core.BehaviorTree.BHNode.BhSearcNode
+namespace WFrameWork.Core.BehaviorTree.BHNode.BhSearcNode
 {
     public class BhSequenceNode : IBhFrameUpdateNode
     {

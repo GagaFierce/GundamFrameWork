@@ -7,7 +7,7 @@
  * description  : Core
  *
 ***************************************************/ 
-namespace Core.BehaviorTree.BHNode
+namespace WFrameWork.Core.BehaviorTree.BHNode
 {
     public interface  IBhNode
     {

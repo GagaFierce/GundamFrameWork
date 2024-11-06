@@ -6,14 +6,16 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
-namespace Core.ResLoad
+
+namespace WFrameWork.Core.ResLoad
 {
 
     public interface ResourcesManager

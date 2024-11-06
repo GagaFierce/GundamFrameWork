@@ -7,7 +7,7 @@
  * description  : Core
  *
 ***************************************************/ 
-namespace Core.Actions
+namespace WFrameWork.Core.Actions
 {
     public class ActionBase
     {

@@ -6,10 +6,11 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System.Collections.Generic;
 
-namespace Core.Actions
+namespace WFrameWork.Core.Actions
 {
     public class DelayAction
     {

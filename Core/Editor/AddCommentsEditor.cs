@@ -6,15 +6,14 @@
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/ 
+***************************************************/
+
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-
-
-namespace Core.Editor
+namespace WFrameWork.Core.Editor
 {
     public class AddCommentsEditor : EditorWindow
     {
