@@ -51,32 +51,6 @@ namespace WFrameWork.Core.ResLoad
 
     public class ResourcesManagerImpl : Singleton.MonoSingleton<ResourcesManagerImpl>, ResourcesManager
     {
-        //private static ResourcesManager mSingleton = null;
-        //public static ResourcesManager Instance
-        //{
-        //    get
-        //    {
-        //        if (mSingleton == null)
-        //        {
-        //            GameObject go = new GameObject("ResourcesManager");
-        //            mSingleton = go.AddComponent<ResourcesManagerImpl>();
-        //            DontDestroyOnLoad(go);
-        //            //go.hideFlags = HideFlags.HideInHierarchy;
-        //        }
-        //        return mSingleton;
-        //    }
-        //}
-
-        //private void Awake()
-        //{
-        //    //LoadSpriteAtlasMapping();
-        //}
-
-        //public void OnDestroy()
-        //{
-        //    //mSingleton = null;
-        //}
-
         struct LoadResInfo
         {
             public ResourceRequest resReq;

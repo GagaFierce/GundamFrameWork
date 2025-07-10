@@ -17,18 +17,18 @@ namespace WFrameWork.Core.Event
         public void ReceiveEvent(int msgId, object msgInfo);
     }
 
-    //public interface IEventNet : IEvent
-    //{
-    //    protected void ReceiveNetEvent(int msgId, object msgInfo);
-    //}
+    public interface IEventNet : IEvent
+    {
+        protected void ReceiveNetEvent(int msgId, object msgInfo);
+    }
 
-    //public interface IEventLogic : IEvent
-    //{
-    //    protected void ReceiveLogicEvent(int msgId, object msgInfo);
-    //}
+    public interface IEventLogic : IEvent
+    {
+        protected void ReceiveLogicEvent(int msgId, object msgInfo);
+    }
 
-    //public interface IEventUI : IEvent
-    //{
-    //    protected void ReceiveLogicEvent(int msgId, object msgInfo);
-    //}
+    public interface IEventUI : IEvent
+    {
+        protected void ReceiveLogicEvent(int msgId, object msgInfo);
+    }
 }
