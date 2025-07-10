@@ -12,14 +12,10 @@ using System;
 
 namespace WFrameWork.Core.Event
 {
-    public interface IEventLogic
-    {
-        public void SetReceiveEventCallback(Action<int, object> callback);
-    }
-
     public class EventLogic : IEvent, IEventLogic
     {
         Action<int, object> mEventReceiveCallback = null;
+        private IEventLogic mEventLogicImplementation;
 
         ~EventLogic()
         {
@@ -35,6 +31,11 @@ namespace WFrameWork.Core.Event
         public void ReceiveEvent(int msgId, object msgInfo)
         {
             mEventReceiveCallback?.Invoke(msgId, msgInfo);
+        }
+
+        void IEventLogic.ReceiveLogicEvent(int msgId, object msgInfo)
+        {
+            throw new NotImplementedException();
         }
 
         public void SetReceiveEventCallback(Action<int, object> callback)

@@ -1,17 +1,18 @@
 /**************************************************
  *
- * Copyright (c) 2024 WangJian 
+ * Copyright (c) 2024 WangJian
  * Licensed under the MIT License. See LICENSE file in the project root for full license information.
  * author       : WangJian
  * create date  : 2024 11 05
  * description  : Core
  *
-***************************************************/
-
+ ***************************************************/
+#if UNITY_EDITOR
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace WFrameWork.Core.Editor
 {
@@ -108,4 +109,4 @@ namespace WFrameWork.Core.Editor
         }
     }
 }
-
+#endif
