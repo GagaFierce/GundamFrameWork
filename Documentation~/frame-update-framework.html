@@ -1,0 +1,1595 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GFramework · 帧更新框架完整设计</title>
+<style>
+:root{--ink:#17283e;--muted:#607087;--line:#dfe6ee;--blue:#215fb7;--paper:#fff;--surface:#f3f6fa;--nav-width:248px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:88px}body{margin:0;background:var(--surface);color:var(--ink);font:15px/1.85 "Segoe UI","Microsoft YaHei",sans-serif}a{color:var(--blue);text-underline-offset:3px}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #79abef;outline-offset:3px}[hidden]{display:none!important}
+.topbar{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:20;gap:16px}.brand{display:flex;align-items:center;gap:12px}.mark{background:var(--ink);color:white;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;font-weight:700}.brand strong{font-size:16px}.brand small{display:block;color:var(--muted);font-size:11px;line-height:1.4}.actions{display:flex;gap:8px}.actions button,.tabs button{border:1px solid var(--line);border-radius:7px;background:white;padding:6px 14px;color:var(--ink)}.actions button:hover,.tabs button:hover{background:#edf3fc}.menu-button{display:none}
+.layout{max-width:1510px;margin:auto;display:grid;grid-template-columns:var(--nav-width) minmax(0,1fr);gap:28px;padding:28px 32px 70px}.sidebar{position:sticky;top:96px;align-self:start;max-height:calc(100vh - 116px);overflow-y:auto;padding:0 12px 16px 0}.sidebar a{display:block;text-decoration:none;color:#52627a;font-size:13px;line-height:1.55;padding:8px 10px;border-radius:6px;margin:2px 0}.sidebar a:hover{background:#e4edf8;color:var(--blue)}.sidebar a.current{background:#e1ebfa;color:#164c99;font-weight:600}.nav-label{font-size:12px;color:#798497;letter-spacing:.1em;padding:0 10px;margin:8px 0 12px}.nav-footer{margin:24px 10px 0;padding-top:15px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+main{min-width:0}.overview{background:linear-gradient(120deg,#172d49,#234d79);color:#fff;border-radius:14px;padding:26px 30px 28px;margin-bottom:18px}.eyebrow{font-size:12px;letter-spacing:.12em;color:#b4ccef;margin:0 0 10px}.overview h1{font-size:28px;line-height:1.45;margin:0 0 12px;font-weight:650;letter-spacing:.02em}.overview p{color:#d5e2f2;margin:0;max-width:760px;line-height:1.85}.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.badges span{font-size:12px;background:#ffffff14;border:1px solid #ffffff24;padding:2px 10px;border-radius:5px}.tabs{display:flex;gap:8px;margin:0 0 18px}.tabs button[aria-selected="true"]{background:var(--blue);color:white;border-color:var(--blue)}
+article{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:30px 36px;min-width:0}article+article{margin-top:24px}article h1{font-size:24px;line-height:1.5;margin:0 0 16px}article h2{font-size:21px;line-height:1.5;border-top:1px solid var(--line);padding-top:27px;margin-top:36px;margin-bottom:15px}article h3{font-size:17px;line-height:1.6;margin:26px 0 12px}article p{margin:12px 0}article ul,article ol{padding-left:24px}article li{margin:6px 0}article li>p{margin:6px 0}article strong{font-weight:650;color:#152e4a}article code{font:13px/1.75 Consolas,"Cascadia Code",monospace;color:#144b80;background:#edf3fa;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}article pre{padding:18px 20px;background:#f1f5fa;border:1px solid #dce5f0;border-radius:8px;overflow-x:auto;max-width:100%;font-size:13px;line-height:1.75}article pre code{padding:0;background:none;color:#243e5f;border-radius:0;overflow-wrap:normal}.table-wrap{max-width:100%;overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.7}th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}th{background:#eef3f9;color:#1b3d67;font-weight:650;white-space:nowrap}tr:last-child td{border-bottom:0}tbody tr:nth-child(even){background:#fafbfd}td:first-child{min-width:100px}article blockquote{border-left:3px solid var(--blue);padding-left:18px;color:var(--muted)}.source-note{padding:20px 3px;color:var(--muted);font-size:12px}.source-note a{margin-right:16px}.top-link{position:fixed;right:22px;bottom:20px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 12px;text-decoration:none;font-size:12px;box-shadow:0 3px 14px #17283e12}
+@media(min-width:1650px){article{padding:36px 48px}}
+@media(max-width:1000px){:root{--nav-width:210px}.layout{gap:18px;padding:20px 20px 60px}article{padding:24px}.topbar{padding:0 20px}.overview{padding:24px}}
+@media(max-width:760px){.topbar{height:60px;padding:0 14px}.brand small{display:none}.brand strong{font-size:14px}.actions button{padding:4px 9px;font-size:13px}.menu-button{display:inline-block!important}.layout{display:block;padding:14px 12px 50px}.sidebar{display:none;position:fixed;top:60px;left:0;bottom:0;width:280px;padding:18px 14px;background:#fff;z-index:25;max-height:none;border-right:1px solid var(--line);box-shadow:8px 0 24px #17283e15}.nav-open .sidebar{display:block}article{padding:20px 17px}article h1{font-size:21px}article h2{font-size:19px}.overview{padding:22px}.overview h1{font-size:23px}.overview p{font-size:13px}.top-link{right:12px;bottom:12px}th,td{padding:9px 11px}pre{font-size:12px!important}}
+@media print{body{background:#fff;font-size:11pt}.topbar,.sidebar,.tabs,.top-link,.overview,.source-note{display:none!important}.layout{display:block;padding:0;max-width:none}article,article[hidden]{display:block!important;border:0;border-radius:0;padding:0}article+article{break-before:page}article h2,article h3{break-after:avoid}table{font-size:9pt}tr{break-inside:avoid}.table-wrap{overflow:visible}article pre{white-space:pre-wrap;overflow-wrap:anywhere;break-inside:avoid;font-size:9pt}article code{font-size:9pt}a{color:inherit;text-decoration:none}}
+</style>
+<!-- Source SHA-256: {"frame-update-framework.md": "8af4be6c36ca0b67e697c5264d699951acc2b45f51aecdb697014c4dde026a08", "frame-update-implementation-plan.md": "142505b76915cfd92ccd2aba555c3b24c723341d154d39b05d6962189f7dd1ce"} -->
+</head>
+<body id="top">
+<header class="topbar"><div class="brand"><span class="mark">G</span><div><strong>GFramework</strong><small>ARCHITECTURE DESIGN · v1.0</small></div></div><div class="actions"><button class="menu-button" id="menu" aria-expanded="false" aria-controls="contents">目录</button><button id="print">打印 / 保存 PDF</button></div></header>
+<div class="layout">
+<aside class="sidebar" id="contents" aria-label="文档目录"><div data-nav="design"><p class="nav-label">方案设计</p><a href="#design-section-2" data-doc="design">阅读导引</a><a href="#design-section-3" data-doc="design">1. 技术定位与边界</a><a href="#design-section-4" data-doc="design">2. 总体结构</a><a href="#design-section-5" data-doc="design">3. 核心类型</a><a href="#design-section-6" data-doc="design">4. 公开 API 契约</a><a href="#design-section-9" data-doc="design">5. 动态注册与集合安全</a><a href="#design-section-13" data-doc="design">6. 调度与时间语义</a><a href="#design-section-18" data-doc="design">7. 分组暂停与生命周期</a><a href="#design-section-19" data-doc="design">8. 输入、逻辑、物理、表现与网络循环</a><a href="#design-section-27" data-doc="design">9. 降频与预算扩展</a><a href="#design-section-28" data-doc="design">10. 默认配置</a><a href="#design-section-29" data-doc="design">11. 性能与诊断</a><a href="#design-section-30" data-doc="design">12. 使用示例</a><a href="#design-section-32" data-doc="design">13. 拟定目录与程序集</a><a href="#design-section-33" data-doc="design">14. 验收与实施拆分</a><a href="#design-section-34" data-doc="design">15. 设计选择依据</a><a href="#design-section-35" data-doc="design">16. 本轮交付状态</a></div><div data-nav="implementation"><p class="nav-label">实施与验收</p><a href="#implementation-section-2" data-doc="implementation">1. 首版交付范围</a><a href="#implementation-section-3" data-doc="implementation">2. 建议文件职责</a><a href="#implementation-section-4" data-doc="implementation">3. 分阶段实施</a><a href="#implementation-section-12" data-doc="implementation">4. 验收矩阵</a><a href="#implementation-section-18" data-doc="implementation">5. 性能测试方法</a><a href="#implementation-section-19" data-doc="implementation">6. 安装与回退路径</a><a href="#implementation-section-20" data-doc="implementation">7. 完成定义</a></div><div class="nav-footer">设计 v1.0 · 2026-09-21<br>核心初版已实现，Unity 适配待验证。<br>阅读页可离线打开。</div></aside>
+<main>
+<section class="overview"><p class="eyebrow">DESIGN REVIEW</p><h1>统一调度，自由扩展。</h1><p>以纯 C# 调度核心承接输入、逻辑、物理、表现与网络循环。驱动负责节拍，注册项保留职责，分组决定暂停，作用域管理清理。</p><div class="badges"><span>Unity 2022.3 / C#</span><span>动态注册与独占驱动</span><span>五类常用循环</span><span>核心初版已实现 · Unity 待验证</span></div></section>
+<div class="tabs" role="tablist" aria-label="选择文档"><button role="tab" id="tab-design" aria-controls="design" aria-selected="true" data-switch="design">方案设计</button><button role="tab" id="tab-implementation" aria-controls="implementation" aria-selected="false" data-switch="implementation">实施与验收</button></div>
+<article id="design" data-document="design"><h1 id="design-section-1">帧更新管理框架：完整设计与 API</h1>
+<p>状态：设计真源；纯 C# 核心初版已实现，Unity 适配与性能基准待验证。版本：设计 v1.0。更新：2026-09-21。</p>
+<p>目标：提供可独立复用的集中更新框架，支持动态注册、多循环驱动、可配置频率、分组暂停、有序执行和性能观测。业务通过接口接入，具体策略由使用方扩展。</p>
+<h2 id="design-section-2">阅读导引</h2>
+<p>快速评审先看第 1–3 节的职责与架构、第 8 节的五类循环，以及第 15 节的取舍。准备实现时依次阅读 API、注册、时间与生命周期契约；分阶段任务和可执行验收场景见<a href="#implementation" data-doc="implementation">实施与验收清单</a>。</p>
+<p>本方案中的公开类型和方法都是拟定契约。首版交付目标为纯 C# 核心、Unity 默认驱动、通用策略扩展、诊断查询、示例和测试；具体网络 SDK、距离计算、游戏事件与完整物理世界暂停由扩展提供。</p>
+<p>核心关系：<strong>Loop 决定谁推进，Phase 决定循环内时机，Group 决定暂停与时间策略，Scope 决定生命周期，Schedule 决定更新频率，Priority 决定局部顺序。</strong></p>
+<h2 id="design-section-3">1. 技术定位与边界</h2>
+<p>当前仓库是 Unity Package，最低 Unity 版本为 <code>2022.3</code>，使用 C#；现有程序集名为 <code>GFramework</code>，现有代码命名空间为 <code>WFrameWork.Core.*</code>。</p>
+<p>新模块采用 <code>WFrameWork.Core.FrameUpdate</code> 命名空间，分为纯 C# 核心、Unity 适配和诊断三层。核心可手动推进，可创建多个独立实例。Unity 适配负责接入引擎生命周期。</p>
+<p>现有 <code>ActionManager.Update(float)</code> 是外部驱动入口；<code>CharacterAnim</code> 和资源加载组件有自己的 <code>Update</code>。它们可以后续通过适配器选择接入，本轮交付范围是框架设计。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>框架负责</th>
+<th>使用方或扩展负责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注册、注销、重复检测、批量接入</td>
+<td>更新对象内部的业务逻辑</td>
+</tr>
+<tr>
+<td>阶段、优先级、频率、时间累计</td>
+<td>业务之间的数据依赖及事务</td>
+</tr>
+<tr>
+<td>通用组、生命周期作用域、暂停句柄</td>
+<td>组的业务含义及何时暂停</td>
+</tr>
+<tr>
+<td>调度预算、分帧、耗时统计</td>
+<td>距离、可见性、重要性等评估来源</td>
+</tr>
+<tr>
+<td>Unity 生命周期适配</td>
+<td>网络权威、网络时间同步、游戏事件处理</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>非目标</strong>：首版不接管 Unity 物理模拟、Animator、第三方组件、协程或全局 <code>Time.timeScale</code>；不更改 <code>Application.targetFrameRate</code>、VSync 或 <code>Time.fixedDeltaTime</code>；不提供多线程调度、任务依赖图、确定性锁步或完整游戏暂停服务。</p>
+<p>这里的 FPS 配置表示对象的目标平均更新频率，实际到期落在宿主提供的更新机会中。游戏实际渲染帧率仍由宿主决定。</p>
+<h2 id="design-section-4">2. 总体结构</h2>
+<pre><code class="language-text">Unity 驱动 / 网络驱动 / 自定义宿主
+             │ 提供循环、阶段与时间样本
+             ▼
+     FrameUpdateManager
+       ├── UpdateLoop              循环标识及各自的驱动状态
+       │     ├── InputLoop         输入采样、快照
+       │     ├── SimulationLoop    普通逻辑推进
+       │     ├── PhysicsLoop       固定步相关逻辑
+       │     ├── PresentationLoop  表现准备、插值、相机
+       │     └── NetworkLoop       网络节拍相关业务
+       ├── RegistrationStore       注册记录、句柄及生命周期
+       ├── PhaseScheduler          各循环内部的阶段、频率及顺序
+       ├── UpdateGroup             分组、暂停及时间缩放
+       ├── UpdateScope             批量管理生命周期
+       └── FrameUpdateDiagnostics  计数、采样及查询
+             │ 接口调用
+             ▼
+        IFrameUpdate
+       ├── 单个更新对象
+       └── 批量系统 → 自己管理内部对象
+
+使用方策略 → SetSchedule / SetPriority / SetEnabled
+          或 IUpdateSchedulePolicy 适配器
+</code></pre>
+<p><code>FrameUpdateManager</code> 是公开门面，内部按注册、调度和诊断分工。它持有通用元数据，调用 <code>IFrameUpdate</code>；业务可选择单对象注册，也可把批量系统注册一次。</p>
+<p><code>UpdateLoop</code> 表示独立推进的循环。上图的循环是组装层提供的常用命名，核心通过 CreateLoop 动态创建循环；使用方可增加自己的循环，并绑定自定义驱动。循环、阶段、分组与生命周期分别建模，具体含义见第 8 节。</p>
+<p>框架采用显式注册。Unity 生命周期辅助组件提供便捷接入，运行时对象发现和业务装配由使用方负责。</p>
+<h2 id="design-section-5">3. 核心类型</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FrameUpdateManager</code></td>
+<td>管理独立的调度实例，提供注册、控制及 Tick 入口</td>
+</tr>
+<tr>
+<td><code>UpdateLoop</code></td>
+<td>标识独立驱动的循环，拥有自己的阶段序号与调度状态</td>
+</tr>
+<tr>
+<td><code>LoopDriverHandle</code></td>
+<td>持有某个循环的独占驱动绑定，释放后停止接收该驱动的 Tick</td>
+</tr>
+<tr>
+<td><code>IFrameUpdate</code></td>
+<td>接受一次更新回调</td>
+</tr>
+<tr>
+<td><code>FrameUpdateContext</code></td>
+<td>提供本次回调的阶段、时间、句柄与序号</td>
+</tr>
+<tr>
+<td><code>UpdateHandle</code></td>
+<td>标识一次注册，包含调度器身份、槽位和代次</td>
+</tr>
+<tr>
+<td><code>UpdateGroup</code></td>
+<td>表达暂停与时间策略，支持父子继承</td>
+</tr>
+<tr>
+<td><code>UpdateScope</code></td>
+<td>表达生命周期归属，支持递归释放</td>
+</tr>
+<tr>
+<td><code>PauseHandle</code></td>
+<td>表达一个暂停原因，释放自己的暂停请求</td>
+</tr>
+<tr>
+<td><code>UpdatePhase</code></td>
+<td>表达所属循环内部的 EarlyUpdate、NormalUpdate、LateUpdate 阶段</td>
+</tr>
+<tr>
+<td><code>UpdatePriority</code></td>
+<td>提供通用优先级常量，实际排序使用整数</td>
+</tr>
+<tr>
+<td><code>UpdateSchedule</code></td>
+<td>描述每步、指定 FPS、每 N 步或固定间隔</td>
+</tr>
+<tr>
+<td><code>FrameUpdateOptions</code></td>
+<td>描述一次注册的组、作用域、阶段、优先级及频率</td>
+</tr>
+<tr>
+<td><code>FrameUpdateConfig</code></td>
+<td>描述容量、预算、时间上限和诊断配置</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>组与作用域分别处理策略和生命周期。</strong> 例如，某对象属于一个更新组，同时归属一个场景作用域；暂停组改变调度许可，释放场景作用域注销对象。同一组可以包含不同场景的对象。</p>
+<p>每个注册项恰好归属一个循环、一个循环内阶段、一个组和一个作用域。组可以横跨多个循环，便于一次暂停关联的更新项。多个场景、模块和对象层次通过组树与作用域树组合表达；诊断标签可作为扩展元数据。</p>
+<h2 id="design-section-6">4. 公开 API 契约</h2>
+<p>以下是公开契约摘要，省略实现和普通值类型构造器；运行时实现位于 <code>Core/FrameUpdate/Runtime</code>，Unity 适配位于 <code>Core/FrameUpdate/Unity</code>。</p>
+<pre><code class="language-csharp">public enum UpdatePhase { EarlyUpdate, NormalUpdate, LateUpdate }
+[Flags]
+public enum UpdatePhaseMask
+{
+    Early = 1, Normal = 2, Late = 4, All = Early | Normal | Late
+}
+public enum UpdateTimeSource { Scaled, Unscaled }
+public enum UpdateWorkClass { Required, Deferrable }
+
+public interface IFrameUpdate
+{
+    void OnFrameUpdate(in FrameUpdateContext context);
+}
+
+public interface IUpdateLifetime
+{
+    bool IsAlive { get; }
+}
+
+public static class UpdatePriority
+{
+    public const int Early = -100;
+    public const int Normal = 0;
+    public const int Late = 100;
+}
+
+public readonly struct FrameUpdateContext
+{
+    public UpdateHandle Handle { get; }
+    public UpdateLoop Loop { get; }
+    public UpdateGroup Group { get; }
+    public UpdatePhase Phase { get; }
+    public long Sequence { get; }
+    public double DeltaTime { get; }
+    public double RawDeltaTime { get; }
+    public double ElapsedTime { get; }
+    public double DiscardedDeltaTime { get; }
+}
+
+public readonly struct UpdateSchedule
+{
+    public static UpdateSchedule EveryStep();
+    public static UpdateSchedule AtFps(double fps, double initialOffsetSeconds = 0);
+    public static UpdateSchedule EveryNFrames(int count, int offset = 0);
+    public static UpdateSchedule AtInterval(double seconds, double initialOffsetSeconds = 0);
+}
+
+public sealed class FrameUpdateManager : IDisposable
+{
+    public FrameUpdateManager(FrameUpdateConfig config);
+
+    public UpdateLoop DefaultLoop { get; }
+    public UpdateGroup DefaultGroup { get; }
+    public UpdateScope DefaultScope { get; }
+    public UpdateLoop CreateLoop(string name);
+    public bool RemoveLoop(UpdateLoop loop);
+    public LoopDriverHandle BindDriver(UpdateLoop loop, string name,
+        UpdatePhaseMask phases = UpdatePhaseMask.All);
+
+    public UpdateGroup CreateGroup(string name, in UpdateGroupOptions options,
+        UpdateGroup parent = default);
+    public UpdateScope CreateScope(string name, UpdateScope parent = default);
+
+    public UpdateHandle Register(IFrameUpdate target, in FrameUpdateOptions options,
+        IUpdateLifetime lifetime = null);
+    public void RegisterBatch(IReadOnlyList&lt;FrameUpdateRequest&gt; requests,
+        List&lt;UpdateHandle&gt; results);
+    public bool Unregister(UpdateHandle handle);
+    public int ReleaseScope(UpdateScope scope);
+    public bool RemoveGroup(UpdateGroup group);
+
+    public bool SetEnabled(UpdateHandle handle, bool enabled);
+    public bool SetSchedule(UpdateHandle handle, UpdateSchedule schedule);
+    public bool SetPriority(UpdateHandle handle, int priority);
+    public bool SetGroup(UpdateHandle handle, UpdateGroup group);
+    public bool SetScope(UpdateHandle handle, UpdateScope scope);
+    public bool SetGroupTimeScale(UpdateGroup group, double timeScale);
+    public bool SetPhaseBudget(UpdateLoop loop, UpdatePhase phase, double milliseconds);
+
+    public PauseHandle PauseAll(UpdateScope owner = default);
+    public PauseHandle PauseGroup(UpdateGroup group, UpdateScope owner = default);
+
+    public void Tick(LoopDriverHandle driver, UpdatePhase phase, in FrameTimeSample time);
+    public bool TryGetRegistration(UpdateHandle handle, out FrameRegistrationInfo info);
+    public void RecordHostFrame(in HostFrameSample sample);
+    public FrameUpdateStats GetStats();
+    public void CopyLoopStats(List&lt;UpdateLoopStats&gt; results);
+    public void CopyGroupStats(List&lt;UpdateGroupStats&gt; results);
+    public void CopyEntryStats(List&lt;UpdateEntryStats&gt; results);
+    public void CopyErrors(List&lt;FrameUpdateError&gt; results);
+    public void Dispose();
+}
+</code></pre>
+<p>补充约定：</p>
+<ul>
+<li><code>FrameUpdateOptions</code> 包含 <code>Loop</code>、<code>Phase</code>、<code>Group</code>、<code>Scope</code>、<code>Priority</code>、<code>Schedule</code>、<code>WorkClass</code>、<code>Enabled</code>；未指定字段继承配置，默认解析为 DefaultLoop、NormalUpdate、默认组、默认作用域、Normal、EveryStep、Required、true。可选字段须保留“是否显式设置”，区分未设置与显式 EarlyUpdate、false 或零值；注册时解析为完整配置快照。</li>
+<li>循环是带管理器身份及代次的句柄。CreateLoop 每次创建独立循环，名称只供诊断；组装层缓存常用循环句柄。RemoveLoop 只允许移除没有活动项、待注册项、驱动绑定且未在 Tick 中执行的自定义循环；DefaultLoop 随管理器 Dispose 释放。更换注册项的循环或阶段通过注销后重新注册完成，并开始新的计时基线。</li>
+<li>BindDriver 为循环取得独占绑定。重复绑定直接报告冲突；核心 Tick 必须使用当前绑定句柄。旧绑定释放后，即使提交更大序号也不能继续驱动。句柄本身不启动线程或计时器。</li>
+<li>驱动声明支持的阶段，所有已注册项必须能被该声明覆盖；绑定后的新注册项也进行同样校验。未绑定循环允许先注册，诊断展示“等待驱动”。常用驱动使用全部阶段，手动驱动可只绑定 Normal。</li>
+<li><code>FrameUpdateRequest</code> 由 <code>Target</code>、<code>Options</code> 和可选 <code>Lifetime</code> 组成。批量注册先完整校验，再统一加入待注册队列；输入错误时整批及输出缓冲不变，重复的相同请求按幂等规则返回对应句柄。输出列表由调用方持有并复用。</li>
+<li><code>FrameTimeSample</code> 包含 <code>Sequence</code>、可选的 <code>RenderFrameId</code>、<code>ScaledDeltaTime</code>、<code>UnscaledDeltaTime</code>。每个驱动绑定从 Sequence=1 开始，完成其声明的阶段后递增一次；阶段按 Early、Normal、Late 中被声明的顺序调用。同一循环一次完整推进中的各阶段共享序号及相同时间样本。重复、倒退、漏阶段、跨周期或样本不一致均在执行回调前拒绝。不同循环可在各自阶段调用之间交错推进。</li>
+<li>所有时间输入必须有限且非负。驱动因异常或卸载不能完成当前周期时释放绑定；新绑定开始新的序号代次。普通绑定替换保留注册项已累计的有效时间，重建宿主采样基线，不补交解绑期间的墙钟时间。</li>
+<li><code>UpdateGroupOptions</code> 指定根组的 <code>TimeSource</code> 和本组 <code>TimeScale</code>。未指定倍率继承配置默认值，显式指定零值表示停止；倍率必须有限且非负。子组继承根组时间源，时间倍率沿父链相乘；切换时间源通过转移到另一根组完成。</li>
+<li>CreateGroup 不指定 parent 时创建独立根组，因此可独立选择 Scaled 或 Unscaled；显式提供 parent 时创建其子组。CreateScope 不指定 parent 时归属 DefaultScope。组树与作用域树的根节点语义分别处理。</li>
+<li>默认句柄表示无效。过期、跨调度器或代次不匹配的控制请求返回 false/0；创建和注册中的非法参数抛出明确参数异常。</li>
+<li><code>PauseHandle</code> 为可释放的值类型；复制和重复 <code>Dispose</code> 只释放同一个暂停请求。暂停请求可绑定生命周期作用域，owner 未指定时属于管理器默认作用域。管理器销毁后再释放旧句柄为无操作。</li>
+<li><code>RemoveGroup</code> 仅移除无子组、无注册项、无活动暂停请求的组；<code>ReleaseScope</code> 递归注销该作用域及后代并释放其持有的暂停请求，返回注销的注册项数量。默认组和默认作用域由管理器持有至 Dispose，普通移除请求被拒绝。</li>
+</ul>
+<h3 id="design-section-7">配置值与查询值</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>字段及语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FrameUpdateOptions</td>
+<td>可选 Loop、Phase、Group、Scope、Priority、Schedule、WorkClass、Enabled、MaxCallbackDeltaSeconds；未设置字段从管理器配置快照解析</td>
+</tr>
+<tr>
+<td>UpdateGroupOptions</td>
+<td>可选 TimeSource、TimeScale；子组继承根组时间源，显式给出冲突时间源时拒绝创建</td>
+</tr>
+<tr>
+<td>FrameTimeSample</td>
+<td>Sequence、RenderFrameId、ScaledDeltaTime、UnscaledDeltaTime；提供构造器完整传入</td>
+</tr>
+<tr>
+<td>HostFrameSample</td>
+<td>FrameId、UnscaledDeltaTime；仅统计宿主渲染帧，不推进任何注册项</td>
+</tr>
+<tr>
+<td>FrameRegistrationInfo</td>
+<td>解析后的配置、生命周期状态、累计时间、剩余等待、执行及延期计数；查询返回值快照</td>
+</tr>
+<tr>
+<td>UpdatePolicyContext</td>
+<td>当前句柄、解析后的 Schedule/Priority、最近一份只读统计；由策略评估适配器构造</td>
+</tr>
+<tr>
+<td>FrameUpdateError</td>
+<td>错误序号、句柄、Loop、Phase、Sequence、异常与发生时间；有界保留</td>
+</tr>
+</tbody>
+</table></div>
+<p>配置可选字段使用可空值类型表达“未设置”，并提供 Default 工厂；不额外公开通用 Optional 类型。FrameUpdateConfig 是独立的可变构建对象，Default 每次返回新对象；管理器构造时校验并深拷贝为运行时快照。注册选项中 Group、Scope、Loop 的 default 值解析为管理器默认对象；CreateGroup 的默认 parent 表示独立根，CreateScope 的默认 parent 和 Pause 的默认 owner 表示 DefaultScope。普通控制 API 传入无效句柄不自动回落。</p>
+<p>Set 方法修改注册项的有效配置，与初始化配置独立。每项 MaxCallbackDeltaSeconds 可覆盖管理器默认值，便于对物理固定步等注册项显式保持零上限。查询与 Copy 方法不暴露可修改的内部集合；Copy 方法先清空传入列表再写入当前快照，容量不足时允许扩容。</p>
+<p>SetPhaseBudget 在循环创建后配置其阶段软预算，milliseconds=0 表示不限；未覆盖的阶段使用 FrameUpdateConfig 的默认预算。Tick 内修改下次该阶段生效，输入须有限且非负。</p>
+<h3 id="design-section-8">返回值与错误</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Register 相同身份及相同有效配置</td>
+<td>返回同一有效句柄</td>
+</tr>
+<tr>
+<td>Register 相同身份、不同有效配置</td>
+<td>抛出 InvalidOperationException，原注册不变</td>
+</tr>
+<tr>
+<td>空对象、非法枚举、非法数值或创建时使用失效 parent</td>
+<td>抛出参数异常，无状态修改</td>
+</tr>
+<tr>
+<td>Set/Unregister 使用过期句柄或已释放目标组/作用域</td>
+<td>返回 false，无状态修改</td>
+</tr>
+<tr>
+<td>ReleaseScope 使用失效作用域</td>
+<td>返回 0</td>
+</tr>
+<tr>
+<td>RemoveLoop/RemoveGroup 仍被占用</td>
+<td>返回 false</td>
+</tr>
+<tr>
+<td>Tick 使用失效驱动、错误线程、重入或非法时序</td>
+<td>抛出 InvalidOperationException，本次不执行回调</td>
+</tr>
+<tr>
+<td>Dispose 重复调用、已失效暂停/驱动句柄重复释放</td>
+<td>无操作</td>
+</tr>
+<tr>
+<td>管理器已 Dispose</td>
+<td>创建、注册、查询、Tick 抛出 ObjectDisposedException；注销与控制返回 false/0，句柄释放无操作</td>
+</tr>
+</tbody>
+</table></div>
+<p>数值校验涵盖 fps/interval 为有限正值、count 为正整数、offset 范围正确、倍率与时间上限为有限非负值、容量和统计窗口为正整数。优先级允许整个 int 范围，比较使用比较器，避免相减溢出。槽位代次溢出时退休该槽位并另分配，避免旧句柄再次命中。</p>
+<h2 id="design-section-9">5. 动态注册与集合安全</h2>
+<h3 id="design-section-10">注册身份</h3>
+<p>注册唯一键为“对象引用身份 + 循环 + 阶段”。对象的自定义 <code>Equals</code> 不参与身份判断。同一对象可以在不同循环或阶段分别注册，回调通过 Context.Loop 和 Context.Phase 区分职责；各注册项独立累计时间。</p>
+<p>同一唯一键、相同有效配置及同一 Lifetime 引用重复注册，返回现有句柄。若配置或生命周期来源不同，注册报告冲突，调用方通过 <code>Set*</code> 显式修改配置。组或作用域不属于唯一键，换组不会创建第二次相同阶段回调。Target 使用引用类型，值类型注册在入口拒绝，避免装箱产生不稳定身份。</p>
+<p>可选 IUpdateLifetime 是纯 C# 存活检查，返回 false 时注销该项；省略时依赖显式注销/作用域清理。检查发生在阶段资格快照与调用前，低频项同样会清理；检查不应用于暂时暂停。检查抛异常时按注册项错误策略处理。</p>
+<p>重复检测同时考虑本 Tick 已排队的有效配置。同一对象注销后立刻重新注册会得到新代次，旧条目先墓碑化，新条目下一安全边界激活。批量请求在同一批内部也执行去重和配置冲突校验。</p>
+<p>一个句柄对应一个生命周期所有者。重复注册具有幂等性，不代表获得独立所有权；多个独立控制者需要独立适配对象。</p>
+<h3 id="design-section-11">生效时机</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>生效规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tick 外注册或修改配置</td>
+<td>下一次对应阶段 Tick 使用新配置</td>
+</tr>
+<tr>
+<td>Tick 内注册</td>
+<td>当前遍历不加入；该调用栈退出后可进入下一次对应阶段 Tick</td>
+</tr>
+<tr>
+<td>注销、禁用、释放作用域</td>
+<td>立即标记不可调度，尚未执行的回调立即被跳过；结构整理在安全边界进行</td>
+</tr>
+<tr>
+<td>Tick 内修改频率、优先级、组或作用域</td>
+<td>排队到当前 Tick 结束，下一次对应阶段 Tick 生效</td>
+</tr>
+<tr>
+<td>暂停请求</td>
+<td>立即关闭对应调度许可；当前正在执行的回调正常返回</td>
+</tr>
+<tr>
+<td>释放暂停、重新启用</td>
+<td>下一次对应阶段 Tick 恢复，清除暂停期间的时间债务</td>
+</tr>
+</tbody>
+</table></div>
+<p>待注册表也参与重复检测。待注册项被注销、或其作用域在激活前释放时，该项不会被激活。</p>
+<p>热路径使用按“循环 + 阶段”缓存的列表、槽位和待变更缓冲。排序仅在注册、注销或顺序变化后重建。每次调用前检查存活代次、启用状态和暂停门。</p>
+<p>所有管理 API 和 Tick 在同一所属线程调用。框架拒绝重入 Tick；异步或后台任务通过使用方的主线程消息队列提交变更。</p>
+<h3 id="design-section-12">一个阶段 Tick 的处理顺序</h3>
+<ol>
+<li>校验管理器、驱动所有权、线程、阶段序号与样本，提交上次安全边界已允许的结构变更。</li>
+<li>取得当前阶段的稳定执行顺序，快照注册项的资格、组倍率与生效配置。</li>
+<li>为快照中合格的注册项累计本阶段有效时间和步数，再判断到期；时间累计在回调前集中完成。</li>
+<li>按顺序执行到期项；每次调用前再次检查注销、禁用、暂停、作用域及驱动有效性。预算只延期 Deferrable。</li>
+<li>调用开始前消费本次累计时间，更新 ElapsedTime 与下次截止；回调抛出异常也不退还这次时间，防止重新启用后重复交付。</li>
+<li>在 finally 中提交允许的变更、整理墓碑、记录诊断并释放重入标记。</li>
+</ol>
+<p>阶段快照前已经合格的项都获得这一阶段的时间信用。某个回调申请暂停时，后续项停止执行，但其已获得的时间保留到恢复后交付；该规则避免时间累计结果依赖遍历位置。相反，本阶段开始时被暂停的项，即使暂停在中途释放，也要等下一阶段调用获得资格。</p>
+<p>注销、禁用、解绑或 Dispose 能阻止尚未开始的回调；当前调用栈允许完整返回。注册项创建在某个阶段调用之后时，从下次所属阶段的完整时间样本开始累计，不做子帧墙钟推算。</p>
+<h2 id="design-section-13">6. 调度与时间语义</h2>
+<h3 id="design-section-14">频率</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EveryStep</td>
+<td>每次所属阶段推进时调用</td>
+</tr>
+<tr>
+<td>AtFps</td>
+<td>周期为 <code>1 / fps</code>，实际回调受宿主阶段频率限制</td>
+</tr>
+<tr>
+<td>EveryNFrames</td>
+<td>每累计 N 次有运行资格的所属阶段推进调用一次</td>
+</tr>
+<tr>
+<td>AtInterval</td>
+<td>累计指定秒数后获得一次调用机会</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>EveryNFrames</code> 在 PhysicsLoop 中计算物理步数，在独立 NetworkLoop 中计算网络步数。首版 API 保留易理解的名称，文档明确“帧”指所属循环、所属阶段的推进次数。</p>
+<p>每个注册项、每次阶段 Tick 最多回调一次。AtFps/AtInterval 保持原截止时间网格：执行后把截止时间推进到当前有效时间之后的下一个周期，避免每次简单重置周期导致持续漂移。宿主变慢时合并调用，<code>DeltaTime</code> 覆盖累计有效时间。</p>
+<p>每步模式在下一次有资格的 Tick 首次执行。周期模式在首个完整周期加初始偏移后首次执行。每 N 步模式在累计 <code>count + offset</code> 步后首次执行，此后按 count 推进；offset 范围为 <code>[0, count)</code>。偏移支持把大量注册项分散到不同帧，默认偏移为零。</p>
+<h3 id="design-section-15">回调时间</h3>
+<ol>
+<li>选择根组的 Scaled 或 Unscaled 时间输入，乘以组链上的倍率。</li>
+<li>未暂停、未禁用的注册项累计有效时间；未达到频率和被预算延期期间均保留累计量。</li>
+<li><code>RawDeltaTime</code> 是本次回调之前累计的有效时间；<code>DeltaTime</code> 是经过可选上限处理后实际交给对象的时间。</li>
+<li><code>ElapsedTime</code> 是该注册项历次实际交付 <code>DeltaTime</code> 的累计，首个回调从零基线开始；它是该项自己的执行时间轴。</li>
+<li>暂停或禁用期间不累计时间、不累计 N 帧计数。恢复后继续剩余等待时间，暂停前已经累计的有效时间保留。</li>
+</ol>
+<p>不同“循环 + 阶段”各自维护调度状态。一份宿主时间样本用于多个循环或 Early/Normal/Late 阶段时，各项只更新自己的计时器；没有被重复累加的全局模拟时钟。不同循环可以具有不同的推进次数和 delta。</p>
+<h3 id="design-section-16">配置变更</h3>
+<p>改变周期时，以安全边界上的有效时间为新周期起点，保留上次回调以来累计的有效时间，新周期到期后一起交付。转组时保留已累计时间与旧周期剩余时长，后续累计使用新组的时间策略。改变优先级和作用域不重置时间。</p>
+<p>SetSchedule 收到与当前有效计划相同的值时为成功的无操作，不重置截止时间。每 N 步模式在预算延期后按原整数步网格推进到下一个未来到期点；多个错过点合并为一次回调。暂停保留剩余步数，改计划则按新 count/offset 重设剩余步数。</p>
+<h3 id="design-section-17">时间上限与平滑</h3>
+<p><code>MaxCallbackDeltaSeconds</code> 默认值为 <code>0</code>，表示不截断。设置正值后，超过上限的部分计入 <code>DiscardedDeltaTime</code> 并丢弃，<code>ElapsedTime</code> 只增加实际交付量。这是一项显式的时间损失策略。</p>
+<p>到期判断使用原始有效时间累计，ElapsedTime 使用实际交付时间；启用截断后两者可以不同。ElapsedTime 因而不应用于跨注册项截止时间比较。需要共享模拟时钟的项目由外部时间服务提供，并对同组采用一致策略。</p>
+<p>组倍率为零是明确停表；输入时间样本为零仅代表本步没有经过该来源的时间。EveryStep 与 EveryNFrames 仍可在零 delta 下执行或计步，AtFps/AtInterval 的时间截止不推进。依赖“完全不执行”的逻辑应使用 PauseGroup/SetEnabled，而不是依据 delta 值推断暂停。</p>
+<p>平滑帧时间仅用于 FPS、平均耗时及可选降频评估。业务回调默认使用实际累计时间，避免显示层平滑改变计时语义。</p>
+<p>固定间隔是“定时获得一次调用机会”。需要逐步补算的数值模拟，可在独立适配器中实现有上限的固定步累积器；其步长、最大补算次数和余量策略由该扩展负责。</p>
+<h2 id="design-section-18">7. 分组暂停与生命周期</h2>
+<p>暂停采用句柄集合：管理器暂停或任一祖先组暂停时，对应注册项停止获得更新。释放一个句柄只移除对应原因，剩余请求继续生效。</p>
+<p>场景或对象申请暂停时可把自己的作用域传为 owner。作用域释放会同时撤销其暂停请求，避免申请者已经离开但全局仍保留暂停原因。</p>
+<p>暂停不改注册关系。暂停中的新注册项继承当前组状态。组时间倍率为零时同样停止获得更新和累计时间；恢复倍率后接续剩余进度。</p>
+<p>全局暂停的范围是“该 FrameUpdateManager 管理的全部回调”。使用方需要保留某些更新时，可以只暂停目标组，或者使用独立管理器。</p>
+<p>作用域释放先标记整棵作用域树失效，再批量注销项、撤销其暂停请求并释放引用。暂停中的组和暂停中的管理器仍允许执行注销、驱动解绑、作用域释放及诊断查询。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>生命周期事件</th>
+<th>核心行为</th>
+<th>Unity 适配行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通对象退出使用</td>
+<td>显式注销或释放作用域</td>
+<td>辅助绑定在 OnDisable/OnDestroy 清理</td>
+</tr>
+<tr>
+<td>场景卸载</td>
+<td>释放对应作用域</td>
+<td>监听 sceneUnloaded，释放已绑定场景作用域</td>
+</tr>
+<tr>
+<td>对象被销毁但遗漏注销</td>
+<td>由显式生命周期契约处理</td>
+<td>保存独立的 Unity owner 引用，调用前检查 Unity 销毁语义并回收</td>
+</tr>
+<tr>
+<td>对象池复用</td>
+<td>旧句柄失效，新注册产生新代次</td>
+<td>每次启用重新注册或显式重新启用，由使用方选定一种模式</td>
+</tr>
+<tr>
+<td>移入常驻场景</td>
+<td>可通过 SetScope 改变归属</td>
+<td>提供显式重新绑定接口，在原场景卸载前完成</td>
+</tr>
+<tr>
+<td>应用退出</td>
+<td>Dispose 注销全部项并释放引用</td>
+<td>驱动注销引擎事件与静态默认入口</td>
+</tr>
+</tbody>
+</table></div>
+<p>纯 C# 核心不会推断任意普通对象是否“已销毁”。接口引用中的 Unity 对象也必须通过适配层保存的 Unity owner 判断存活。</p>
+<p>场景作用域绑定是显式的，不依赖每帧遍历场景。所有权从场景转为常驻时需要更新绑定；普通对象可以只使用业务作用域。</p>
+<p>前后台策略在 Unity 适配层配置：Continue、PauseAll 或 PauseSelectedGroups。默认 Continue。失焦与应用挂起分别持有自己的暂停句柄，只有相应原因解除后才释放。</p>
+<p>恢复应用时默认重新建立宿主采样基线，避免把操作系统挂起期间的墙钟间隔当作一帧输入。真实离线时长由外部时钟服务处理。</p>
+<p>软失焦（如窗口失去焦点）只应用配置策略；若应用在后台仍持续收到 Update，Continue 继续交付实际样本。Unity OnApplicationPause 等实际挂起信号走采样重置，恢复后的首个循环周期使用零 delta。进程被系统静默挂起而宿主没有收到信号时，核心无法辨认该间隔，宿主可通过显式重置或时间上限策略处理。</p>
+<h2 id="design-section-19">8. 输入、逻辑、物理、表现与网络循环</h2>
+<h3 id="design-section-20">各层含义</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>回答的问题</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UpdateLoop</td>
+<td>由哪个循环、哪种节拍推进</td>
+<td>Input、Simulation、Physics、Presentation、Network</td>
+</tr>
+<tr>
+<td>UpdatePhase</td>
+<td>在该循环内部哪个阶段执行</td>
+<td>EarlyUpdate、NormalUpdate、LateUpdate</td>
+</tr>
+<tr>
+<td>UpdateGroup</td>
+<td>与哪些项共享暂停和时间策略</td>
+<td>任意使用方创建的组，可横跨循环</td>
+</tr>
+<tr>
+<td>UpdateScope</td>
+<td>随哪个生命周期清理</td>
+<td>场景、模块实例、对象</td>
+</tr>
+<tr>
+<td>UpdateSchedule</td>
+<td>每多少次循环机会或有效时间执行</td>
+<td>每步、每 N 步、指定 FPS、间隔</td>
+</tr>
+</tbody>
+</table></div>
+<p>物理帧、表现帧、网络帧和输入帧分别放在 FrameUpdateManager 下的 UpdateLoop 中。UpdatePhase 为循环内部的顺序描述。Unity FixedUpdate 是 PhysicsLoop 的默认驱动来源。</p>
+<h3 id="design-section-21">常用循环与驱动</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>循环</th>
+<th>注册内容</th>
+<th>驱动与时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InputLoop</td>
+<td>读取已采集输入，形成输入状态或命令快照</td>
+<td>默认在 Unity 动态输入系统更新完成后的 Update，通常使用 Unscaled</td>
+</tr>
+<tr>
+<td>SimulationLoop</td>
+<td>普通逻辑与状态推进</td>
+<td>默认逐 Update；使用方也可绑定独立模拟步驱动</td>
+</tr>
+<tr>
+<td>PhysicsLoop</td>
+<td>每个物理步的施力、运动准备及相关逻辑</td>
+<td>默认 Unity FixedUpdate，使用实际固定步的时间样本</td>
+</tr>
+<tr>
+<td>PresentationLoop</td>
+<td>动画参数准备、视觉插值、相机和表现刷新</td>
+<td>准备阶段可放 Update，最终表现阶段放 LateUpdate；时间策略由组决定</td>
+</tr>
+<tr>
+<td>NetworkLoop</td>
+<td>网络节拍中的命令打包、状态快照及同步业务</td>
+<td>由网络库 Tick 适配或自定义网络节拍推进，通常使用 Unscaled 或宿主提供的网络步时间</td>
+</tr>
+</tbody>
+</table></div>
+<p>核心可支持其他循环。常用循环由组装层显式创建和绑定；每个循环只绑定一个有效驱动。默认 Unity 组装把 DefaultLoop 用作 SimulationLoop，并创建输入、物理和表现循环。网络循环需在接入网络适配时绑定，未绑定时保持未驱动状态并在诊断中可见。</p>
+<h3 id="design-section-22">默认 Unity 驱动时序</h3>
+<pre><code class="language-text">Unity FixedUpdate（每个渲染帧可能零次或多次）
+  PhysicsLoop.EarlyUpdate → PhysicsLoop.NormalUpdate
+  → PhysicsLoop.LateUpdate（仍在本次 FixedUpdate 回调内）
+随后 Unity 执行自动物理模拟
+
+Unity 动态输入采集完成后的 Update
+  InputLoop：EarlyUpdate → NormalUpdate → LateUpdate
+  SimulationLoop：EarlyUpdate → NormalUpdate → LateUpdate
+  PresentationLoop.EarlyUpdate：表现参数准备
+
+Unity 动画评估及其他引擎阶段
+
+Unity LateUpdate
+  PresentationLoop.NormalUpdate → PresentationLoop.LateUpdate
+
+网络库 Tick / 自定义网络驱动
+  NetworkLoop：EarlyUpdate → NormalUpdate → LateUpdate
+</code></pre>
+<p>以上是宿主回调映射，网络节拍不表示固定排在 LateUpdate 之后。与网络库收包、应用状态、发包的相对顺序由网络适配器明确配置；跨线程回调先移交管理器所属线程。适配器定义排队、背压和网络步交付策略。</p>
+<p>EarlyUpdate、NormalUpdate、LateUpdate 都是循环内部阶段名。PhysicsLoop.LateUpdate 在默认驱动中仍发生于自动物理模拟之前；需要严格的物理后处理时，替换适配器并在 Unity 真实的物理后置位置派发对应阶段。单纯修改阶段名或优先级不能形成引擎物理前后钩子。</p>
+<h3 id="design-section-23">输入、网络与暂停边界</h3>
+<p>输入采样与游戏动作执行分别注册。暂停世界时通常保留 InputLoop 中用于 UI、恢复和退出的采样，业务动作是否消费由使用方策略决定。新 Input System 的 Dynamic/Fixed/Manual 更新模式由输入适配器声明，框架默认不手动调用 InputSystem.Update。</p>
+<p>默认 Unity FixedUpdate 可能先于该渲染帧的动态输入采样。物理步消费最近可用的输入快照；按下、松开等边沿事件通过命令序号或消费游标实现一次消费。需要每物理步采集输入时，配置 Fixed 输入模式及对应驱动，不依赖动态 Update 的先后顺序推断。</p>
+<p>网络库的协议、连接保活及自身 PlayerLoop 由网络库维护。NetworkLoop 调度接入的网络帧业务；适配器选择接收现有 SDK 节拍或显式接管其手动驱动模式，避免重复推进 SDK。AtFps 可以限制快照发送等业务频率，其本身不创建真实网络时钟。</p>
+<p>组可以横跨 SimulationLoop、PhysicsLoop 和 PresentationLoop 的部分注册项，同时让 InputLoop、NetworkLoop 中的其他组继续执行。管理器 PauseAll 仍表示暂停全部注册回调。</p>
+<p>暂停 PhysicsLoop 只停止框架注册的物理步逻辑；Unity 自动物理仍由引擎驱动。需要暂停物理世界时，由单独的物理适配或应用暂停服务控制引擎。暂停 PresentationLoop 同样不会自动停止 Animator、粒子、音频或引擎渲染。</p>
+<p>循环节拍优先于组时间源：Unity 不调用 FixedUpdate 时，PhysicsLoop 中即使注册到 Unscaled 组也不会自行产生回调。需要持续运行的任务应绑定仍在运行的驱动。</p>
+<h3 id="design-section-24">执行顺序保证</h3>
+<p>每个“循环 + 阶段”内按 <code>(Priority 升序, 注册序号升序)</code> 确定执行顺序。组负责策略，不增加隐式排序层；同循环同阶段内跨组优先级仍可比较。重新注册得到新的注册序号。</p>
+<p>跨循环顺序由驱动编排保证，不能通过优先级跨越循环或引擎阶段。需要每步先后依赖的对象应注册到同一循环、同一阶段，使用 EveryStep 和 Required，再配置优先级。</p>
+<p>与未接入框架的 MonoBehaviour 的相对顺序由 Unity Script Execution Order 或替换驱动决定。表现插值所需的模拟快照和插值系数由模拟或表现适配提供，核心的 ElapsedTime 不充当跨循环同步时钟。</p>
+<h3 id="design-section-25">驱动绑定与 Unity 接入 API</h3>
+<p>纯核心的自定义驱动使用 BindDriver 获取令牌，每次推进传入同一周期的样本；Dispose 令牌立即撤销驱动权。时钟、触发事件和调度器属于不同对象，驱动的职责是把宿主节拍翻译为调用。</p>
+<p>Unity 层提供以下目标契约，类型放在 <code>WFrameWork.Core.FrameUpdate.Unity</code>：</p>
+<pre><code class="language-csharp">public sealed class UnityFrameUpdateHost : IDisposable
+{
+    public static UnityFrameUpdateHost Install(FrameUpdateManager manager,
+        UnityFrameUpdateSettings settings);
+    public FrameUpdateManager Manager { get; }
+    public UnityFrameUpdateLoops Loops { get; }
+    public void ResetTimeBaseline();
+    public void Dispose();
+}
+
+public static class UnityFrameRegistration
+{
+    public static IDisposable Bind(FrameUpdateManager manager,
+        IFrameUpdate target, UnityEngine.Object owner,
+        in FrameUpdateOptions options);
+}
+</code></pre>
+<p>Install 在 Unity 主线程创建一个常驻驱动对象，绑定输入、默认模拟、物理与表现循环。UnityFrameUpdateLoops 提供 Input、Simulation、Physics、Presentation 四个句柄；Network 由可选网络适配创建并单独持有，不在默认 Unity 安装时伪造驱动。默认驱动对四个循环均声明 All 阶段。</p>
+<p>UnityFrameUpdateSettings 保存后台策略与需要后台暂停的组，可选择复用已有的四个循环句柄。安装先校验所有绑定，再应用；中途失败撤销本次创建的驱动与空循环。重复安装到同一管理器明确报告冲突。</p>
+<p>宿主 Update 为输入、模拟和表现循环使用相同的 delta 与 RenderFrameId，按各循环独立的 Sequence 构造样本。Presentation 样本从 Update 缓存到 LateUpdate。FixedUpdate 每次使用新的物理 Sequence，ScaledDeltaTime 取固定步的缩放时间，UnscaledDeltaTime 取固定步的不缩放时间。HostFrameSample 每个渲染 Update 上报一次。</p>
+<p>ResetTimeBaseline 在周期边界生效，下个周期交付零 delta 并继续递增序号。它不重置注册项已经累计的有效时间。Host Dispose 撤销本宿主拥有的绑定、事件订阅和暂停请求，立即禁止继续派发；是否销毁管理器由创建者决定。仍有外部注册项的循环留在未驱动状态，重新安装可显式复用其句柄。</p>
+<p>UnityFrameRegistration.Bind 为 owner 缓存实现 IUpdateLifetime 的存活检查对象，并把原始 target 注册到核心，保持原始引用身份；同一注册键配置或 owner 冲突时拒绝绑定。相同绑定的多个返回值共享一次所有权，释放任意一个即注销，不作为引用计数租约使用。</p>
+<p>自动生命周期辅助组件在 OnEnable 获取一次绑定，在 OnDisable/OnDestroy 释放；管理器注入须早于启用。场景辅助 registry 将 Scene.handle 对应为作用域并在卸载时释放。只有当前组件 owner 的启停受该辅助组件管理，纯逻辑对象需要显式释放其句柄或作用域。</p>
+<h3 id="design-section-26">网络和固定步的扩展模板</h3>
+<p>独立网络 SDK 适配按以下顺序接入：CreateLoop → BindDriver → 订阅 SDK tick → 在所属线程派发声明阶段 → 退出时取消订阅并 Dispose 驱动。SDK 回调来自后台线程时，适配负责有界排队；队列溢出时按协议选择合并快照、拒绝输入或中止连接，不由核心静默丢帧。</p>
+<p>自定义固定模拟驱动负责自己的固定步长和补步上限，每个真实模拟步递增 Sequence 后调用核心。它应在收到应用暂停通知时清理或冻结自己的累积器；核心暂停只约束已提交的回调，不能推断驱动内部尚未提交的时间债务。默认 Unity 物理驱动沿用 Unity 的固定步调度，不额外再套累积器。</p>
+<h2 id="design-section-27">9. 降频与预算扩展</h2>
+<p>基础调度器提供确定的频率机制。使用方可以在状态变化或低频评估时调用 <code>SetSchedule</code>；需要复用决策方式时使用策略接口：</p>
+<pre><code class="language-csharp">public interface IUpdateSchedulePolicy
+{
+    UpdateSchedule Evaluate(in UpdatePolicyContext context);
+}
+</code></pre>
+<p><code>UpdatePolicyContext</code> 提供注册句柄、当前频率、优先级和最近统计值。策略可通过构造注入读取自定义数据源。策略评估适配器自身通过 IFrameUpdate 注册，评估频率独立配置，输出通过 SetSchedule 生效。</p>
+<p>距离、可见性、负载或重要性可以各自实现策略，也可组合后输出一个最终频率。策略的防抖、阈值、缓存与迟滞由扩展实现。调度核心只接受最终调度计划。</p>
+<p><code>UpdateWorkClass.Required</code> 为默认值：达到频率后执行。<code>Deferrable</code> 显式允许受预算延期。每个“循环 + 阶段”可配置预算，默认 <code>0</code> 表示不限；到达预算后跳过后续 Deferrable，继续执行 Required。</p>
+<p>预算是软上限：已经开始的回调会完整返回。框架记录实际超出时间。预算延期保留时间累计，后续执行时按时间上限规则交付；严格优先级下低优先级项可能持续延期，诊断记录连续延期次数和最长等待时间。需要公平轮转或强实时预算的场景使用独立扩展。</p>
+<p>框架通过初始偏移、每 N 步、间隔和可延期项提供分帧基础。单次大任务须由使用方拆成可迭代的小工作单元，调度器无法抢占一个长时间运行的方法。</p>
+<h2 id="design-section-28">10. 默认配置</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th style="text-align:right">默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InitialCapacity</td>
+<td style="text-align:right">256</td>
+<td>注册槽位与缓冲的初始容量，可增长</td>
+</tr>
+<tr>
+<td>DefaultLoop</td>
+<td style="text-align:right">管理器默认循环</td>
+<td>Unity 组装将其作为 SimulationLoop</td>
+</tr>
+<tr>
+<td>DefaultPhase</td>
+<td style="text-align:right">NormalUpdate</td>
+<td>默认阶段</td>
+</tr>
+<tr>
+<td>DefaultPriority</td>
+<td style="text-align:right">0</td>
+<td>使用 UpdatePriority.Normal</td>
+</tr>
+<tr>
+<td>DefaultSchedule</td>
+<td style="text-align:right">EveryStep</td>
+<td>每次阶段推进更新</td>
+</tr>
+<tr>
+<td>DefaultTimeSource</td>
+<td style="text-align:right">Scaled</td>
+<td>默认组使用缩放时间</td>
+</tr>
+<tr>
+<td>DefaultGroupTimeScale</td>
+<td style="text-align:right">1</td>
+<td>组自身倍率</td>
+</tr>
+<tr>
+<td>DefaultWorkClass</td>
+<td style="text-align:right">Required</td>
+<td>默认不因预算延期</td>
+</tr>
+<tr>
+<td>LoopPhaseBudgetMilliseconds</td>
+<td style="text-align:right">0</td>
+<td>各循环各阶段默认不限预算</td>
+</tr>
+<tr>
+<td>MaxCallbackDeltaSeconds</td>
+<td style="text-align:right">0</td>
+<td>默认不截断累计时间</td>
+</tr>
+<tr>
+<td>DiagnosticsLevel</td>
+<td style="text-align:right">Basic</td>
+<td>帧率、循环及阶段总耗时和计数</td>
+</tr>
+<tr>
+<td>DetailedSampleEveryNSteps</td>
+<td style="text-align:right">30</td>
+<td>Detailed 模式每 N 次所属循环推进采样</td>
+</tr>
+<tr>
+<td>StatisticsWindowSamples</td>
+<td style="text-align:right">120</td>
+<td>各时序分别保留最近 N 个统计样本</td>
+</tr>
+<tr>
+<td>BackgroundPolicy</td>
+<td style="text-align:right">Continue</td>
+<td>Unity 适配默认不追加暂停</td>
+</tr>
+<tr>
+<td>ExceptionPolicy</td>
+<td style="text-align:right">DisableAndReport</td>
+<td>默认禁用异常注册项并记录错误</td>
+</tr>
+<tr>
+<td>ErrorBufferCapacity</td>
+<td style="text-align:right">64</td>
+<td>有界错误环形缓冲容量，满时替换最旧记录</td>
+</tr>
+</tbody>
+</table></div>
+<p>配置是普通 C# 数据。Unity 可提供可选的 <code>FrameUpdateSettings : ScriptableObject</code> 转换器，用于 Inspector 编辑；核心只接收配置快照。</p>
+<p>调度异常包含句柄、组、阶段和异常对象；错误在该 Tick 的安全边界写入有界缓冲，诊断适配通过 CopyErrors 查询。默认禁用异常项以保护其他回调，已执行的业务副作用保留。调试模式可选择 Propagate，并在 finally 中完成待变更整理和重入标记恢复。</p>
+<p>Propagate 模式下，已接受的阶段记为结束，剩余回调本次不执行并记录 Aborted；其未交付时间保留。宿主可以继续下一声明阶段，也可以释放驱动绑定后重建。核心始终不回滚已开始的回调。</p>
+<h2 id="design-section-29">11. 性能与诊断</h2>
+<p>性能目标是预热后稳定 Tick 不产生框架自身托管分配；这不包含用户回调、容量扩容、首次注册、异常和显式导出报告。该目标需要实现后用 Profiler 验证。</p>
+<p>实现采用：按“循环 + 阶段”的连续列表、对象引用身份字典、带代次的槽位复用、变更缓冲、配置变化时排序、可复用诊断输出列表。注册及生命周期事件允许按需分配，热路径不使用反射发现、LINQ 或临时闭包。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>诊断级别</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Off</td>
+<td>保留内部正确性需要的状态，关闭性能采样</td>
+</tr>
+<tr>
+<td>Basic</td>
+<td>宿主 FPS、各循环 Tick 频率、帧间隔、循环及阶段耗时、注册数、执行数及跳过原因</td>
+</tr>
+<tr>
+<td>Detailed</td>
+<td>采样单项耗时、按组聚合耗时、最大值、延期时长、异常次数</td>
+</tr>
+</tbody>
+</table></div>
+<p>FPS 从 RecordHostFrame 每个渲染帧上报一次的 unscaled 时间计算，不按阶段调用数计算。相同 FrameId 重复上报拒绝，零 delta 样本不参与除法计算；未配置渲染宿主时 FPS 为“无数据”。帧间隔与回调 CPU 耗时分开展示；后者通过单调计时器测量，不能代表整帧 GPU 耗时。</p>
+<p>物理和网络循环独立统计 Tick 频率。同一循环的多个阶段使用同一 Sequence 时只计算一次循环推进；各阶段耗时分别记录。跨渲染帧的网络样本按独立窗口统计，不能与渲染 FPS 混为一个数。驱动绑定和未驱动告警由适配诊断补充，核心只报告调用与注册状态。</p>
+<p>跳过原因分别统计：暂停、禁用、频率未到、预算延期、生命周期失效、异常中止。组统计包含直接项与含子组汇总两种口径；全局总量只计算每个项一次。Detailed 的耗时注明采样数量和采样窗口。</p>
+<p>每项每阶段最多归入一种结果，判定顺序为失效、禁用、暂停、未到期、预算延期、执行完成/失败或异常中止。Executed 表示已开始的回调次数，Faulted 是其中抛出异常的子集。未驱动循环的注册项显示等待状态，不凭空累加每帧跳过次数。</p>
+<p>循环的实际 TickHz 使用同一单调实时时钟记录调用间隔，模拟 delta 用于另一个“交付时间”指标。多个固定步在同一渲染帧批量到达时，统计窗口展示实际步吞吐率，不把每步固定 delta 直接倒数冒充实测频率。计时器作为内部可替换测试依赖，用于预算与采样的可重复测试。</p>
+<p>预算测量覆盖本阶段的调度和回调 CPU 耗时，Required 仍允许越过软预算。Detailed 统计里的组耗时是该组被采样回调耗时之和，循环总耗时额外包含调度开销；两者不要求相等。查询和可视化展示的开销独立测量。</p>
+<p>诊断面板、日志输出和 Profiler 标记是独立适配。统计查询按需复制到调用方缓冲，UI 刷新频率独立配置。</p>
+<h2 id="design-section-30">12. 使用示例</h2>
+<p>以下是目标 API 的使用方式；省略应用自己的引导与销毁接线。</p>
+<pre><code class="language-csharp">sealed class ExampleUpdater : IFrameUpdate
+{
+    public double WorkedTime { get; private set; }
+
+    public void OnFrameUpdate(in FrameUpdateContext context)
+    {
+        WorkedTime += context.DeltaTime;
+    }
+}
+
+var manager = new FrameUpdateManager(FrameUpdateConfig.Default);
+var group = manager.CreateGroup(&quot;BackgroundWork&quot;, UpdateGroupOptions.Default);
+var scope = manager.CreateScope(&quot;ExampleScope&quot;);
+var target = new ExampleUpdater();
+
+var options = new FrameUpdateOptions
+{
+    Loop = manager.DefaultLoop,
+    Phase = UpdatePhase.NormalUpdate,
+    Group = group,
+    Scope = scope,
+    Priority = UpdatePriority.Normal,
+    Schedule = UpdateSchedule.AtFps(10),
+    WorkClass = UpdateWorkClass.Required,
+    Enabled = true
+};
+
+UpdateHandle handle = manager.Register(target, options);
+manager.SetSchedule(handle, UpdateSchedule.EveryNFrames(3));
+
+PauseHandle pause = manager.PauseGroup(group, scope);
+pause.Dispose();                  // 只释放本次暂停原因
+
+manager.SetEnabled(handle, false);
+manager.SetEnabled(handle, true);
+manager.ReleaseScope(scope);      // 同时注销该作用域内全部对象
+manager.Dispose();
+</code></pre>
+<p>各类更新通过同一注册 API 指定循环，示意如下。循环句柄由组装层创建，驱动按第 8 节绑定；此片段只展示归属：</p>
+<pre><code class="language-csharp">manager.Register(inputUpdater, new FrameUpdateOptions
+{
+    Loop = loops.Input, Phase = UpdatePhase.NormalUpdate, Group = inputGroup
+});
+manager.Register(physicsUpdater, new FrameUpdateOptions
+{
+    Loop = loops.Physics, Phase = UpdatePhase.NormalUpdate, Group = worldGroup
+});
+manager.Register(viewUpdater, new FrameUpdateOptions
+{
+    Loop = loops.Presentation, Phase = UpdatePhase.LateUpdate, Group = visualGroup
+});
+manager.Register(networkUpdater, new FrameUpdateOptions
+{
+    Loop = loops.Network, Phase = UpdatePhase.NormalUpdate, Group = networkGroup
+});
+</code></pre>
+<p><code>loops</code> 是使用方组装层缓存的循环句柄集合，包含 Unity 宿主提供的句柄以及网络适配返回的 Network 句柄；这些名称不进入核心枚举。组的 Scaled/Unscaled 时间源和暂停归属由使用方独立创建与选择。</p>
+<h3 id="design-section-31">手动推进与暂停示例</h3>
+<p>以下是目标 API 的完整方法级示例，可用于核心测试和接入参考。它不依赖 Unity；参数 <code>target</code> 是任意 IFrameUpdate 实现。</p>
+<pre><code class="language-csharp">static void DemonstrateScheduling(IFrameUpdate target)
+{
+    using var manager = new FrameUpdateManager(FrameUpdateConfig.Default);
+    using var driver = manager.BindDriver(manager.DefaultLoop, &quot;Manual&quot;, UpdatePhaseMask.Normal);
+    var scope = manager.CreateScope(&quot;DemoLifetime&quot;);
+    var group = manager.CreateGroup(&quot;DemoTime&quot;, new UpdateGroupOptions
+    {
+        TimeSource = UpdateTimeSource.Unscaled,
+        TimeScale = 1
+    });
+    manager.Register(target, new FrameUpdateOptions
+    {
+        Loop = manager.DefaultLoop,
+        Phase = UpdatePhase.NormalUpdate,
+        Group = group,
+        Scope = scope,
+        Schedule = UpdateSchedule.AtInterval(0.1)
+    });
+
+    manager.Tick(driver, UpdatePhase.NormalUpdate,
+        new FrameTimeSample(1, scaledDeltaTime: 0.04, unscaledDeltaTime: 0.04));
+
+    using (manager.PauseGroup(group, scope))
+    {
+        manager.Tick(driver, UpdatePhase.NormalUpdate,
+            new FrameTimeSample(2, scaledDeltaTime: 5, unscaledDeltaTime: 5));
+    }
+
+    manager.Tick(driver, UpdatePhase.NormalUpdate,
+        new FrameTimeSample(3, scaledDeltaTime: 0.06, unscaledDeltaTime: 0.06));
+    // 到此只执行一次回调，DeltaTime 为 0.1，暂停中的 5 秒未累计。
+    manager.ReleaseScope(scope);
+}
+</code></pre>
+<p>FrameTimeSample 构造器签名为 <code>(long sequence, double scaledDeltaTime, double unscaledDeltaTime, long? renderFrameId = null)</code>。浮点到期比较使用实现统一定义的容差，仅修正数值舍入，不允许把明显未到期的项提前执行；验证使用绝对与相对误差界限。</p>
+<p>Unity 便捷层提供两种接入：已有组件组合持有注册句柄；可选 <code>FrameUpdateBehaviour</code> 自动绑定 OnEnable/OnDisable。可选基类使用受保护的生命周期钩子供子类扩展，业务无需继承框架基类也能注册。</p>
+<p>驱动实例通过 UnityFrameUpdateHost.Install 显式初始化创建。停止应用或禁用 Domain Reload 后重新进入 Play 时，适配层重置静态宿主 registry、驱动标记和场景事件订阅，避免重复驱动。首版采用显式注入管理器，不自动创建隐藏的全局默认单例。</p>
+<h2 id="design-section-32">13. 拟定目录与程序集</h2>
+<pre><code class="language-text">Core/FrameUpdate/
+  Runtime/              纯 C# 核心、动态循环与公共契约
+  Unity/                输入/模拟/物理/表现循环驱动、生命周期绑定、配置转换
+  Diagnostics/          可选诊断与展示适配
+Tests~/FrameUpdate/     隔离测试与基准工程，按测试接入方案导入
+Samples~/FrameUpdate/   基础注册、分组暂停、自定义策略示例
+Documentation~/        API、时序语义与调优说明
+</code></pre>
+<p>新增程序集按依赖方向分离：<code>WFrameWork.FrameUpdate</code> 为纯核心，设置 <code>noEngineReferences</code>；<code>WFrameWork.FrameUpdate.Unity</code> 引用核心与 Unity；Unity 诊断展示归入适配程序集或独立可选程序集。新模块使用自身 asmdef 与现有 GFramework 隔离，首版不修改现有模块依赖关系。</p>
+<p>具体网络库适配作为独立可选包提供，引用核心和对应 SDK。网络库类型不进入核心公开契约。</p>
+<p>测试接入确定为两条路径：Tests~/FrameUpdate/Core 下的独立 .NET 测试工程链接纯核心源文件；Tests~/FrameUpdate/Unity 下的测试程序集由验证工程显式复制导入，运行 EditMode/PlayMode 检查。带 <code>~</code> 的目录由 Unity 忽略，独立测试工程和导入步骤必须随测试说明交付。具体用例见实施与验收清单。</p>
+<h2 id="design-section-33">14. 验收与实施拆分</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>独立实施单元</th>
+<th>验收重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注册与句柄</td>
+<td>同对象重复、跨阶段注册、批量校验、旧代次注销、新项在 Tick 中出现</td>
+</tr>
+<tr>
+<td>循环、阶段与顺序</td>
+<td>动态创建循环、独立序号、同对象跨循环注册、同循环跨组顺序、重入与重复样本拒绝</td>
+</tr>
+<tr>
+<td>调度与计时</td>
+<td>FPS/间隔漂移、每 N 步、初始错峰、可变帧间隔、累计 delta、时间截断</td>
+</tr>
+<tr>
+<td>暂停与作用域</td>
+<td>嵌套暂停、暂停时新增、禁用后恢复、递归清理、清理期间注销其他项</td>
+</tr>
+<tr>
+<td>Unity 适配</td>
+<td>固定步多次/零次、动态输入与物理步快照关系、表现准备与 LateUpdate、销毁 owner、场景卸载、常驻迁移、前后台与关闭 Domain Reload</td>
+</tr>
+<tr>
+<td>外部驱动适配</td>
+<td>网络节拍独立于渲染帧、跨线程移交、禁止双驱动 SDK、未绑定循环诊断、暂停普通逻辑时网络可继续</td>
+</tr>
+<tr>
+<td>策略与诊断</td>
+<td>动态调频、预算延期、错误隔离、采样口径、统计列表复用</td>
+</tr>
+<tr>
+<td>文档与示例</td>
+<td>按 API 独立完成注册、调频、暂停和生命周期清理</td>
+</tr>
+</tbody>
+</table></div>
+<p>核心使用可注入时间样本进行确定性测试；频率断言允许最多一个宿主阶段步的到期量化误差，不把低宿主帧率下的目标 FPS 当作保证。</p>
+<p>性能基准分别使用 <code>EntryCount</code> 为 100、1,000、10,000 的空回调与轻量回调，测量预热后稳定开销、注册/注销峰值、诊断开关差异及 GC.Alloc。结果同时记录设备、Unity 版本、后端与开发构建状态，不在实现前承诺具体耗时收益。</p>
+<h2 id="design-section-34">15. 设计选择依据</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用性</th>
+<th>本次选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单一 MonoBehaviour 管理全部状态</td>
+<td>入门简单，核心与引擎绑定较紧</td>
+<td>采用薄驱动，状态留在纯核心</td>
+</tr>
+<tr>
+<td>纯 C# 核心 + Unity 适配</td>
+<td>便于复用、手动测试和更换驱动</td>
+<td>作为正式结构</td>
+</tr>
+<tr>
+<td>首版直接替换 Unity PlayerLoop</td>
+<td>能精确挂接原生阶段，需要管理安装、卸载及第三方协作</td>
+<td>作为后续可替换驱动</td>
+</tr>
+</tbody>
+</table></div>
+<p>首版用循环表达驱动边界，用阶段及整数优先级表达局部顺序，用组表达暂停策略，用作用域表达生命周期。各维度独立，便于替换驱动、扩展循环和跨循环组合暂停。</p>
+<p>每项最多调用一次的合并策略适合通用帧任务。数值模拟所需的补步、网络权威和世界事件队列在各自扩展中决定，保持调度框架的复用边界。</p>
+<h2 id="design-section-35">16. 本轮交付状态</h2>
+<ul>
+<li>已核对当前包的语言、Unity 版本、程序集、命名空间与现有更新入口。</li>
+<li>已定稿框架职责、动态注册契约、时间语义、默认配置及扩展边界。</li>
+<li>已补充 UpdateLoop 层，明确输入、物理、表现和网络的注册位置、驱动时序与适配边界。</li>
+<li>已给出 API、使用示例、实施单元和验收标准。</li>
+<li>已补齐独占驱动绑定、配置与错误语义、阶段快照、异常计时、手动推进示例及 Unity 安装契约。</li>
+<li>纯 C# Runtime、核心独立测试、手动驱动示例和策略 runner 已写入；核心测试工程已编译并通过 55 项测试。</li>
+<li>Unity Host/Driver、owner 绑定和场景作用域保留为适配初版，尚未在 Unity 2022.3 EditMode/PlayMode 工程中编译运行。</li>
+<li>详细采样、Unity 配置资产、性能报告、具体网络 SDK 与既有模块迁移仍未完成；本文件不把规划的 59 个验收场景当作全部通过。</li>
+<li>当前仓库是包目录而非完整 Unity 工程；命令行探测受到 Licensing Client access token unavailable 影响，未将 Unity 适配声明为已验证。</li>
+</ul>
+<p>首版设计已具备明确实施边界。PlayerLoop 精确钩子、自定义固定模拟驱动、具体网络 SDK、公平预算调度、世界物理暂停和跨循环时钟属于有明确接入位置的后续扩展；它们不影响按本方案先实现通用核心。</p>
+<p>本文为设计真源。离线 HTML 由本文及实施清单生成供阅读，后续更新应先修改 Markdown，再重新生成阅读版。</p>
+<p>来源：当前仓库 <code>package.json</code>、<code>Core/Core.asmdef</code>、<code>Core/Actions/ActionManager.cs</code>、<code>Core/Anim/CharacterAnim.cs</code>、<code>Core/ResLoad/ResourcesManager.cs</code>；2026-09-20 对话中的通用框架需求与本轮设计选择。</p>
+</article><article id="implementation" data-document="implementation"><h1 id="implementation-section-1">帧更新框架：实施与验收清单</h1>
+<p>状态：实施中；M1–M4 核心初版已完成，M5 基础诊断已完成，Unity 验证与性能基准待执行。对应<a href="#design" data-doc="design">完整设计与 API</a>，设计版本 v1.0，更新 2026-09-21。</p>
+<p>本文把方案分成可独立编译和验证的实施单元。勾选表示代码、测试与文档均已完成，不能只因文件创建或静态检查通过而勾选。</p>
+<h2 id="implementation-section-2">1. 首版交付范围</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>交付层</th>
+<th>首版内容</th>
+<th>完成证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯 C# 核心</td>
+<td>多循环、独占驱动、注册、调度、组、作用域、暂停、错误与查询</td>
+<td>独立核心测试通过，Unity 目标版本编译通过</td>
+</tr>
+<tr>
+<td>Unity 适配</td>
+<td>显式安装、输入/模拟/物理/表现驱动、owner 与场景清理、前后台策略</td>
+<td>EditMode/PlayMode 验证记录</td>
+</tr>
+<tr>
+<td>扩展支持</td>
+<td>自定义循环及驱动、调频策略评估器、有界网络接入示例</td>
+<td>无具体网络 SDK 依赖的手动驱动示例</td>
+</tr>
+<tr>
+<td>诊断</td>
+<td>Basic/Detailed、循环与组统计、错误缓冲、简洁的可选调试展示</td>
+<td>指标口径测试及开启/关闭开销对比</td>
+</tr>
+<tr>
+<td>文档与示例</td>
+<td>手动推进、Unity 绑定、分组暂停、动态调频、批量系统</td>
+<td>示例可编译且能独立运行</td>
+</tr>
+</tbody>
+</table></div>
+<p>具体游戏逻辑、完整网络协议、Unity 原生物理暂停、Animator 接管、公平调度算法和确定性固定模拟不进入首版。其接入方式由主设计第 8–9 节规定。</p>
+<h2 id="implementation-section-3">2. 建议文件职责</h2>
+<p>这些是实施时的目标文件，不表示现在已经存在。一个文件只承载相应职责，可按实现规模合并小型值类型。</p>
+<pre><code class="language-text">Core/FrameUpdate/Runtime/
+  WFrameWork.FrameUpdate.asmdef
+  FrameUpdateManager.cs              公开门面与线程/销毁状态
+  Contracts/
+    IFrameUpdate.cs                  更新接口
+    IUpdateLifetime.cs               可选纯 C# 存活检查
+    FrameUpdateContext.cs            回调时间与身份
+    FrameTimeSample.cs               宿主样本
+    FrameUpdateOptions.cs            注册选项与默认解析
+    FrameUpdateConfig.cs             配置快照
+    FrameUpdateHandles.cs            Loop/Driver/Group/Scope/Update/Pause 句柄
+  Scheduling/
+    LoopState.cs                     驱动绑定、阶段协议、序号
+    RegistrationStore.cs             引用身份键、槽位、代次
+    PhaseScheduler.cs                资格快照、稳定顺序、预算
+    UpdateSchedule.cs                频率值及到期运算
+    MutationBuffer.cs                延迟变更和墓碑整理
+  Lifecycle/
+    GroupRegistry.cs                 组树、倍率及暂停汇总
+    ScopeRegistry.cs                 生命周期树和递归释放
+    PauseRegistry.cs                 原因集合和所有者清理
+  Diagnostics/
+    FrameUpdateDiagnostics.cs        指标与采样
+    FrameUpdateStats.cs              查询 DTO
+    FrameUpdateError.cs              有界错误记录
+  Policies/
+    IUpdateSchedulePolicy.cs         频率策略接口
+    SchedulePolicyRunner.cs          独立低频评估适配
+
+Core/FrameUpdate/Unity/
+  WFrameWork.FrameUpdate.Unity.asmdef
+  UnityFrameUpdateHost.cs            显式安装与宿主句柄
+  UnityFrameUpdateDriver.cs          引擎回调转发
+  UnityFrameUpdateSettings.cs        宿主设置
+  UnityFrameRegistration.cs          owner 绑定及适配缓存
+  SceneScopeRegistry.cs              场景与作用域映射
+  ApplicationPausePolicy.cs          失焦/挂起策略
+  FrameUpdateSettings.cs             可选 ScriptableObject 配置转换
+  FrameUpdateBehaviour.cs            可选自动绑定基类
+
+Samples~/FrameUpdate/
+  ManualDriver/                     纯 C# 手动推进
+  UnityLifecycle/                   owner/场景绑定
+  GroupPause/                       跨循环暂停组
+  DynamicSchedule/                  注入数据源的调频策略
+  BatchSystem/                      一个注册项维护多个内部对象
+
+Tests~/FrameUpdate/
+  Core/                             独立 .NET 核心测试工程
+  Unity/                            可导入的 Unity 测试程序集
+  README.md                         运行、导入与指标采集步骤
+</code></pre>
+<p>Core 程序集不引用 Unity；Unity 程序集单向引用 Core。诊断纯数据归 Core，窗口或屏幕展示归 Unity/Editor。可选基类和配置资产在核心完成后再交付，业务接入不依赖继承基类。</p>
+<h2 id="implementation-section-4">3. 分阶段实施</h2>
+<h3 id="implementation-section-5">M1：公共契约与纯核心编译</h3>
+<ul>
+<li>[x] 创建独立核心程序集及对应目录，保持现有 GFramework 程序集内容不变。</li>
+<li>[x] 实现选项、配置、枚举、样本、句柄和查询 DTO；落实可空选项与快照语义。</li>
+<li>[x] 建立独立测试工程，链接核心源文件；使用与 Unity 2022.3 兼容的 C# 和基础库 API。</li>
+<li>[x] 验证默认值、参数边界、句柄所属管理器与代次。</li>
+</ul>
+<p>退出条件：核心编译通过；没有 Unity、具体输入库或网络 SDK 类型进入公开契约。</p>
+<h3 id="implementation-section-6">M2：注册、动态变更与生命周期</h3>
+<ul>
+<li>[x] 实现按引用身份、循环和阶段去重的注册表及槽位复用。</li>
+<li>[x] 实现逐项/批量注册、注销、启停、查询和安全边界变更。</li>
+<li>[x] 实现组树、作用域树、暂停原因集合及 Dispose。</li>
+<li>[x] 覆盖注册中注销、作用域清理与对象池旧句柄问题。</li>
+</ul>
+<p>退出条件：R/L 类测试通过；重入时不会直接破坏正在遍历的集合。</p>
+<h3 id="implementation-section-7">M3：多循环驱动与阶段协议</h3>
+<ul>
+<li>[x] 实现 CreateLoop/BindDriver/Tick/RemoveLoop。</li>
+<li>[x] 独占驱动、阶段声明、序号、样本一致性、错误线程与重入校验。</li>
+<li>[x] 实现同一阶段稳定排序和阶段开始时的资格快照。</li>
+<li>[x] 支持跨循环交错、表现阶段跨 Update/LateUpdate、驱动解绑后重建。</li>
+</ul>
+<p>退出条件：D 类测试通过；真实时钟和独立 Tick 来源保持分离。</p>
+<h3 id="implementation-section-8">M4：时间与频率调度</h3>
+<ul>
+<li>[x] 实现 EveryStep、AtFps、EveryNFrames、AtInterval 与初始错峰。</li>
+<li>[x] 实现有效时间累计、暂停剩余量、无漂移截止时间网格。</li>
+<li>[x] 明确零 delta、组倍率零、同值 SetSchedule、换组和禁用恢复的行为。</li>
+<li>[x] 实现逐项时间上限覆盖及 DiscardedDeltaTime。</li>
+<li>[x] 实现 Required/Deferrable 与软预算，不隐式承诺公平性。</li>
+</ul>
+<p>退出条件：T/P 类测试通过；暂停恢复无墙钟补偿，低频更新交付完整累计时间或显式截断量。</p>
+<h3 id="implementation-section-9">M5：诊断和错误处理</h3>
+<ul>
+<li>[x] 实现 Basic 统计、渲染帧上报、循环 TickHz、分组及逐项计数；Detailed 枚举与扩展入口已保留。</li>
+<li>[x] 实现有界错误记录、DisableAndReport 与 Propagate。</li>
+<li>[x] 复用查询列表和采样缓冲；核心热路径使用单调计时器。</li>
+<li>[ ] 验证重复 RenderFrameId、零 delta、未驱动循环和异常中止的统计口径。</li>
+</ul>
+<p>退出条件：O 类测试通过；数据可追溯到样本数量与计数定义。</p>
+<h3 id="implementation-section-10">M6：Unity 默认宿主</h3>
+<ul>
+<li>[ ] 实现 UnityFrameUpdateHost.Install，使用独立驱动 GameObject。</li>
+<li>[ ] 按主文档映射 Input/Simulation/Physics/Presentation 循环。</li>
+<li>[ ] 实现场景作用域、owner 存活检查及 OnDisable/OnDestroy 对称释放。</li>
+<li>[ ] 实现前后台策略、挂起后采样基线重置和 Domain Reload 关闭时的清理。</li>
+<li>[ ] 增加可选配置转换和生命周期辅助组件；所有生命周期行为显式记录。</li>
+</ul>
+<p>退出条件：Unity 2022.3 编译与 U 类 EditMode/PlayMode 验证通过；既有模块无重复驱动。</p>
+<h3 id="implementation-section-11">M7：扩展示例与性能基准</h3>
+<ul>
+<li>[ ] 完成手动网络节拍示例和独立模拟驱动示例，只展示通用接入。</li>
+<li>[ ] 完成低频策略 runner，说明相同计划不重置周期及策略切换清理。</li>
+<li>[ ] 完成多个内部对象由一个注册项批量更新的示例。</li>
+<li>[ ] 运行空回调与轻量回调基准，比较集中调度、频率模式、诊断开关及高变更负载。</li>
+<li>[ ] 更新 API 文档、安装说明、已验证平台范围和剩余限制。</li>
+</ul>
+<p>退出条件：示例可运行，性能报告记录环境和原始数据，所有未验证结论明确标注。</p>
+<h2 id="implementation-section-12">4. 验收矩阵</h2>
+<h3 id="implementation-section-13">注册和生命周期</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入场景</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R01</td>
+<td>同引用、同循环、同阶段、相同配置注册两次</td>
+<td>相同句柄，每步回调一次</td>
+</tr>
+<tr>
+<td>R02</td>
+<td>重复身份但修改组/频率/Lifetime</td>
+<td>明确冲突，原项不变</td>
+</tr>
+<tr>
+<td>R03</td>
+<td>同对象注册不同循环或阶段</td>
+<td>独立句柄与累计时间</td>
+</tr>
+<tr>
+<td>R04</td>
+<td>同批中存在非法项或互相冲突的重复项</td>
+<td>整批无新增，输出缓冲不包含部分成功</td>
+</tr>
+<tr>
+<td>R05</td>
+<td>A 更新中注销尚未执行的 B</td>
+<td>B 本步不执行，其槽位在安全边界整理</td>
+</tr>
+<tr>
+<td>R06</td>
+<td>A 更新中注册 C</td>
+<td>C 不进入当前遍历，下个所属阶段机会开始</td>
+</tr>
+<tr>
+<td>R07</td>
+<td>注销后同对象立即重注册，再释放旧句柄</td>
+<td>新注册不受旧句柄影响</td>
+</tr>
+<tr>
+<td>R08</td>
+<td>用重写 Equals 的两个不同对象注册</td>
+<td>仍被识别为两个引用身份</td>
+</tr>
+<tr>
+<td>R09</td>
+<td>值类型 Target 或抛异常的 Lifetime 检查</td>
+<td>值类型入口拒绝；检查异常按注册项错误策略处理</td>
+</tr>
+<tr>
+<td>L01</td>
+<td>父 scope 下多个子 scope 和暂停请求一起释放</td>
+<td>递归注销并释放对应暂停原因</td>
+</tr>
+<tr>
+<td>L02</td>
+<td>已排队注册项的 scope 在激活前释放</td>
+<td>项不会被激活</td>
+</tr>
+<tr>
+<td>L03</td>
+<td>两个原因暂停同组，只释放一个原因</td>
+<td>仍暂停；第二个释放后下次阶段恢复</td>
+</tr>
+<tr>
+<td>L04</td>
+<td>已暂停组出现新对象</td>
+<td>对象成功注册但不执行</td>
+</tr>
+<tr>
+<td>L05</td>
+<td>Tick 内 Dispose 管理器</td>
+<td>当前回调返回，后续回调停止，旧句柄失效</td>
+</tr>
+<tr>
+<td>L06</td>
+<td>假设测试槽位代次接近最大值并反复复用</td>
+<td>溢出槽位退休，旧句柄不重新命中</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implementation-section-14">驱动与时序</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入场景</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D01</td>
+<td>一个循环重复 BindDriver</td>
+<td>第二次绑定失败</td>
+</tr>
+<tr>
+<td>D02</td>
+<td>旧绑定释放后用更大 Sequence 调 Tick</td>
+<td>拒绝旧驱动</td>
+</tr>
+<tr>
+<td>D03</td>
+<td>All 驱动依次 Early/Normal/Late，使用同一样本</td>
+<td>周期完成，只统计一个循环步</td>
+</tr>
+<tr>
+<td>D04</td>
+<td>漏阶段、重复阶段、逆序、样本不一致或跳序号</td>
+<td>本次在调用对象前拒绝</td>
+</tr>
+<tr>
+<td>D05</td>
+<td>不同循环交错推进，Sequence 不同</td>
+<td>各自合法，时间互不累加</td>
+</tr>
+<tr>
+<td>D06</td>
+<td>注册项所在阶段不在驱动声明内</td>
+<td>注册或绑定校验失败</td>
+</tr>
+<tr>
+<td>D07</td>
+<td>同优先级、不同组的同阶段对象</td>
+<td>按注册序号稳定执行</td>
+</tr>
+<tr>
+<td>D08</td>
+<td>回调内递归 Tick 或后台线程直接 Tick</td>
+<td>拒绝，原状态可正常收尾</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implementation-section-15">时间与频率</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入场景</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T01</td>
+<td>interval=0.1，输入 dt=0.04，再 dt=0.06</td>
+<td>只回调一次，交付 dt≈0.1</td>
+</tr>
+<tr>
+<td>T02</td>
+<td>上例两步间暂停，期间输入 dt=5</td>
+<td>暂停时间不累计，恢复后仍交付≈0.1</td>
+</tr>
+<tr>
+<td>T03</td>
+<td>interval=0.1，首步 dt=0.25</td>
+<td>一次回调≈0.25，下一时间网格点为≈0.3</td>
+</tr>
+<tr>
+<td>T04</td>
+<td>interval=0.1，同值 SetSchedule 每步调用</td>
+<td>截止时间不被持续重置</td>
+</tr>
+<tr>
+<td>T05</td>
+<td>每 N 步，offset 分散对象，发生预算延期</td>
+<td>按整数步网格接续，累计时间保留</td>
+</tr>
+<tr>
+<td>T06</td>
+<td>不同父子倍率组合、暂停某祖先</td>
+<td>有效 delta 正确相乘，暂停项停表</td>
+</tr>
+<tr>
+<td>T07</td>
+<td>源 delta=0 与组倍率=0 分别测试</td>
+<td>前者 EveryStep 可执行；后者停止执行</td>
+</tr>
+<tr>
+<td>T08</td>
+<td>一组时间源 Scaled，另一组 Unscaled</td>
+<td>同样本下分别使用正确来源</td>
+</tr>
+<tr>
+<td>T08a</td>
+<td>无 parent 创建 Unscaled 根，显式 parent 创建子组</td>
+<td>根可独立选来源，子组来源继承；冲突声明拒绝</td>
+</tr>
+<tr>
+<td>T09</td>
+<td>raw=0.5，项上限=0.1</td>
+<td>Delta=0.1，Discarded=0.4，Elapsed 增加0.1</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>A 回调申请暂停，使后面的 B 不执行</td>
+<td>B 保留阶段开始时已累计时间，恢复后不丢失</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>禁用、恢复、换组、修改周期组合</td>
+<td>剩余时间及累计量符合主设计，组外时间不补算</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>可变步长长时间推进 AtFps/AtInterval</td>
+<td>量化误差受宿主机会限制，无逐次 reset 周期漂移</td>
+</tr>
+<tr>
+<td>P01</td>
+<td>预算耗尽，后面包含 Required 与 Deferrable</td>
+<td>后续 Required 执行，Deferrable 延期</td>
+</tr>
+<tr>
+<td>P02</td>
+<td>单个回调时间超过预算</td>
+<td>完整返回，准确记录超预算，不能抢占</td>
+</tr>
+<tr>
+<td>P03</td>
+<td>低优先级长期延期</td>
+<td>延期计数和最长等待增长，不标记为已执行</td>
+</tr>
+<tr>
+<td>P04</td>
+<td>动态创建循环后 SetPhaseBudget，Tick 内再次修改</td>
+<td>独立阶段预算生效，当前 Tick 继续使用快照</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implementation-section-16">错误和诊断</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入场景</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O01</td>
+<td>一个回调抛异常，默认策略</td>
+<td>消费已交付时间，禁用该项，其他项继续</td>
+</tr>
+<tr>
+<td>O02</td>
+<td>Propagate 模式中途抛异常</td>
+<td>剩余项标记 Aborted，finally 清理完成，阶段记为结束</td>
+</tr>
+<tr>
+<td>O03</td>
+<td>多循环多阶段共用一个渲染帧</td>
+<td>渲染 FPS 不被回调次数放大</td>
+</tr>
+<tr>
+<td>O04</td>
+<td>重复宿主 FrameId、零 delta、无渲染宿主</td>
+<td>拒绝重复；无除零；无宿主显示无数据</td>
+</tr>
+<tr>
+<td>O05</td>
+<td>错误条数超过 ErrorBufferCapacity</td>
+<td>缓冲有界，替换最旧记录</td>
+</tr>
+<tr>
+<td>O06</td>
+<td>复用足够容量的输出 List 查询</td>
+<td>查询不新建容器，内容为完整只读值快照</td>
+</tr>
+<tr>
+<td>O07</td>
+<td>多固定步同一渲染帧到达</td>
+<td>TickHz 使用实际计数和实时时间窗口</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implementation-section-17">Unity 集成</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>输入场景</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U01</td>
+<td>同一 manager 重复 Install</td>
+<td>拒绝，不产生第二个常驻驱动</td>
+</tr>
+<tr>
+<td>U02</td>
+<td>一个渲染帧出现零个/多个 FixedUpdate</td>
+<td>PhysicsLoop 分别收到零步/多步</td>
+</tr>
+<tr>
+<td>U03</td>
+<td>Presentation Early 在 Update，后续在 LateUpdate</td>
+<td>使用同一 Sequence 和时间样本</td>
+</tr>
+<tr>
+<td>U04</td>
+<td>Dynamic 输入模式，多物理步消费同一快照</td>
+<td>连续状态可复用，边沿事件由示例一次消费</td>
+</tr>
+<tr>
+<td>U05</td>
+<td>owner 被 Destroy，未主动注销</td>
+<td>生命周期辅助在回调前排除失效 owner</td>
+</tr>
+<tr>
+<td>U06</td>
+<td>对象池 disable/enable、同帧复用</td>
+<td>新旧绑定互不误删，不双重回调</td>
+</tr>
+<tr>
+<td>U07</td>
+<td>场景卸载与对象转常驻场景</td>
+<td>scope 清理正确，显式迁移对象保留</td>
+</tr>
+<tr>
+<td>U08</td>
+<td>失焦与挂起两个原因重叠，再依次恢复</td>
+<td>各自暂停句柄独立释放，恢复无时间跳跃</td>
+</tr>
+<tr>
+<td>U09</td>
+<td>关闭 Domain Reload 后反复进入 Play</td>
+<td>静态 registry、宿主和事件订阅不累积</td>
+</tr>
+<tr>
+<td>U10</td>
+<td>暂停 worldGroup，input/network 属于其他组</td>
+<td>世界回调暂停，输入和网络仍可更新</td>
+</tr>
+<tr>
+<td>U11</td>
+<td>Time.timeScale=0，自动物理不再产生固定步</td>
+<td>Unscaled 注册不会凭空制造 PhysicsLoop Tick</td>
+</tr>
+<tr>
+<td>U12</td>
+<td>Host Dispose 后 manager 继续存在</td>
+<td>绑定撤销，未驱动状态可查，外部自定义循环不受误删</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="implementation-section-18">5. 性能测试方法</h2>
+<p>统一记录 Unity/运行时版本、构建后端、设备、构建模式与诊断级别。核心时间正确性测试用可控样本，预算测试用内部计时器替身，性能测试使用真实单调计时器和 Unity Profiler。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>基准取值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EntryCount</td>
+<td>100、1,000、10,000</td>
+</tr>
+<tr>
+<td>Workload</td>
+<td>空回调、固定成本轻量回调、批量系统</td>
+</tr>
+<tr>
+<td>ScheduleMix</td>
+<td>全每步、间隔混合、错峰每 N 步</td>
+</tr>
+<tr>
+<td>MutationRate</td>
+<td>稳态无变更、低频增删、大批注册/清理</td>
+</tr>
+<tr>
+<td>Diagnostics</td>
+<td>Off、Basic、Detailed</td>
+</tr>
+<tr>
+<td>WarmupSteps</td>
+<td>至少覆盖容量初始化、JIT/运行时预热及统计窗口</td>
+</tr>
+<tr>
+<td>MeasurementWindow</td>
+<td>相同平台使用相同统计步数，记录平均值与 P95/P99</td>
+</tr>
+</tbody>
+</table></div>
+<p>验收分开描述：预热后稳态框架 Tick 的 GC.Alloc 目标为零；注册、扩容、错误记录和显式报告允许分配但须可量化。CPU 指标展示自身调度成本和用户回调成本，不把减少调用数量直接当作单次调度更快。</p>
+<p>高频短回调可使用每对象注册；大量极轻对象应比较批量系统注册。只有真实基准证据表明阶段扫描是瓶颈后，才考虑时间轮、堆或更复杂索引，并保持公开时序语义一致。</p>
+<h2 id="implementation-section-19">6. 安装与回退路径</h2>
+<p>首版按模块新增文件和独立 asmdef。Unity 适配通过显式 Install 接入，旧系统迁移时一次只指定一个驱动来源。接入 IFrameUpdate 后应关闭同一逻辑原来的原生 Update，避免逻辑执行两次。</p>
+<p>每个迁移单元完成自身运行时回归后再继续。回退顺序为释放新增注册/驱动绑定，恢复原有驱动，确认常驻宿主和订阅已清理；不在两条路径同时启用时比较行为。</p>
+<p>已执行：独立核心工程还原/构建通过，运行时测试 55/55 通过，包含注册、驱动、时间、生命周期、暂停、异常和基础诊断场景。尚未执行：Unity 2022.3 导入与 EditMode/PlayMode 验证、Unity 场景运行、真实性能基准和具体模块迁移。</p>
+<h2 id="implementation-section-20">7. 完成定义</h2>
+<ul>
+<li>[ ] 纯核心测试和 Unity 目标版本编译通过。</li>
+<li>[ ] 注册、时序、暂停、生命周期与错误语义都有可复现测试。</li>
+<li>[ ] 默认 Unity 驱动与手动驱动示例独立可运行。</li>
+<li>[ ] 没有具体玩法或网络 SDK 类型进入核心。</li>
+<li>[ ] 稳态分配与调度开销有可复现记录，诊断数据含清晰口径。</li>
+<li>[ ] API、配置、示例、程序集关系和限制与最终代码一致。</li>
+<li>[ ] 未完成的可选扩展明确留在扩展范围，不以占位代码冒充实现。</li>
+</ul>
+<p>维护约定：主设计记录规范，本文记录实施与验收。实现改变规范时先同时更新两份 Markdown，再重新生成离线阅读页。</p>
+</article>
+<footer class="source-note">维护源文档：<a href="frame-update-framework.md">完整设计 Markdown</a><a href="frame-update-implementation-plan.md">实施清单 Markdown</a><br>本页面不加载外部脚本、字体或网络资源。打印会包含两份完整文档。</footer>
+</main></div><a class="top-link" href="#top">回到顶部 ↑</a>
+<script>
+(function(){
+  const tabs = [...document.querySelectorAll('[data-switch]')];
+  function select(key){
+    if(!['design','implementation'].includes(key)) return;
+    document.querySelectorAll('[data-document]').forEach(x=>x.hidden=x.dataset.document!==key);
+    document.querySelectorAll('[data-nav]').forEach(x=>x.hidden=x.dataset.nav!==key);
+    tabs.forEach(x=>{const selected=x.dataset.switch===key;x.setAttribute('aria-selected',String(selected));x.tabIndex=selected?0:-1;});
+  }
+  function fromHash(){const id=decodeURIComponent(location.hash.slice(1));const node=document.getElementById(id);if(node){const article=node.closest('[data-document]');if(article) select(article.dataset.document);}}
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{select(tab.dataset.switch);history.replaceState(null,'','#'+tab.dataset.switch);document.querySelector('.tabs').scrollIntoView({block:'start'});}));
+  document.querySelector('.tabs').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const selected=tabs.findIndex(t=>t.getAttribute('aria-selected')==='true');const next=tabs[(selected+1)%tabs.length];next.click();next.focus();});
+  document.querySelectorAll('a[data-doc]').forEach(link=>link.addEventListener('click',()=>{select(link.dataset.doc);document.body.classList.remove('nav-open');document.getElementById('menu').setAttribute('aria-expanded','false');}));
+  document.getElementById('menu').addEventListener('click',()=>{const open=document.body.classList.toggle('nav-open');document.getElementById('menu').setAttribute('aria-expanded',String(open));});
+  document.getElementById('print').addEventListener('click',()=>window.print());
+  window.addEventListener('hashchange',fromHash);
+  select(location.hash.startsWith('#implementation')?'implementation':'design');fromHash();
+  if(location.hash) requestAnimationFrame(()=>{const node=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(node)node.scrollIntoView();});
+  const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting&&!entry.target.closest('[data-document]').hidden){document.querySelectorAll('.sidebar a').forEach(a=>a.classList.toggle('current',a.hash==='#'+entry.target.id));}}},{rootMargin:'-80px 0px -65% 0px'});
+  document.querySelectorAll('article h2').forEach(x=>observer.observe(x));
+})();
+</script>
+</body></html>
