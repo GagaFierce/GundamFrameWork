@@ -1,0 +1,15 @@
+{
+  "name": "WFrameWork.UI.Samples",
+  "rootNamespace": "WFrameWork.Samples.UI",
+  "references": ["WFrameWork.UI", "WFrameWork.UI.Unity", "WFrameWork.FrameUpdate", "WFrameWork.FrameUpdate.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
+

@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Audio",
+  "rootNamespace": "WFrameWork.Audio",
+  "references": ["WFrameWork.Diagnostics", "WFrameWork.Threading"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

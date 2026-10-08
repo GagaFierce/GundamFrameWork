@@ -1,0 +1,15 @@
+{
+  "name": "WFrameWork.Physics.Samples",
+  "rootNamespace": "WFrameWork.Samples.Physics",
+  "references": ["WFrameWork.Physics", "WFrameWork.Physics.Unity", "WFrameWork.FrameUpdate", "WFrameWork.FrameUpdate.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
+

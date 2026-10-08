@@ -18,6 +18,7 @@ using UnityEngine.U2D;
 namespace WFrameWork.Core.ResLoad
 {
 
+    [Obsolete("ResourcesManager is a migration-only compatibility API. Use WFrameWork.Core.ResLoad.ResourceService.", false)]
     public interface ResourcesManager
     {
         public enum eResType
@@ -49,6 +50,7 @@ namespace WFrameWork.Core.ResLoad
 
     //==========================================================================================================================
 
+    [Obsolete("ResourcesManagerImpl is a migration-only compatibility API. Use AddressablesResourceService.", false)]
     public class ResourcesManagerImpl : Singleton.MonoSingleton<ResourcesManagerImpl>, ResourcesManager
     {
         struct LoadResInfo

@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Threading.Unity",
+  "rootNamespace": "WFrameWork.Threading.Unity",
+  "references": ["WFrameWork.Threading"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

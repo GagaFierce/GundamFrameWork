@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Input.Unity",
+  "rootNamespace": "WFrameWork.Input.Unity",
+  "references": ["WFrameWork.Input", "WFrameWork.FrameUpdate"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

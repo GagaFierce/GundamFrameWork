@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Audio.Unity",
+  "rootNamespace": "WFrameWork.Audio.Unity",
+  "references": ["WFrameWork.Audio", "WFrameWork.ResLoad", "WFrameWork.Threading", "WFrameWork.Threading.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

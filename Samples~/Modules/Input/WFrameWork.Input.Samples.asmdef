@@ -1,0 +1,15 @@
+{
+  "name": "WFrameWork.Input.Samples",
+  "rootNamespace": "WFrameWork.Samples.Input",
+  "references": ["WFrameWork.Input", "WFrameWork.Input.Unity", "WFrameWork.FrameUpdate", "WFrameWork.FrameUpdate.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
+

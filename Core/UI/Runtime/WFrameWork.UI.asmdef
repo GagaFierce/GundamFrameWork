@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.UI",
+  "rootNamespace": "WFrameWork.UI",
+  "references": ["WFrameWork.FrameUpdate", "WFrameWork.Diagnostics"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

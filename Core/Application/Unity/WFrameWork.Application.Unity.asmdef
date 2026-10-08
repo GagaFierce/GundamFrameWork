@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Application.Unity",
+  "rootNamespace": "WFrameWork.Application.Unity",
+  "references": ["WFrameWork.Application", "WFrameWork.Diagnostics", "WFrameWork.FrameUpdate.Unity", "WFrameWork.Threading.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

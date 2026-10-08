@@ -1,7 +1,7 @@
 {
     "name": "GFramework",
     "rootNamespace": "",
-    "references": [],
+    "references": ["WFrameWork.Diagnostics"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

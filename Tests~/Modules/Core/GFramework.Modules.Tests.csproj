@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../Core/FrameUpdate/Runtime/**/*.cs" Link="FrameUpdate/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Diagnostics/Runtime/**/*.cs" Link="Diagnostics/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/ResLoad/Runtime/**/*.cs" Link="ResLoad/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Pool/Runtime/**/*.cs" Link="Pool/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Scene/Runtime/**/*.cs" Link="Scene/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Audio/Runtime/**/*.cs" Link="Audio/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Config/Runtime/**/*.cs" Link="Config/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Input/Runtime/**/*.cs" Link="Input/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Physics/Runtime/**/*.cs" Link="Physics/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/UI/Runtime/**/*.cs" Link="UI/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Threading/Runtime/**/*.cs" Link="Threading/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Application/Runtime/**/*.cs" Link="Application/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/UIBridge/InputUiModalBlocker.cs" Link="Bridges/InputUiModalBlocker.cs" />
+    <Compile Include="../../../Core/PhysicsInputBridge/FixedInputParticipant.cs" Link="Bridges/FixedInputParticipant.cs" />
+  </ItemGroup>
+</Project>
