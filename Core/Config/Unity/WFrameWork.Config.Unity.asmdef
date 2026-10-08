@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Config.Unity",
+  "rootNamespace": "WFrameWork.Config.Unity",
+  "references": ["WFrameWork.Config", "WFrameWork.ResLoad"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

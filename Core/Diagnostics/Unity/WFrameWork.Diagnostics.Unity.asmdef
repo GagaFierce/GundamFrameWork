@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Diagnostics.Unity",
+  "rootNamespace": "WFrameWork.Diagnostics.Unity",
+  "references": ["WFrameWork.Diagnostics"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

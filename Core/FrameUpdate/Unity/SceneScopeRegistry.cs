@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityScene = UnityEngine.SceneManagement.Scene;
 
 namespace WFrameWork.Core.FrameUpdate.Unity
 {
@@ -20,7 +21,7 @@ namespace WFrameWork.Core.FrameUpdate.Unity
             Registries.Add(this);
         }
 
-        public UpdateScope GetOrCreate(Scene scene)
+        public UpdateScope GetOrCreate(UnityScene scene)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(SceneScopeRegistry));
             if (!scene.IsValid() || !scene.isLoaded)
@@ -31,13 +32,13 @@ namespace WFrameWork.Core.FrameUpdate.Unity
             return scope;
         }
 
-        public bool Rebind(UpdateHandle handle, Scene destination)
+        public bool Rebind(UpdateHandle handle, UnityScene destination)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(SceneScopeRegistry));
             return _manager.SetScope(handle, GetOrCreate(destination));
         }
 
-        public bool Release(Scene scene)
+        public bool Release(UnityScene scene)
         {
             if (_disposed || !_scopes.TryGetValue(scene.handle, out var scope)) return false;
             _scopes.Remove(scene.handle);
@@ -45,7 +46,7 @@ namespace WFrameWork.Core.FrameUpdate.Unity
             return true;
         }
 
-        private void OnSceneUnloaded(Scene scene) { Release(scene); }
+        private void OnSceneUnloaded(UnityScene scene) { Release(scene); }
 
         public void Dispose()
         {

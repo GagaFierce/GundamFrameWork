@@ -35,7 +35,7 @@ namespace WFrameWork.Core.Event
 
         void IEventLogic.ReceiveLogicEvent(int msgId, object msgInfo)
         {
-            throw new NotImplementedException();
+            ReceiveEvent(msgId, msgInfo);
         }
 
         public void SetReceiveEventCallback(Action<int, object> callback)

@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Pool.Unity",
+  "rootNamespace": "WFrameWork.Pool.Unity",
+  "references": ["WFrameWork.Pool", "WFrameWork.ResLoad", "WFrameWork.Threading.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Combined.Samples",
+  "rootNamespace": "WFrameWork.Samples.Combined",
+  "references": ["WFrameWork.Application", "WFrameWork.Application.Unity", "WFrameWork.Diagnostics.Unity", "WFrameWork.Input", "WFrameWork.Input.Unity", "WFrameWork.UI", "WFrameWork.UI.Unity", "WFrameWork.Input.UIBridge", "WFrameWork.Physics", "WFrameWork.Physics.Unity", "WFrameWork.Physics.InputBridge", "WFrameWork.FrameUpdate", "WFrameWork.FrameUpdate.Unity", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Pool", "WFrameWork.Pool.Unity", "WFrameWork.Scene", "WFrameWork.Scene.Unity", "WFrameWork.Audio", "WFrameWork.Audio.Unity", "WFrameWork.Config", "WFrameWork.Config.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

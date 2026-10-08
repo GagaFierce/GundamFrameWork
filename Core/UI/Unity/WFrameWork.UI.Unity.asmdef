@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.UI.Unity",
+  "rootNamespace": "WFrameWork.UI.Unity",
+  "references": ["WFrameWork.UI", "WFrameWork.FrameUpdate.Unity", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Threading.Unity"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

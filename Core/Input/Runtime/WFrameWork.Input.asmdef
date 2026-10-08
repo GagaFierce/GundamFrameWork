@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Input",
+  "rootNamespace": "WFrameWork.Input",
+  "references": ["WFrameWork.Diagnostics"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

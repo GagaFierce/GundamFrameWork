@@ -1,0 +1,17 @@
+{
+  "name": "WFrameWork.Input.NewInputSystem",
+  "rootNamespace": "WFrameWork.Input.NewInputSystem",
+  "references": ["WFrameWork.Input", "Unity.InputSystem"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": ["GFRAMEWORK_INPUT_SYSTEM"],
+  "versionDefines": [
+    { "name": "com.unity.inputsystem", "expression": ">=1.0.0", "define": "GFRAMEWORK_INPUT_SYSTEM" }
+  ],
+  "noEngineReferences": false
+}
+

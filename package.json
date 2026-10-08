@@ -14,6 +14,29 @@
     "url": "https://github.com/GagaFierce/GundamFrameWork.git"
   },
   "dependencies": {
-    "com.unity.textmeshpro": "3.0.9"
-  }
+    "com.unity.textmeshpro": "3.0.9",
+    "com.unity.addressables": "1.22.3"
+  },
+  "samples": [
+    {
+      "displayName": "Input module",
+      "description": "Logical actions, contexts and Legacy Input sampling through the shared FrameUpdate host.",
+      "path": "Samples~/Modules/Input"
+    },
+    {
+      "displayName": "Physics module",
+      "description": "Fixed-step Rigidbody motion and explicit 3D query buffers.",
+      "path": "Samples~/Modules/Physics"
+    },
+    {
+      "displayName": "UI module",
+      "description": "uGUI root, Addressables-backed panels, modal stack and Presentation refresh.",
+      "path": "Samples~/Modules/UI"
+    },
+    {
+      "displayName": "Combined modules",
+      "description": "Input to fixed-step gameplay, Physics bridge, HUD and modal settings integration.",
+      "path": "Samples~/Modules/Combined"
+    }
+  ]
 }

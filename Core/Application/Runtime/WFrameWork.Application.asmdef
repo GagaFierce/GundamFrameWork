@@ -1,0 +1,26 @@
+{
+  "name": "WFrameWork.Application",
+  "rootNamespace": "WFrameWork.Application",
+  "references": [
+    "WFrameWork.Diagnostics",
+    "WFrameWork.Threading",
+    "WFrameWork.FrameUpdate",
+    "WFrameWork.Input",
+    "WFrameWork.Physics",
+    "WFrameWork.UI",
+    "WFrameWork.ResLoad",
+    "WFrameWork.Scene",
+    "WFrameWork.Pool",
+    "WFrameWork.Audio",
+    "WFrameWork.Config"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

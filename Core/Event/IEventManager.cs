@@ -9,6 +9,7 @@
 ***************************************************/
 
 using System.Collections.Generic;
+using WFrameWork.Diagnostics;
 
 namespace WFrameWork.Core.Event
 {
@@ -39,10 +40,16 @@ namespace WFrameWork.Core.Event
 
 
         Dictionary<int, List<EventInfo>> mEventList = new Dictionary<int, List<EventInfo>>();
+        private readonly DiagnosticLogger mDiagnostics;
         List<MsgInfo> mMsgInfos = new List<MsgInfo>();
         List<EventInfo> mAddEventList = new List<EventInfo>();
         List<EventInfo> mRemoveEventList = new List<EventInfo>();
 
+
+        public EventManager(IDiagnosticSink diagnostics = null)
+        {
+            mDiagnostics = new DiagnosticLogger("Event", diagnostics);
+        }
 
         public void Dispose()
         {
@@ -162,7 +169,8 @@ namespace WFrameWork.Core.Event
                     EventInfo evtInfo = evts[i];
                     if (mRemoveEventList.Contains(evtInfo))
                         continue;
-                    evtInfo.callback.ReceiveEvent(msgId, msgInfo);
+                    try { evtInfo.callback.ReceiveEvent(msgId, msgInfo); }
+                    catch (System.Exception error) { mDiagnostics.Error("Event callback failed for message " + msgId, error); }
                 }
             }
         }
