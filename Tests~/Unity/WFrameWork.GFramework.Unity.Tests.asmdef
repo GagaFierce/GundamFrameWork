@@ -1,15 +1,43 @@
 {
   "name": "WFrameWork.GFramework.Unity.Tests",
   "rootNamespace": "WFrameWork.Tests.Unity",
-  "references": ["WFrameWork.Diagnostics", "WFrameWork.Application", "WFrameWork.Application.Unity", "WFrameWork.Input", "WFrameWork.UI", "WFrameWork.UI.Unity", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Pool", "WFrameWork.Pool.Unity", "WFrameWork.Scene", "WFrameWork.Scene.Unity", "WFrameWork.Threading.Unity", "WFrameWork.Audio", "WFrameWork.Config", "Unity.Addressables", "Unity.TextMeshPro"],
-  "optionalUnityReferences": ["TestAssemblies"],
+  "references": [
+    "WFrameWork.Diagnostics",
+    "WFrameWork.Application",
+    "WFrameWork.Application.Unity",
+    "WFrameWork.Input",
+    "WFrameWork.UI",
+    "WFrameWork.UI.Unity",
+    "WFrameWork.ResLoad",
+    "WFrameWork.ResLoad.Unity",
+    "WFrameWork.Pool",
+    "WFrameWork.Pool.Unity",
+    "WFrameWork.Scene",
+    "WFrameWork.Scene.Unity",
+    "WFrameWork.Threading.Unity",
+    "WFrameWork.Audio",
+    "WFrameWork.Config",
+    "Unity.Addressables",
+    "Unity.TextMeshPro",
+    "WFrameWork.Threading",
+    "WFrameWork.FrameUpdate",
+    "WFrameWork.FrameUpdate.Unity",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll"],
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
   "autoReferenced": false,
-  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
   "versionDefines": [],
   "noEngineReferences": false
 }

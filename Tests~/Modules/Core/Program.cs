@@ -147,6 +147,15 @@ namespace WFrameWork.Modules.Tests
             new TestCase("UI MVVM settings draft apply rollback and failure", UiMvvmTests.SettingsDraftApplyRollbackAndFailure),
             new TestCase("UI MVVM closed binding ignores late updates", UiMvvmTests.ClosedBindingStopsLateUpdates),
             new TestCase("UI MVVM dialog once and bounded toast", UiMvvmTests.DialogCompletesOnceAndToastIsBounded),
+            new TestCase("MVVM regression notifications use owner thread and commands publish tasks", UiMvvmRegressionTests.BindingNotificationsUseOwnerAndCommandsPublishTask),
+            new TestCase("MVVM regression cleanup continues after exceptions", UiMvvmRegressionTests.CleanupContinuesAfterExceptions),
+            new TestCase("MVVM regression binding creation rolls back", UiMvvmRegressionTests.FailedBindingCreationRollsBack),
+            new TestCase("MVVM regression saving preserves later edits and preview rollback", UiMvvmRegressionTests.SettingsSaveKeepsNewDraftAndRestoresPreview),
+            new TestCase("MVVM regression settings close choices", UiMvvmRegressionTests.SettingsCloseGuardHandlesAllChoices),
+            new TestCase("MVVM regression retry shares cancellation", UiMvvmRegressionTests.LoadingRetrySharesCancellationAndConcurrency),
+            new TestCase("MVVM regression real next action and toast timing", UiMvvmRegressionTests.ResultCapabilitiesAndToastTiming),
+            new TestCase("MVVM regression panel close guard", UiMvvmRegressionTests.PanelRequestCloseHonorsGuard),
+            new TestCase("MVVM regression 20 panel generation close cycles", UiMvvmRegressionTests.PanelGenerationsCloseRepeatedly),
         };
 
         private static async Task Main(string[] args)

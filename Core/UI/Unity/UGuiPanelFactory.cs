@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Threading;
 using WFrameWork.Threading.Unity;
 
 namespace WFrameWork.UI.Unity
@@ -29,7 +30,7 @@ namespace WFrameWork.UI.Unity
         }
     }
 
-    public sealed class UGuiPanelInstance : IUiPanelInstance, IUiAsyncPanelInstance
+    public sealed class UGuiPanelInstance : IUiPanelInstance, IUiAsyncPanelInstance, IUiCloseRequest
     {
         private readonly GameObject _gameObject;
         private readonly List<IUGuiPanelLifecycle> _lifecycles = new List<IUGuiPanelLifecycle>();
@@ -51,6 +52,12 @@ namespace WFrameWork.UI.Unity
         public void OnHidden() { for (int i = 0; i < _lifecycles.Count; i++) _lifecycles[i].OnPanelHidden(); }
         public void OnClosed() { for (int i = 0; i < _lifecycles.Count; i++) _lifecycles[i].OnPanelClosed(); }
         public void OnUpdate(in UiPanelUpdateContext context) { for (int i = 0; i < _lifecycles.Count; i++) _lifecycles[i].OnPanelUpdate(in context); }
+        public async Task<bool> CanCloseAsync(CancellationToken token)
+        {
+            foreach (var lifecycle in _lifecycles.ToArray())
+                if (lifecycle is IUiCloseRequest guard && !await guard.CanCloseAsync(token)) return false;
+            return true;
+        }
         public void Dispose()
         {
             if (_gameObject == null) return;

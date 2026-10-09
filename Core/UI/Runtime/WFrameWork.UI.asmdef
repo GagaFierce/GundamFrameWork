@@ -1,7 +1,7 @@
 {
   "name": "WFrameWork.UI",
   "rootNamespace": "WFrameWork.UI",
-  "references": ["WFrameWork.FrameUpdate", "WFrameWork.Diagnostics"],
+  "references": ["WFrameWork.FrameUpdate", "WFrameWork.Diagnostics", "WFrameWork.Threading"],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

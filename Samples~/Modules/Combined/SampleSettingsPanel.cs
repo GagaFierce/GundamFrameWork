@@ -19,12 +19,15 @@ namespace WFrameWork.Samples.Combined
         [SerializeField] private Button defaults;
         [SerializeField] private TMP_Text errorText;
         [SerializeField] private GameObject busyIndicator;
+        [SerializeField] private TMP_Dropdown windowMode;
+        [SerializeField] private TMP_Dropdown resolution;
+        [SerializeField] private TMP_Dropdown quality;
 
         protected override SettingsViewModel CreateViewModel(object argument)
         {
-            var services = argument as CombinedSampleRuntimeServices ?? FindObjectOfType<CombinedSampleRuntimeServices>();
+            var services = argument as CombinedSampleRuntimeServices;
             if (services == null) throw new System.InvalidOperationException("CombinedSampleRuntimeServices is required by settings.");
-            return new SettingsViewModel(services, services);
+            return new SettingsViewModel(services, services, services);
         }
 
         protected override void Bind(SettingsViewModel viewModel, UiBindingSet bindings)
@@ -37,7 +40,22 @@ namespace WFrameWork.Samples.Combined
             if (apply != null) bindings.Add(UiControlBindings.Button(apply, viewModel.ApplyCommand, busyIndicator));
             if (cancel != null) bindings.Add(UiControlBindings.Button(cancel, viewModel.DiscardAndCloseCommand));
             if (defaults != null) bindings.Add(UiControlBindings.Button(defaults, viewModel.DefaultsCommand));
-            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.SaveError), () => viewModel.SaveError, value => errorText.text = value ?? string.Empty));
+            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.SaveError), () => viewModel.SaveError, errorText));
+            if (windowMode != null)
+            {
+                windowMode.ClearOptions(); windowMode.AddOptions(new System.Collections.Generic.List<string>(viewModel.WindowModes));
+                bindings.Add(UiControlBindings.Dropdown(viewModel, nameof(viewModel.WindowMode), () => viewModel.WindowMode, v => viewModel.WindowMode = v, windowMode));
+            }
+            if (resolution != null)
+            {
+                resolution.ClearOptions(); resolution.AddOptions(new System.Collections.Generic.List<string>(viewModel.Resolutions));
+                bindings.Add(UiControlBindings.Dropdown(viewModel, nameof(viewModel.ResolutionIndex), () => viewModel.ResolutionIndex, v => viewModel.ResolutionIndex = v, resolution));
+            }
+            if (quality != null)
+            {
+                quality.ClearOptions(); quality.AddOptions(new System.Collections.Generic.List<string>(viewModel.QualityLevels));
+                bindings.Add(UiControlBindings.Dropdown(viewModel, nameof(viewModel.QualityIndex), () => viewModel.QualityIndex, v => viewModel.QualityIndex = v, quality));
+            }
         }
     }
 }

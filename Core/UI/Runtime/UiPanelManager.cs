@@ -36,6 +36,7 @@ namespace WFrameWork.UI
             internal int ActiveWaiters;
             internal bool SharedWaiterActive;
             internal bool PartsDisposed;
+            internal readonly object PartsDisposeGate = new object();
             internal Task PartsDisposeTask;
             internal bool Dirty = true;
             internal int Index;
@@ -47,10 +48,12 @@ namespace WFrameWork.UI
         private readonly IUiFocusService _focus;
         private readonly IUiModalInputBlocker _modalBlocker;
         private readonly DiagnosticLogger _diagnostics;
+        private readonly UiExecutionContext _context = new UiExecutionContext();
         private readonly Dictionary<UiPanelId, UiPanelDefinition> _definitions = new Dictionary<UiPanelId, UiPanelDefinition>();
         private readonly Dictionary<UiPanelId, List<Entry>> _entries = new Dictionary<UiPanelId, List<Entry>>();
         private readonly List<Entry> _allEntries = new List<Entry>();
         private readonly List<Entry> _modalStack = new List<Entry>();
+        private readonly object _entryRemovalGate = new object();
         private IDisposable _frameBinding;
         private FrameUpdateManager _frameManager;
         private UpdateGroup _ownedGroup;
@@ -133,7 +136,7 @@ namespace WFrameWork.UI
             }
             var waiter = new OpenWaiter();
             entry.Waiters.Add(waiter); entry.ActiveWaiters++;
-            waiter.Registration = token.Register(() => CancelWaiter(entry, waiter, token));
+            waiter.Registration = token.Register(() => _context.Post(() => CancelWaiter(entry, waiter, token)));
             return waiter.Completion.Task;
         }
 
@@ -142,11 +145,11 @@ namespace WFrameWork.UI
             Task close = closing.CloseTask;
             if (close != null)
             {
-                try { await close.ConfigureAwait(false); }
+                try { await close; }
                 catch (Exception error) { _diagnostics.Error("Panel close failed before reopen.", error); }
             }
             token.ThrowIfCancellationRequested();
-            return await OpenAsync(closing.Definition.Id, argument, token).ConfigureAwait(false);
+            return await OpenAsync(closing.Definition.Id, argument, token);
         }
 
         private void CancelWaiter(Entry entry, OpenWaiter waiter, CancellationToken token)
@@ -176,6 +179,28 @@ namespace WFrameWork.UI
         {
             EnsureUsable();
             return _modalStack.Count == 0 ? Task.CompletedTask : CloseEntryAsync(_modalStack[_modalStack.Count - 1]);
+        }
+
+        public Task RequestCloseTopModalAsync(CancellationToken token = default(CancellationToken))
+        {
+            EnsureUsable();
+            return _modalStack.Count == 0 ? Task.CompletedTask : RequestCloseEntryAsync(_modalStack[_modalStack.Count - 1], token);
+        }
+
+        public Task RequestCloseAsync(UiPanelId id, CancellationToken token = default(CancellationToken))
+        {
+            EnsureUsable();
+            if (!_entries.TryGetValue(id, out var entries)) return Task.CompletedTask;
+            Entry entry = FindCurrentGeneration(entries);
+            return entry == null ? Task.CompletedTask : RequestCloseEntryAsync(entry, token);
+        }
+
+        private async Task RequestCloseEntryAsync(Entry entry, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            if (entry.Instance is IUiCloseRequest guard && !await guard.CanCloseAsync(token)) return;
+            token.ThrowIfCancellationRequested();
+            await CloseEntryAsync(entry);
         }
 
         public bool IsOpen(UiPanelId panelId) => _entries.TryGetValue(panelId, out var list) && list.Count > 0;
@@ -268,7 +293,7 @@ namespace WFrameWork.UI
                     Interlocked.Exchange(ref entry.CancelRequested, 1);
                     CancelOpenCompletion(entry); RemoveModal(entry);
                     entry.State = UiPanelState.Closed; RemoveEntry(entry);
-                    await DisposeEntryPartsAsync(entry).ConfigureAwait(false);
+                    await DisposeEntryPartsAsync(entry);
                 }
             }
             catch (Exception error) { await FailOpenAsync(entry, error); }
@@ -294,7 +319,7 @@ namespace WFrameWork.UI
             List<Exception> errors = new List<Exception>();
             if (entry.OpenOperation != null)
             {
-                try { await entry.OpenOperation.ConfigureAwait(false); }
+                try { await entry.OpenOperation; }
                 catch (Exception error) { if (!(error is OperationCanceledException)) errors.Add(error); }
             }
             try
@@ -312,7 +337,7 @@ namespace WFrameWork.UI
             catch (Exception error) { errors.Add(error); }
             finally
             {
-                try { await DisposeEntryPartsAsync(entry).ConfigureAwait(false); }
+                try { await DisposeEntryPartsAsync(entry); }
                 catch (Exception error) { errors.Add(error); }
                 entry.State = UiPanelState.Closed; CancelOpenCompletion(entry); RemoveEntry(entry);
             }
@@ -399,16 +424,25 @@ namespace WFrameWork.UI
 
         private void RemoveEntry(Entry entry)
         {
-            _allEntries.Remove(entry); if (_entries.TryGetValue(entry.Definition.Id, out var list)) list.Remove(entry);
+            // Asynchronous destruction may complete for several generations at once in
+            // context-free hosts. Serialize removal so List.Remove cannot race itself.
+            lock (_entryRemovalGate)
+            {
+                _allEntries.Remove(entry);
+                if (_entries.TryGetValue(entry.Definition.Id, out var list)) list.Remove(entry);
+            }
         }
 
-        private async Task DisposeEntryPartsAsync(Entry entry)
+        private Task DisposeEntryPartsAsync(Entry entry)
         {
-            if (entry.PartsDisposeTask != null) { await entry.PartsDisposeTask.ConfigureAwait(false); return; }
-            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            entry.PartsDisposeTask = completion.Task;
-            _ = DisposeEntryPartsCoreAsync(entry, completion);
-            await completion.Task.ConfigureAwait(false);
+            lock (entry.PartsDisposeGate)
+            {
+                if (entry.PartsDisposeTask != null) return entry.PartsDisposeTask;
+                var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                entry.PartsDisposeTask = completion.Task;
+                _ = DisposeEntryPartsCoreAsync(entry, completion);
+                return completion.Task;
+            }
         }
 
         private async Task DisposeEntryPartsCoreAsync(Entry entry, TaskCompletionSource<bool> completion)
@@ -417,12 +451,12 @@ namespace WFrameWork.UI
             {
                 try
                 {
-                    if (entry.Instance is IUiAsyncPanelInstance asyncInstance) await asyncInstance.DisposeAsync().ConfigureAwait(false);
+                    if (entry.Instance is IUiAsyncPanelInstance asyncInstance) await asyncInstance.DisposeAsync();
                     else entry.Instance?.Dispose();
                 }
                 catch (Exception error) { _diagnostics.Error("Panel instance dispose failed", error); }
                 entry.Instance = null;
-                try { if (entry.Resource != null) await entry.Resource.DisposeAsync().ConfigureAwait(false); }
+                try { if (entry.Resource != null) await entry.Resource.DisposeAsync(); }
                 catch (Exception error) { _diagnostics.Error("Panel resource dispose failed", error); }
                 entry.Resource = null;
                 entry.PartsDisposed = true;
@@ -437,10 +471,12 @@ namespace WFrameWork.UI
             try { action(); } catch (Exception error) { _diagnostics.Error("Panel " + operation + " callback failed", error); }
         }
 
-        private void EnsureUsable() { if (_disposed) throw new ObjectDisposedException(nameof(UiPanelManager)); }
+        private void EnsureUsable()
+        { _context.VerifyAccess(); if (_disposed) throw new ObjectDisposedException(nameof(UiPanelManager)); }
 
         public Task CloseAllAsync()
         {
+            _context.VerifyAccess();
             if (_closeTask != null) return _closeTask;
             _disposed = true;
             _closeTask = CloseAllCoreAsync();
@@ -457,7 +493,7 @@ namespace WFrameWork.UI
             for (int i = entries.Length - 1; i >= 0; i--)
             {
                 var entry = entries[i];
-                try { await CloseEntryAsync(entry).ConfigureAwait(false); }
+                try { await CloseEntryAsync(entry); }
                 catch (Exception error) { errors.Add(error); }
             }
             _allEntries.Clear(); _modalStack.Clear(); _entries.Clear(); _definitions.Clear();

@@ -61,6 +61,8 @@ namespace WFrameWork.UI.Unity
         }
 
         public Task CloseTopModalAsync() => _manager == null ? Task.CompletedTask : _manager.CloseTopModalAsync();
+        public Task RequestCloseTopModalAsync(CancellationToken token = default(CancellationToken)) =>
+            _manager == null ? Task.CompletedTask : _manager.RequestCloseTopModalAsync(token);
 
         public async Task InitializeAsync(FrameUpdateManager frameUpdateManager, UnityFrameUpdateLoops loops,
             IUiFocusService focus = null, IUiModalInputBlocker modalBlocker = null, ResourceService resourceService = null)

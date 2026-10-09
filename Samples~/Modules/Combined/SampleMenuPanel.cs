@@ -20,9 +20,9 @@ namespace WFrameWork.Samples.Combined
 
         protected override LobbyViewModel CreateViewModel(object argument)
         {
-            var services = argument as CombinedSampleRuntimeServices ?? FindObjectOfType<CombinedSampleRuntimeServices>();
+            var services = argument as CombinedSampleRuntimeServices;
             if (services == null) throw new System.InvalidOperationException("CombinedSampleRuntimeServices is required by the sample menu.");
-            return new LobbyViewModel(services, services, services, true, services);
+            return new LobbyViewModel(services, services, services, services.IsReady, services);
         }
 
         protected override void Bind(LobbyViewModel viewModel, UiBindingSet bindings)
@@ -32,8 +32,8 @@ namespace WFrameWork.Samples.Combined
             if (helpButton != null) bindings.Add(UiControlBindings.Button(helpButton, viewModel.HelpCommand));
             if (aboutButton != null) bindings.Add(UiControlBindings.Button(aboutButton, viewModel.AboutCommand));
             if (exitButton != null) bindings.Add(UiControlBindings.Button(exitButton, viewModel.ExitCommand));
-            if (statusText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Status), () => viewModel.Status, value => statusText.text = value ?? string.Empty));
-            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Error), () => viewModel.Error, value => errorText.text = value ?? string.Empty));
+            if (statusText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Status), () => viewModel.Status, statusText));
+            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Error), () => viewModel.Error, errorText));
         }
     }
 }

@@ -125,14 +125,14 @@ namespace WFrameWork.Core.ResLoad.Unity
 
         private static async Task FinishCanceledAsset(AsyncOperationHandle<UnityEngine.Object> handle, IMainThreadDispatcher mainThread)
         {
-            try { await AwaitHandle(handle, null, CancellationToken.None); }
+            try { await AwaitHandle(handle, CancellationToken.None); }
             catch { }
             await mainThread.RunAsync(() => { if (handle.IsValid()) Addressables.Release(handle); });
         }
 
         private static async Task FinishCanceledInstance(AsyncOperationHandle<GameObject> handle, IMainThreadDispatcher mainThread)
         {
-            try { await AwaitHandle(handle, null, CancellationToken.None); }
+            try { await AwaitHandle(handle, CancellationToken.None); }
             catch { }
             await mainThread.RunAsync(() => { if (handle.IsValid()) Addressables.ReleaseInstance(handle); });
         }

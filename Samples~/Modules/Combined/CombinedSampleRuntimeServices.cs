@@ -10,6 +10,7 @@ using WFrameWork.Audio.Unity;
 using WFrameWork.Config;
 using WFrameWork.Config.Unity;
 using WFrameWork.Core.FrameUpdate.Unity;
+using WFrameWork.Core.FrameUpdate;
 using WFrameWork.Core.ResLoad;
 using WFrameWork.Core.ResLoad.Unity;
 using WFrameWork.Diagnostics.Unity;
@@ -42,8 +43,8 @@ namespace WFrameWork.Samples.Combined
 
     /// <summary>Single composition root for the complete sample flow.</summary>
     [DisallowMultipleComponent]
-    public sealed class CombinedSampleRuntimeServices : MonoBehaviour,
-        IUiGameFlowService, IUiSettingsService, IUiNavigationService, IUiExitService, IUiDialogService
+    public sealed partial class CombinedSampleRuntimeServices : MonoBehaviour,
+        IUiGameFlowService, IUiNextLevelService, IUiSettingsService, IUiNavigationService, IUiExitService, IUiDialogService
     {
         [SerializeField] private AudioServiceBehaviour audioBehaviour;
         [SerializeField] private UiPanelManagerBehaviour ui;
@@ -68,11 +69,13 @@ namespace WFrameWork.Samples.Combined
         private Task _startTask;
         private Task _returnTask;
         private GameObject _gameplayPlayer;
+        private PhysicsParticipantHandle _gameplayBinding;
         private AudioPlaybackHandle _gameplaySfx;
         private readonly object _shutdownGate = new object();
         private Task _shutdownTask;
         private bool _ready;
         private UiSettingsSnapshot _settingsSnapshot = UiSettingsSnapshot.Default;
+        private UpdateGroup _gameplayGroup;
 
         public GameRuntime Runtime => _unityRuntime?.Runtime;
         public ResourceService Resources => _addressables?.Service;
@@ -90,8 +93,9 @@ namespace WFrameWork.Samples.Combined
             return new List<UiHelpItem>
             {
                 new UiHelpItem("移动/交互", "本示例使用实际配置的输入动作；当前演示提供 Space 跳跃。"),
-                new UiHelpItem("暂停/设置", "Escape 打开或关闭设置，并由 UI 模态上下文屏蔽 Gameplay。"),
-                new UiHelpItem("返回大厅", "R 调用真实 GameFlow 返回菜单并释放场景、玩家和音频资源。")
+                new UiHelpItem("暂停/返回", "Escape 打开暂停菜单；在界面中返回上一层。"),
+                new UiHelpItem("返回大厅", "R 打开返回确认。"),
+                new UiHelpItem("示例结算", "F1 显示成功结算，F2 显示失败结算。")
             };
         }
 
@@ -111,8 +115,10 @@ namespace WFrameWork.Samples.Combined
                 _sceneFlow = new SceneFlowService(new AddressablesSceneBackend(mainThread), new UnityDiagnosticSink());
                 _playerPool = new AddressableGameObjectPool(_addressables.Service, playerPrefabAddress, poolRoot, 4,
                     mainThread: mainThread);
-                _save = new SaveService<CombinedSampleSettings>(new UnityTextFileStore(), new JsonUtilitySerializer<CombinedSampleSettings>(),
-                    configuration == null ? 1 : configuration.SaveVersion, new UnityDiagnosticSink(), UnityEngine.Application.persistentDataPath);
+                InitializeDisplayOptions();
+                _save = new SaveService<CombinedSampleSettings>(new UnityTextFileStore(),
+                    new JsonUtilitySerializer<CombinedSampleSettings>(CreateDefaultSettings, MigrateSettings),
+                    2, new UnityDiagnosticSink(), UnityEngine.Application.persistentDataPath);
                 CreateInputAndPhysics();
                 if (audioBehaviour != null) audioBehaviour.Initialize(_addressables.Service, mainThread);
                 _unityRuntime.Runtime.SetModuleServices(_addressables.Service, _sceneFlow, audio: audioBehaviour?.Service,
@@ -137,16 +143,21 @@ namespace WFrameWork.Samples.Combined
                 new LegacyInputBinding { ActionId = "UI.Back", Kind = LegacyInputBindingKind.Key, Key = KeyCode.Escape },
                 new LegacyInputBinding { ActionId = "Gameplay.Return", Kind = LegacyInputBindingKind.Key, Key = KeyCode.R },
                 new LegacyInputBinding { ActionId = "Gameplay.Jump", Kind = LegacyInputBindingKind.Key, Key = KeyCode.Space }
+                ,new LegacyInputBinding { ActionId = "Gameplay.Success", Kind = LegacyInputBindingKind.Key, Key = KeyCode.F1 }
+                ,new LegacyInputBinding { ActionId = "Gameplay.Failure", Kind = LegacyInputBindingKind.Key, Key = KeyCode.F2 }
             });
             _input = new InputService(backend);
             _input.RegisterContext("Gameplay", 0, false, true);
             _input.RegisterAction(new InputActionDefinition(new InputActionId("Gameplay.OpenSettings"), InputActionType.Button));
             _input.RegisterAction(new InputActionDefinition(new InputActionId("Gameplay.Jump"), InputActionType.Button));
+            _input.RegisterAction(new InputActionDefinition(new InputActionId("Gameplay.Success"), InputActionType.Button));
+            _input.RegisterAction(new InputActionDefinition(new InputActionId("Gameplay.Failure"), InputActionType.Button));
             _input.RegisterAction(new InputActionDefinition(new InputActionId("Gameplay.Return"), InputActionType.Button));
             _input.RegisterContext("UI", 100, true, false);
             _input.RegisterAction(new InputActionDefinition(new InputActionId("UI.Back"), InputActionType.Button, "UI"));
             _inputAdapter = new InputFrameUpdateAdapter(_input, _unityRuntime.FrameUpdate, _unityRuntime.Host.Loops.Input);
-            _physics = new PhysicsStepDispatcher(_unityRuntime.FrameUpdate, _unityRuntime.Host.Loops.Physics);
+            _gameplayGroup = _unityRuntime.FrameUpdate.CreateGroup("Sample.Gameplay", UpdateGroupOptions.Default);
+            _physics = new PhysicsStepDispatcher(_unityRuntime.FrameUpdate, _unityRuntime.Host.Loops.Physics, group: _gameplayGroup);
             _fixedInput = new FixedInputParticipant(_input, HandleFixedInput);
             _physics.Register(_fixedInput);
             if (player != null) _physics.Register(player);
@@ -181,7 +192,6 @@ namespace WFrameWork.Samples.Combined
             {
                 if (ui != null) await ui.InitializeAsync(_unityRuntime.FrameUpdate, _unityRuntime.Host.Loops,
                     modalBlocker: new UnityUiModalInputBlocker(input: new InputUiModalBlocker(_input)), resourceService: _addressables.Service);
-                if (ui != null) await ui.OpenAsync(new UiPanelId("Menu"), this);
             }, () => ui?.Manager == null ? Task.CompletedTask : ui.Manager.CloseAllAsync(), requiresMainThread: true));
             _unityRuntime.Runtime.AddPart(new GameRuntimePart("Flow", shutdown: () => _flow == null ? Task.CompletedTask : _flow.ShutdownAsync(), requiresMainThread: true));
         }
@@ -193,6 +203,12 @@ namespace WFrameWork.Samples.Combined
                 await _unityRuntime.Runtime.InitializeAsync();
                 await _flow.EnterMenuAsync();
                 _ready = true;
+                _toasts = new ToastViewModel();
+                if (ui != null)
+                {
+                    await ui.OpenAsync(new UiPanelId("Toast"), _toasts);
+                    await ui.OpenAsync(new UiPanelId("Menu"), this);
+                }
             }
             catch (Exception error) { _ready = false; Debug.LogException(error, this); throw; }
         }
@@ -204,12 +220,13 @@ namespace WFrameWork.Samples.Combined
                 settings == null ? 1 : settings.UiVolume, settings != null && settings.Muted,
                 settings == null ? 0 : settings.WindowMode, settings == null ? 0 : settings.ResolutionIndex,
                 settings == null ? 0 : settings.QualityIndex);
+            _settingsSnapshot = snapshot;
             ApplySettingsSnapshot(snapshot);
+            ApplyDisplaySettings(snapshot);
         }
 
         private void ApplySettingsSnapshot(UiSettingsSnapshot snapshot)
         {
-            _settingsSnapshot = snapshot;
             if (audioBehaviour?.Service == null) return;
             float master = snapshot.MasterVolume;
             audioBehaviour.Service.SetVolume(AudioBus.Bgm, snapshot.MusicVolume * master);
@@ -222,7 +239,7 @@ namespace WFrameWork.Samples.Combined
         {
             EnsureReady();
             var current = Current;
-            await SaveSettingsSnapshotAsync(new UiSettingsSnapshot(masterVolume, current.MusicVolume, current.SfxVolume,
+            await SaveAsync(new UiSettingsSnapshot(masterVolume, current.MusicVolume, current.SfxVolume,
                 current.UiVolume, muted, current.WindowMode, current.ResolutionIndex, current.QualityIndex), CancellationToken.None);
         }
 
@@ -235,26 +252,27 @@ namespace WFrameWork.Samples.Combined
         public Task SaveAsync(UiSettingsSnapshot settings, CancellationToken token)
         {
             EnsureReady();
-            return SaveSettingsSnapshotAsync(settings, token);
+            Task save = SaveTrackedAsync(settings, token);
+            Runtime.ApplicationScope.Track(save, "UI settings save");
+            return save;
+        }
+
+        private async Task SaveTrackedAsync(UiSettingsSnapshot settings, CancellationToken token)
+        {
+            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(token, Runtime.ApplicationScope.CancellationToken))
+                await SaveSettingsSnapshotAsync(settings, linked.Token);
         }
 
         private async Task SaveSettingsSnapshotAsync(UiSettingsSnapshot settings, CancellationToken token)
         {
-            var value = new CombinedSampleSettings
-            {
-                MasterVolume = settings.MasterVolume, MusicVolume = settings.MusicVolume, SfxVolume = settings.SfxVolume,
-                UiVolume = settings.UiVolume, Muted = settings.Muted, WindowMode = settings.WindowMode,
-                ResolutionIndex = settings.ResolutionIndex, QualityIndex = settings.QualityIndex
-            };
-            await _save.SaveAsync(configuration == null ? "gframework-settings.json" : configuration.SaveFileName, value, token);
-            ApplySettingsSnapshot(settings);
+            await SaveWithDisplayConfirmationAsync(settings, token);
         }
 
         Task IUiGameFlowService.StartGameAsync(CancellationToken token)
         { token.ThrowIfCancellationRequested(); return StartGameAsync(); }
 
         async Task IUiGameFlowService.RestartGameAsync(CancellationToken token)
-        { token.ThrowIfCancellationRequested(); await ReturnToMenuAsync(); token.ThrowIfCancellationRequested(); await StartGameAsync(); }
+        { token.ThrowIfCancellationRequested(); await ReturnToMenuAsync(); await StartGameAsync(); }
 
         Task IUiGameFlowService.ReturnToLobbyAsync(CancellationToken token)
         { token.ThrowIfCancellationRequested(); return ReturnToMenuAsync(); }
@@ -269,34 +287,22 @@ namespace WFrameWork.Samples.Combined
         { return OpenPanelAsync(new UiPanelId("About"), token); }
 
         Task IUiNavigationService.BackAsync(CancellationToken token)
-        { token.ThrowIfCancellationRequested(); return ui == null ? Task.CompletedTask : ui.CloseTopModalAsync(); }
+        { token.ThrowIfCancellationRequested(); return ui == null ? Task.CompletedTask : ui.RequestCloseTopModalAsync(token); }
 
-        Task IUiExitService.RequestExitAsync(CancellationToken token)
+        async Task IUiExitService.RequestExitAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            // The runtime adapter is player-safe. An editor host can replace this narrow service
-            // with an EditorApplication adapter without making UI Runtime depend on UnityEditor.
+            await ShutdownAsync();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
             UnityEngine.Application.Quit();
-            return Task.CompletedTask;
+#endif
         }
 
         async Task<UiDialogResult> IUiDialogService.ShowAsync(UiDialogRequest request, CancellationToken token)
         {
-            EnsureReady();
-            if (ui == null) throw new InvalidOperationException("UI manager is not configured.");
-            var viewModel = new DialogViewModel(request);
-            UiPanelHandle handle = null;
-            try
-            {
-                handle = await ui.OpenAsync(new UiPanelId("Dialog"), viewModel, token);
-                using (token.Register(() => viewModel.TryComplete(UiDialogResult.Canceled)))
-                    return await viewModel.WaitForResultAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                if (handle != null) await handle.CloseAsync().ConfigureAwait(false);
-                else viewModel.Dispose();
-            }
+            return await ShowDialogCoreAsync(request, token);
         }
 
         private async Task OpenPanelAsync(UiPanelId id, CancellationToken token)
@@ -312,24 +318,32 @@ namespace WFrameWork.Samples.Combined
             lock (_transitionGate)
             {
                 if (_startTask != null && !_startTask.IsCompleted) return _startTask;
-                _startTask = StartGameCoreAsync();
+                _startTask = StartWithLoadingAsync();
                 return _startTask;
             }
         }
 
-        private async Task StartGameCoreAsync()
+        private async Task StartGameCoreAsync(CancellationToken token = default(CancellationToken))
         {
+            Task cancellationCleanup = Task.CompletedTask;
+            using (token.Register(() => cancellationCleanup = _flow.ReturnToMenuAsync()))
+            {
             try
             {
+                token.ThrowIfCancellationRequested();
+                if (_flow.State == GameFlowState.Failed) await _flow.ReturnToMenuAsync();
                 await _flow.StartGameAsync();
+                token.ThrowIfCancellationRequested();
                 if (_gameplayPlayer != null) return;
                 if (_gameplayPlayer == null) _gameplayPlayer = await _unityRuntime.MainThread.RunAsync(() => _playerPool.Rent());
+                _gameplayBinding = _physics.Register(_gameplayPlayer.GetComponent<RigidbodyFixedStepBehaviour>());
                 if (Audio != null && !string.IsNullOrWhiteSpace(sfxAddress))
                     _gameplaySfx = await Audio.PlayAsync(sfxAddress, new AudioPlayRequest(AudioBus.Sfx, 0.8f));
                 if (ui != null) await ui.Manager.HideAsync(new UiPanelId("Menu"));
             }
             catch
             {
+                _gameplayBinding?.Dispose(); _gameplayBinding = null;
                 if (_gameplaySfx != null) { await _gameplaySfx.StopAsync(); _gameplaySfx = null; }
                 if (_gameplayPlayer != null)
                 {
@@ -339,6 +353,8 @@ namespace WFrameWork.Samples.Combined
                 if (_flow.State == GameFlowState.Playing || _flow.State == GameFlowState.Returning)
                 { try { await _flow.ReturnToMenuAsync(); } catch { } }
                 throw;
+            }
+            finally { await cancellationCleanup; }
             }
         }
 
@@ -355,6 +371,9 @@ namespace WFrameWork.Samples.Combined
 
         private async Task ReturnToMenuCoreAsync()
         {
+            if (ui != null)
+                foreach (string panelId in new[] { "Settings", "Pause", "Result" }) await ui.Manager.CloseAsync(new UiPanelId(panelId));
+            _gameplayBinding?.Dispose(); _gameplayBinding = null;
             if (_gameplaySfx != null) { await _gameplaySfx.StopAsync(); _gameplaySfx = null; }
             if (_gameplayPlayer != null)
             {
@@ -373,9 +392,10 @@ namespace WFrameWork.Samples.Combined
         private Task UnloadGameSceneForFlowAsync(SceneLease lease) => _sceneFlow.UnloadAsync(lease);
         private void HandleFixedInput(InputActionEvent inputEvent)
         {
+            var actor = _gameplayPlayer != null ? _gameplayPlayer.GetComponent<RigidbodyFixedStepBehaviour>() : player;
             if (inputEvent.ActionId == new InputActionId("Gameplay.Jump") &&
-                inputEvent.Phase == InputFixedEventPhase.Pressed && player != null)
-                player.Velocity += Vector3.up * 2;
+                inputEvent.Phase == InputFixedEventPhase.Pressed && actor != null)
+                actor.Velocity += Vector3.up * 2;
         }
 
         private void EnsureReady()

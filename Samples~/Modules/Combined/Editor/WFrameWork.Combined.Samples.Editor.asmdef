@@ -1,8 +1,19 @@
 {
   "name": "WFrameWork.Combined.Samples.Editor",
   "rootNamespace": "WFrameWork.Samples.Combined.Editor",
-  "references": ["WFrameWork.Combined.Samples", "WFrameWork.UI.Unity", "WFrameWork.Physics.Unity", "Unity.Addressables.Editor", "Unity.TextMeshPro"],
-  "includePlatforms": ["Editor"],
+  "references": [
+    "WFrameWork.Combined.Samples",
+    "WFrameWork.UI.Unity",
+    "WFrameWork.Physics.Unity",
+    "Unity.Addressables.Editor",
+    "Unity.TextMeshPro",
+    "WFrameWork.UI",
+    "WFrameWork.Audio.Unity",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
