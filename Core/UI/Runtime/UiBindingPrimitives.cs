@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using WFrameWork.Threading;
 
 namespace WFrameWork.UI
 {
@@ -12,25 +13,33 @@ namespace WFrameWork.UI
     public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
         private readonly CancellationTokenSource _lifetime = new CancellationTokenSource();
+        private readonly CancellationToken _lifetimeToken;
+        private readonly UiExecutionContext _context;
         private bool _disposed;
+
+        protected ViewModelBase(IMainThreadDispatcher dispatcher = null)
+        { _context = new UiExecutionContext(dispatcher); _lifetimeToken = _lifetime.Token; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public bool IsDisposed => _disposed;
-        public CancellationToken LifetimeToken => _lifetime.Token;
+        public CancellationToken LifetimeToken => _lifetimeToken;
+        protected Task OnUiAsync(Action action) => _context.RunAsync(action);
+        protected Task<T> OnUiAsync<T>(Func<T> action) => _context.RunAsync(action);
+        protected void VerifyAccess() => _context.VerifyAccess();
 
         protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (_disposed) return false;
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            RaisePropertyChanged(propertyName);
             return true;
         }
 
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (_disposed) return;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            _context.Post(() => { if (!_disposed) PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); });
         }
 
         protected virtual void OnDispose() { }
@@ -39,10 +48,8 @@ namespace WFrameWork.UI
         {
             if (_disposed) return;
             _disposed = true;
-            try { _lifetime.Cancel(); } catch (ObjectDisposedException) { }
-            OnDispose();
-            _lifetime.Dispose();
-            PropertyChanged = null;
+            UiCleanup.All(() => _lifetime.Cancel(), OnDispose,
+                () => _lifetime.Dispose(), () => PropertyChanged = null);
         }
     }
 
@@ -130,12 +137,14 @@ namespace WFrameWork.UI
     {
         private readonly Action _execute;
         private readonly Func<bool> _canExecute;
+        private readonly UiExecutionContext _context;
         private bool _disposed;
 
-        public UiCommand(Action execute, Func<bool> canExecute = null)
+        public UiCommand(Action execute, Func<bool> canExecute = null, IMainThreadDispatcher dispatcher = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
+            _context = new UiExecutionContext(dispatcher);
         }
 
         public bool CanExecute => !_disposed && (_canExecute == null || _canExecute());
@@ -145,6 +154,7 @@ namespace WFrameWork.UI
 
         public void Execute()
         {
+            _context.VerifyAccess();
             if (!CanExecute) return;
             try
             {
@@ -161,12 +171,11 @@ namespace WFrameWork.UI
 
         public Task ExecuteAsync()
         {
-            try { Execute(); return Task.CompletedTask; }
-            catch (Exception error) { return Task.FromException(error); }
+            return _context.RunAsync(Execute);
         }
 
         public void Cancel() { }
-        public void NotifyCanExecuteChanged() => StateChanged?.Invoke(this, EventArgs.Empty);
+        public void NotifyCanExecuteChanged() => _context.Post(() => { if (!_disposed) StateChanged?.Invoke(this, EventArgs.Empty); });
         public void Dispose() { _disposed = true; StateChanged = null; }
     }
 
@@ -179,15 +188,17 @@ namespace WFrameWork.UI
         private readonly object _gate = new object();
         private readonly Func<CancellationToken, Task> _execute;
         private readonly Func<bool> _canExecute;
+        private readonly UiExecutionContext _context;
         private CancellationTokenSource _cancellation;
         private Task _running;
         private bool _isExecuting;
         private bool _disposed;
 
-        public AsyncUiCommand(Func<CancellationToken, Task> execute, Func<bool> canExecute = null)
+        public AsyncUiCommand(Func<CancellationToken, Task> execute, Func<bool> canExecute = null, IMainThreadDispatcher dispatcher = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
+            _context = new UiExecutionContext(dispatcher);
         }
 
         public bool CanExecute
@@ -199,52 +210,57 @@ namespace WFrameWork.UI
         }
 
         public bool IsExecuting { get { lock (_gate) return _isExecuting; } }
+        public Task Execution { get { lock (_gate) return _running ?? Task.CompletedTask; } }
         public Exception Error { get; private set; }
         public event EventHandler StateChanged;
 
         public Task ExecuteAsync()
         {
-            Task result;
+            TaskCompletionSource<bool> completion;
+            CancellationTokenSource cancellation;
             lock (_gate)
             {
                 if (_disposed) return Task.FromException(new ObjectDisposedException(nameof(AsyncUiCommand)));
                 if (_isExecuting) return _running;
                 if (_canExecute != null && !_canExecute()) return Task.CompletedTask;
-                _cancellation = new CancellationTokenSource();
+                cancellation = _cancellation = new CancellationTokenSource();
                 _isExecuting = true;
                 Error = null;
-                _running = RunAsync(_cancellation);
-                result = _running;
+                completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _running = completion.Task;
             }
-            StateChanged?.Invoke(this, EventArgs.Empty);
-            return result;
+            NotifyCanExecuteChanged();
+            _ = RunAsync(cancellation, completion);
+            return completion.Task;
         }
 
-        private async Task RunAsync(CancellationTokenSource cancellation)
+        private async Task RunAsync(CancellationTokenSource cancellation, TaskCompletionSource<bool> completion)
         {
+            Exception failure = null;
             try
             {
-                await _execute(cancellation.Token).ConfigureAwait(false);
+                await _context.RunAsync(() =>
+                {
+                    cancellation.Token.ThrowIfCancellationRequested();
+                    return _execute(cancellation.Token);
+                }).Unwrap().ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception error)
-            {
-                Error = error;
-                StateChanged?.Invoke(this, EventArgs.Empty);
-                throw;
-            }
+            catch (Exception error) { failure = error; }
             finally
             {
                 lock (_gate)
                 {
                     _isExecuting = false;
                     if (ReferenceEquals(_cancellation, cancellation)) _cancellation = null;
+                    Error = failure is OperationCanceledException ? null : failure;
                 }
-                StateChanged?.Invoke(this, EventArgs.Empty);
+                cancellation.Dispose();
             }
+            try { await _context.RunAsync(RaiseStateChanged).ConfigureAwait(false); }
+            catch (Exception error) { if (failure == null) failure = error; }
+            if (failure is OperationCanceledException) completion.TrySetCanceled();
+            else if (failure != null) completion.TrySetException(failure);
+            else completion.TrySetResult(true);
         }
 
         public void Cancel()
@@ -255,7 +271,19 @@ namespace WFrameWork.UI
             try { cancellation.Cancel(); } catch (ObjectDisposedException) { }
         }
 
-        public void NotifyCanExecuteChanged() => StateChanged?.Invoke(this, EventArgs.Empty);
+        public void NotifyCanExecuteChanged() => _context.Post(RaiseStateChanged);
+
+        private void RaiseStateChanged()
+        {
+            if (_disposed) return;
+            var handlers = StateChanged;
+            if (handlers == null) return;
+            foreach (EventHandler handler in handlers.GetInvocationList())
+            {
+                try { handler(this, EventArgs.Empty); }
+                catch (Exception error) { System.Diagnostics.Trace.TraceError(error.ToString()); }
+            }
+        }
 
         public void Dispose()
         {
@@ -267,7 +295,7 @@ namespace WFrameWork.UI
                 cancellation = _cancellation;
             }
             try { cancellation?.Cancel(); } catch (ObjectDisposedException) { }
-            StateChanged = null;
+            finally { StateChanged = null; }
         }
     }
 
@@ -302,8 +330,10 @@ namespace WFrameWork.UI
         {
             if (_disposed) return;
             _disposed = true;
-            for (int i = _bindings.Count - 1; i >= 0; i--) _bindings[i].Dispose();
+            var actions = new Action[_bindings.Count];
+            for (int i = 0; i < actions.Length; i++) actions[i] = _bindings[_bindings.Count - 1 - i].Dispose;
             _bindings.Clear();
+            UiCleanup.All(actions);
         }
     }
 
@@ -316,49 +346,63 @@ namespace WFrameWork.UI
             if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException("Property name is required.", nameof(propertyName));
             if (read == null) throw new ArgumentNullException(nameof(read));
             if (write == null) throw new ArgumentNullException(nameof(write));
+            var lease = new BindingLease();
             PropertyChangedEventHandler changed = (sender, args) =>
             {
                 if (string.IsNullOrEmpty(args.PropertyName) || string.Equals(args.PropertyName, propertyName, StringComparison.Ordinal))
-                    write(read());
+                    lease.Run(() => write(read()));
             };
-            source.PropertyChanged += changed;
-            write(read());
-            return new ActionDisposable(() => source.PropertyChanged -= changed);
+            lease.Initialize(() =>
+            {
+                lease.Own(() => source.PropertyChanged -= changed);
+                source.PropertyChanged += changed;
+                write(read());
+            });
+            return lease;
         }
 
         public static IDisposable TwoWay<T>(INotifyPropertyChanged source, string propertyName,
             Func<T> read, Action<T> write, IUiValueAdapter<T> target)
         {
             if (target == null) throw new ArgumentNullException(nameof(target));
+            var lease = new BindingLease();
             bool updating = false;
-            IDisposable oneWay = OneWay(source, propertyName, read, value =>
+            lease.Initialize(() =>
             {
-                if (updating) return;
-                updating = true;
-                try { target.SetValueWithoutNotify(value); } finally { updating = false; }
+                if (target is IDisposable ownedTarget) lease.Own(ownedTarget.Dispose);
+                IDisposable oneWay = OneWay(source, propertyName, read, value =>
+                {
+                    if (updating) return;
+                    updating = true;
+                    try { target.SetValueWithoutNotify(value); } finally { updating = false; }
+                });
+                lease.Own(oneWay.Dispose);
+                Action<T> changed = value => lease.Run(() =>
+                {
+                    if (updating) return;
+                    updating = true;
+                    try { write(value); } finally { updating = false; }
+                    target.SetValueWithoutNotify(read()); // Reflect validation/normalization.
+                });
+                lease.Own(() => target.ValueChanged -= changed);
+                target.ValueChanged += changed;
             });
-            Action<T> changed = value =>
-            {
-                if (updating) return;
-                updating = true;
-                try { write(value); } finally { updating = false; }
-            };
-            target.ValueChanged += changed;
-            var unsubscribe = new ActionDisposable(() => target.ValueChanged -= changed);
-            var disposableTarget = target as IDisposable;
-            return disposableTarget == null
-                ? new CompositeDisposable(oneWay, unsubscribe)
-                : new CompositeDisposable(oneWay, unsubscribe, disposableTarget);
+            return lease;
         }
 
         public static IDisposable Collection<T>(UiObservableList<T> source, Action refresh)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (refresh == null) throw new ArgumentNullException(nameof(refresh));
-            EventHandler<UiCollectionChangedEventArgs<T>> changed = (sender, args) => refresh();
-            source.Changed += changed;
-            refresh();
-            return new ActionDisposable(() => source.Changed -= changed);
+            var lease = new BindingLease();
+            EventHandler<UiCollectionChangedEventArgs<T>> changed = (sender, args) => lease.Run(refresh);
+            lease.Initialize(() =>
+            {
+                lease.Own(() => source.Changed -= changed);
+                source.Changed += changed;
+                refresh();
+            });
+            return lease;
         }
 
         public static IDisposable Command(IUiCommand command, IUiCommandAdapter target)
@@ -370,14 +414,19 @@ namespace WFrameWork.UI
                 target.SetInteractable(command.CanExecute);
                 target.SetBusy(command.IsExecuting);
             };
-            EventHandler stateChanged = (sender, args) => refresh();
-            Action clicked = () => _ = ExecuteAndObserveAsync(command);
-            command.StateChanged += stateChanged;
-            target.Clicked += clicked;
-            refresh();
-            return new CompositeDisposable(
-                new ActionDisposable(() => command.StateChanged -= stateChanged),
-                new ActionDisposable(() => target.Clicked -= clicked), target);
+            var lease = new BindingLease();
+            EventHandler stateChanged = (sender, args) => lease.Run(refresh);
+            Action clicked = () => lease.Run(() => _ = ExecuteAndObserveAsync(command));
+            lease.Initialize(() =>
+            {
+                lease.Own(target.Dispose);
+                lease.Own(() => command.StateChanged -= stateChanged);
+                command.StateChanged += stateChanged;
+                lease.Own(() => target.Clicked -= clicked);
+                target.Clicked += clicked;
+                refresh();
+            });
+            return lease;
         }
 
         private static async Task ExecuteAndObserveAsync(IUiCommand command)
@@ -387,22 +436,30 @@ namespace WFrameWork.UI
             catch { /* AsyncUiCommand exposes Error; the view model owns user-facing text. */ }
         }
 
-        private sealed class ActionDisposable : IDisposable
+        private sealed class BindingLease : IDisposable
         {
-            private Action _dispose;
-            public ActionDisposable(Action dispose) { _dispose = dispose; }
-            public void Dispose() { var action = Interlocked.Exchange(ref _dispose, null); action?.Invoke(); }
-        }
-
-        private sealed class CompositeDisposable : IDisposable
-        {
-            private readonly IDisposable[] _items;
+            private readonly UiExecutionContext _context = new UiExecutionContext();
+            private readonly List<Action> _cleanup = new List<Action>();
             private int _disposed;
-            public CompositeDisposable(params IDisposable[] items) { _items = items; }
+            internal void Own(Action action) { _cleanup.Add(action); }
+            internal void Run(Action action) => _context.Post(() => { if (Volatile.Read(ref _disposed) == 0) action(); });
+            internal void Initialize(Action action)
+            {
+                _context.VerifyAccess();
+                try { action(); }
+                catch (Exception initial)
+                {
+                    try { Dispose(); } catch (Exception cleanup) { throw new AggregateException(initial, cleanup); }
+                    throw;
+                }
+            }
             public void Dispose()
             {
                 if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-                for (int i = _items.Length - 1; i >= 0; i--) _items[i]?.Dispose();
+                _cleanup.Reverse();
+                var actions = _cleanup.ToArray(); _cleanup.Clear();
+                if (_context.HasAccess) UiCleanup.All(actions);
+                else _context.Post(() => UiCleanup.All(actions));
             }
         }
     }

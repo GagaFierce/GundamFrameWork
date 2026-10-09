@@ -13,6 +13,7 @@ namespace WFrameWork.Samples.Combined.Editor
         {
             "GFramework.Samples.Player", "GFramework.Samples.Settings",
             "GFramework.Samples.Menu", "GFramework.Samples.Help", "GFramework.Samples.About", "GFramework.Samples.Dialog",
+            "GFramework.Samples.Pause", "GFramework.Samples.Loading", "GFramework.Samples.Result", "GFramework.Samples.Toast",
             "GFramework.Samples.Config", "GFramework.Samples.Game",
             "GFramework.Samples.Click"
         };
@@ -46,7 +47,7 @@ namespace WFrameWork.Samples.Combined.Editor
                     if (string.IsNullOrEmpty(path)) Report("Missing asset for address: " + Addresses[i], ref errors);
                     else if (Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !path.EndsWith(".unity", StringComparison.OrdinalIgnoreCase))
                         Report("Game address is not a scene: " + path, ref errors);
-                    else if (!Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".asset", StringComparison.OrdinalIgnoreCase))
+                    else if (!Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
                         Report("Sample address has an unexpected asset type: " + Addresses[i], ref errors);
                     else if (Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && AssetDatabase.LoadAssetAtPath<SceneAsset>(path) == null)
                         Report("Game address does not resolve to a SceneAsset: " + path, ref errors);

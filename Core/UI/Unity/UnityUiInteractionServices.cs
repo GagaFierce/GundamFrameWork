@@ -29,12 +29,28 @@ namespace WFrameWork.UI.Unity
         {
             IDisposable inputToken = _input == null ? null : _input.PushModal(panelId);
             _depth++;
-            if (_barrier != null) { _barrier.alpha = 1; _barrier.blocksRaycasts = true; _barrier.interactable = true; }
+            if (_barrier != null) { _barrier.alpha = 1; _barrier.blocksRaycasts = true; _barrier.interactable = true; PlaceBelowTopPanel(); }
             return new Token(() =>
             {
                 inputToken?.Dispose(); if (_depth > 0) _depth--;
                 if (_depth == 0 && _barrier != null) { _barrier.alpha = 0; _barrier.blocksRaycasts = false; _barrier.interactable = false; }
+                else PlaceBelowTopPanel();
             });
+        }
+
+        private void PlaceBelowTopPanel()
+        {
+            if (_barrier == null || _barrier.transform.parent == null) return;
+            var parent = _barrier.transform.parent;
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                var child = parent.GetChild(i);
+                if (child == _barrier.transform || !child.gameObject.activeSelf) continue;
+                int before = child.GetSiblingIndex();
+                if (_barrier.transform.GetSiblingIndex() < before) before--;
+                _barrier.transform.SetSiblingIndex(before);
+                break;
+            }
         }
         private sealed class Token : IDisposable
         {

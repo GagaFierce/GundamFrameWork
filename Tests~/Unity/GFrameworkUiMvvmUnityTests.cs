@@ -15,7 +15,9 @@ namespace WFrameWork.Tests.Unity
         public void SliderAndToggleBindingsSynchronizeWithoutDuplicateEvents()
         {
             var root = new GameObject("UI-MVVM-Test");
-            var slider = root.AddComponent<Slider>(); var toggle = root.AddComponent<Toggle>(); var model = new ProbeViewModel();
+            var sliderObject = new GameObject("Slider", typeof(RectTransform), typeof(Slider)); sliderObject.transform.SetParent(root.transform);
+            var toggleObject = new GameObject("Toggle", typeof(RectTransform), typeof(Toggle)); toggleObject.transform.SetParent(root.transform);
+            var slider = sliderObject.GetComponent<Slider>(); var toggle = toggleObject.GetComponent<Toggle>(); var model = new ProbeViewModel();
             using (UiControlBindings.Slider(model, nameof(ProbeViewModel.Volume), () => model.Volume, value => model.Volume = value, slider))
             using (UiControlBindings.Toggle(model, nameof(ProbeViewModel.Muted), () => model.Muted, value => model.Muted = value, toggle))
             {
@@ -38,7 +40,7 @@ namespace WFrameWork.Tests.Unity
         public void TmpTextBindingSynchronizesAndDisposes()
         {
             var root = new GameObject("UI-MVVM-TMP-Test"); var text = root.AddComponent<TextMeshProUGUI>(); var model = new ProbeViewModel();
-            using (UiControlBindings.Text(model, nameof(ProbeViewModel.Text), () => model.Text, value => text.text = value, text))
+            using (UiControlBindings.Text(model, nameof(ProbeViewModel.Text), () => model.Text, text))
             { model.Text = "中文绑定"; Assert.That(text.text, Is.EqualTo("中文绑定")); }
             model.Text = "late"; Assert.That(text.text, Is.EqualTo("中文绑定")); UnityEngine.Object.DestroyImmediate(root);
         }

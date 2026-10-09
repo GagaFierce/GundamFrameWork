@@ -1,7 +1,17 @@
 {
   "name": "WFrameWork.UI.Unity",
   "rootNamespace": "WFrameWork.UI.Unity",
-  "references": ["WFrameWork.UI", "WFrameWork.FrameUpdate.Unity", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Threading.Unity", "Unity.TextMeshPro"],
+  "references": [
+    "WFrameWork.UI",
+    "WFrameWork.FrameUpdate.Unity",
+    "WFrameWork.ResLoad",
+    "WFrameWork.ResLoad.Unity",
+    "WFrameWork.Threading.Unity",
+    "Unity.TextMeshPro",
+    "WFrameWork.FrameUpdate",
+    "WFrameWork.Threading",
+    "UnityEngine.UI"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

@@ -7,6 +7,7 @@ using UnityEngine.Audio;
 using WFrameWork.Audio;
 using WFrameWork.Core.ResLoad;
 using WFrameWork.Threading;
+using WFrameWork.Threading.Unity;
 
 namespace WFrameWork.Audio.Unity
 {

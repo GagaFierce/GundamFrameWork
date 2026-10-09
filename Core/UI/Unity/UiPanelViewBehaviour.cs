@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using WFrameWork.UI;
 
@@ -8,7 +10,7 @@ namespace WFrameWork.UI.Unity
     /// View-only lifecycle host. A new ViewModel and binding set is created for every panel
     /// generation and both are disposed before the Unity object can be reused.
     /// </summary>
-    public abstract class UiPanelViewBehaviour<TViewModel> : MonoBehaviour, IUGuiPanelLifecycle
+    public abstract class UiPanelViewBehaviour<TViewModel> : MonoBehaviour, IUGuiPanelLifecycle, IUiCloseRequest
         where TViewModel : ViewModelBase
     {
         private UiBindingSet _bindings;
@@ -45,9 +47,18 @@ namespace WFrameWork.UI.Unity
         protected virtual void OnViewModelOpened(TViewModel viewModel, object argument) { }
         protected virtual void OnViewModelClosed() { }
 
-        public virtual void OnPanelShown() { }
+        public virtual void OnPanelShown()
+        {
+            var eventSystem = UnityEngine.EventSystems.EventSystem.current;
+            if (eventSystem == null) return;
+            foreach (var selectable in GetComponentsInChildren<UnityEngine.UI.Selectable>())
+                if (selectable.IsInteractable() && selectable.gameObject.activeInHierarchy)
+                { eventSystem.SetSelectedGameObject(selectable.gameObject); break; }
+        }
         public virtual void OnPanelHidden() { }
         public virtual void OnPanelUpdate(in UiPanelUpdateContext context) { }
+        public Task<bool> CanCloseAsync(CancellationToken token) => _viewModel is IUiCloseRequest guard
+            ? guard.CanCloseAsync(token) : Task.FromResult(true);
 
         public void OnPanelClosed()
         {
@@ -59,8 +70,8 @@ namespace WFrameWork.UI.Unity
         {
             var bindings = _bindings; _bindings = null;
             var viewModel = _viewModel; _viewModel = null;
-            bindings?.Dispose();
-            viewModel?.Dispose();
+            try { bindings?.Dispose(); }
+            finally { viewModel?.Dispose(); }
         }
 
         protected virtual void OnDestroy() { DisposeGeneration(); }

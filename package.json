@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "com.unity.textmeshpro": "3.0.9",
-    "com.unity.addressables": "1.22.3"
+    "com.unity.addressables": "1.22.3",
+    "com.unity.ugui": "1.0.0"
   },
   "samples": [
     {

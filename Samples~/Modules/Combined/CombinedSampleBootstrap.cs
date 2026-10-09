@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using WFrameWork.Input;
 using WFrameWork.UI;
+using WFrameWork.UI.Unity;
 
 namespace WFrameWork.Samples.Combined
 {
@@ -29,27 +30,17 @@ namespace WFrameWork.Samples.Combined
             UiPanelManagerBehaviour ui = services.UiBehaviour;
             if (input == null || ui == null) return;
             if (input.Snapshot.IsPressed(new InputActionId("Gameplay.OpenSettings")))
-                _ = OpenSettingsAsync(ui);
-            if (input.Snapshot.IsPressed(new InputActionId("UI.Back")))
-                _ = ui.CloseTopModalAsync();
+                _ = Observe(services.OpenPauseOrSettingsAsync());
+            else if (input.Snapshot.IsPressed(new InputActionId("UI.Back")))
+                _ = Observe(services.BackAsync());
             if (input.Snapshot.IsPressed(new InputActionId("Gameplay.Return")))
-                _ = ReturnToMenuAsync();
-        }
-
-        private async Task ReturnToMenuAsync()
-        {
-            try { await services.ReturnToMenuAsync(); }
-            catch (OperationCanceledException) { }
-            catch (Exception error) { Debug.LogException(error, this); }
-        }
-
-        private static async Task OpenSettingsAsync(WFrameWork.UI.Unity.UiPanelManagerBehaviour ui)
-        {
-            try { await ui.OpenAsync(new UiPanelId("Settings")); }
-            catch (OperationCanceledException) { }
-            catch (Exception error) { Debug.LogException(error); }
+                _ = Observe(services.ConfirmReturnAsync());
+            if (input.Snapshot.IsPressed(new InputActionId("Gameplay.Success"))) _ = Observe(services.ShowResultAsync(true));
+            if (input.Snapshot.IsPressed(new InputActionId("Gameplay.Failure"))) _ = Observe(services.ShowResultAsync(false));
         }
 
         private void OnDestroy() { _ready = false; }
+        private static async Task Observe(Task task)
+        { try { await task; } catch (OperationCanceledException) { } catch (Exception error) { Debug.LogException(error); } }
     }
 }

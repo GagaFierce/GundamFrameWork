@@ -10,15 +10,17 @@ namespace WFrameWork.Samples.Combined
         [SerializeField] private TMP_Text productName;
         [SerializeField] private TMP_Text version;
         [SerializeField] private TMP_Text description;
+        [SerializeField] private UnityEngine.UI.Button close;
 
         protected override AboutViewModel CreateViewModel(object argument)
-        { return new AboutViewModel("GundamFrameWork Combined Sample", Application.version, "UI MVVM、Addressables 和应用生命周期示例。"); }
+        { return new AboutViewModel("GundamFrameWork", UnityEngine.Application.version, "通用界面与游戏流程示例。", argument as IUiNavigationService); }
 
         protected override void Bind(AboutViewModel viewModel, UiBindingSet bindings)
         {
-            if (productName != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.ProductName), () => viewModel.ProductName, value => productName.text = value));
-            if (version != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Version), () => viewModel.Version, value => version.text = value));
-            if (description != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Description), () => viewModel.Description, value => description.text = value));
+            if (productName != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.ProductName), () => viewModel.ProductName, productName));
+            if (version != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Version), () => viewModel.Version, version));
+            if (description != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Description), () => viewModel.Description, description));
+            if (close != null) bindings.Add(UiControlBindings.Button(close, viewModel.BackCommand));
         }
     }
 }

@@ -48,7 +48,7 @@ namespace WFrameWork.Core.FrameUpdate.Unity
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             EnsureMainThread();
-            if (!Application.isPlaying) throw new InvalidOperationException("Install requires Play mode.");
+            if (!UnityEngine.Application.isPlaying) throw new InvalidOperationException("Install requires Play mode.");
             if (Hosts.ContainsKey(manager)) throw new InvalidOperationException("This manager already has a Unity host.");
             settings = settings ?? new UnityFrameUpdateSettings();
             var host = new UnityFrameUpdateHost(manager, settings);
@@ -76,7 +76,7 @@ namespace WFrameWork.Core.FrameUpdate.Unity
                 Object.DontDestroyOnLoad(go);
                 Hosts.Add(manager, host);
                 go.SetActive(true);
-                host.SetApplicationFocus(Application.isFocused);
+                host.SetApplicationFocus(UnityEngine.Application.isFocused);
                 return host;
             }
             catch
@@ -209,7 +209,7 @@ namespace WFrameWork.Core.FrameUpdate.Unity
                 _component.Detach();
                 _component.enabled = false;
                 _component = null;
-                if (Application.isPlaying) Object.Destroy(go);
+                if (UnityEngine.Application.isPlaying) Object.Destroy(go);
                 else Object.DestroyImmediate(go);
             }
             ReleasePauses(_focusPauses);

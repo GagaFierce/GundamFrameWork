@@ -9,16 +9,18 @@ namespace WFrameWork.Samples.Combined
     public sealed class SampleHelpPanel : UiPanelViewBehaviour<HelpViewModel>
     {
         [SerializeField] private TMP_Text content;
+        [SerializeField] private UnityEngine.UI.Button close;
 
         protected override HelpViewModel CreateViewModel(object argument)
         {
-            var services = argument as CombinedSampleRuntimeServices ?? FindObjectOfType<CombinedSampleRuntimeServices>();
+            var services = argument as CombinedSampleRuntimeServices;
             if (services == null) throw new System.InvalidOperationException("CombinedSampleRuntimeServices is required by help.");
-            return new HelpViewModel(services.GetHelpItems());
+            return new HelpViewModel(services.GetHelpItems(), services);
         }
 
         protected override void Bind(HelpViewModel viewModel, UiBindingSet bindings)
         {
+            if (close != null) bindings.Add(UiControlBindings.Button(close, viewModel.BackCommand));
             if (content == null) return;
             bindings.Add(UiBinding.Collection(viewModel.Items, () =>
             {

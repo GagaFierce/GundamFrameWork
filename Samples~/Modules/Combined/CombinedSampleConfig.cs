@@ -13,6 +13,8 @@ namespace WFrameWork.Samples.Combined
         public string PlayerPrefabAddress = "GFramework.Samples.Player";
         public string SfxAddress = "GFramework.Samples.Click";
         public string SaveFileName = "gframework-settings.json";
-        public int SaveVersion = 1;
+        public int SaveVersion = 2;
+        public bool PauseNativeSimulation = true;
+        public TMPro.TMP_FontAsset UiFont;
     }
 }
