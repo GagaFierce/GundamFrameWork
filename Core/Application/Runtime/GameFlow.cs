@@ -22,6 +22,7 @@ namespace WFrameWork.Application
         private readonly object _gate = new object();
         private Task _transition;
         private CancellationTokenSource _transitionCancellation;
+        private Task _returnTransition;
         private SceneLease _scene;
         private RuntimeScope _sceneScope;
         private GameFlowState _state = GameFlowState.Boot;
@@ -39,8 +40,8 @@ namespace WFrameWork.Application
 
         public GameFlowState State { get { lock (_gate) return _state; } }
         public Exception Failure { get { lock (_gate) return _failure; } }
-        public SceneLease CurrentScene => _scene;
-        public RuntimeScope SceneScope => _sceneScope;
+        public SceneLease CurrentScene { get { lock (_gate) return _scene; } }
+        public RuntimeScope SceneScope { get { lock (_gate) return _sceneScope; } }
 
         public Task EnterMenuAsync()
         {
@@ -72,45 +73,63 @@ namespace WFrameWork.Application
             lock (_gate)
             {
                 if (_state == GameFlowState.Menu) return Task.CompletedTask;
-                if (_state == GameFlowState.Loading || _state == GameFlowState.Playing)
+                if (_returnTransition != null)
                 {
-                    _transitionCancellation?.Cancel();
-                    _state = GameFlowState.Returning;
-                    if (_transition != null) return ReturnAfterTransitionAsync(_transition);
+                    if (!_returnTransition.IsCompleted) return _returnTransition;
+                    _returnTransition = null;
                 }
-                if (_state != GameFlowState.Returning) _state = GameFlowState.Returning;
-                return ReturnCoreAsync();
+                if (_state == GameFlowState.Loading || _state == GameFlowState.Playing)
+                    _transitionCancellation?.Cancel();
+                _state = GameFlowState.Returning;
+                Task transition = _transition;
+                _returnTransition = transition != null && !transition.IsCompleted
+                    ? ReturnAfterTransitionAsync(transition)
+                    : ReturnCoreAsync();
+                return _returnTransition;
             }
         }
 
         private async Task ReturnAfterTransitionAsync(Task transition)
         {
             try { await transition; } catch (OperationCanceledException) { } catch { }
-            await ReturnCoreAsync();
+            await ReturnCoreAsync().ConfigureAwait(false);
         }
 
         private async Task StartCoreAsync(CancellationToken token)
         {
             SceneLease loaded = null;
+            RuntimeScope scope = null;
             try
             {
                 loaded = await _loadGame(token);
                 token.ThrowIfCancellationRequested();
-                _scene = loaded;
-                _sceneScope = _createSceneScope();
-                lock (_gate) _state = GameFlowState.Playing;
+                lock (_gate) if (_state != GameFlowState.Loading) throw new OperationCanceledException(token);
+                scope = _createSceneScope();
+                lock (_gate)
+                {
+                    if (_state != GameFlowState.Loading)
+                    {
+                        // ReturnToMenuAsync won the transition race after the load completed.
+                        throw new OperationCanceledException(token);
+                    }
+                    _scene = loaded;
+                    _sceneScope = scope;
+                    _state = GameFlowState.Playing;
+                }
             }
             catch (OperationCanceledException)
             {
-                if (loaded != null) await _unload(loaded);
-                await _waitForSceneIdle();
+                if (scope != null) { try { await scope.CloseAsync().ConfigureAwait(false); } catch { } }
+                if (loaded != null) await _unload(loaded).ConfigureAwait(false);
+                await _waitForSceneIdle().ConfigureAwait(false);
                 lock (_gate) _state = GameFlowState.Menu;
                 throw;
             }
             catch (Exception error)
             {
-                if (loaded != null) { try { await _unload(loaded); } catch { } }
-                await _waitForSceneIdle();
+                if (scope != null) { try { await scope.CloseAsync().ConfigureAwait(false); } catch { } }
+                if (loaded != null) { try { await _unload(loaded).ConfigureAwait(false); } catch { } }
+                try { await _waitForSceneIdle().ConfigureAwait(false); } catch { }
                 lock (_gate) { _failure = error; _state = GameFlowState.Failed; }
                 _diagnostics.Error("Game scene load failed.", error);
                 throw;
@@ -119,17 +138,23 @@ namespace WFrameWork.Application
 
         private async Task ReturnCoreAsync()
         {
-            SceneLease scene = _scene;
-            RuntimeScope scope = _sceneScope;
-            _scene = null; _sceneScope = null;
+            SceneLease scene;
+            RuntimeScope scope;
+            lock (_gate)
+            {
+                scene = _scene;
+                scope = _sceneScope;
+                _scene = null; _sceneScope = null;
+            }
             ListException errors = new ListException();
-            if (scope != null) { try { await scope.CloseAsync(); } catch (Exception error) { errors.Add(error); } }
-            if (scene != null) { try { await _unload(scene); } catch (Exception error) { errors.Add(error); } }
-            try { await _waitForSceneIdle(); } catch (Exception error) { errors.Add(error); }
+            if (scope != null) { try { await scope.CloseAsync().ConfigureAwait(false); } catch (Exception error) { errors.Add(error); } }
+            if (scene != null) { try { await _unload(scene).ConfigureAwait(false); } catch (Exception error) { errors.Add(error); } }
+            try { await _waitForSceneIdle().ConfigureAwait(false); } catch (Exception error) { errors.Add(error); }
             lock (_gate) { _state = errors.Count == 0 ? GameFlowState.Menu : GameFlowState.Failed; if (errors.Count > 0) _failure = errors.ToAggregate(); }
             if (errors.Count > 0) throw errors.ToAggregate();
         }
 
+        public Task ShutdownAsync() => ReturnToMenuAsync();
         public void Dispose() { _transitionCancellation?.Cancel(); _ = ReturnToMenuAsync(); }
 
         private sealed class ListException

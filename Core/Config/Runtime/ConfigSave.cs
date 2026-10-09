@@ -66,14 +66,17 @@ namespace WFrameWork.Config
         {
             _files = files ?? throw new ArgumentNullException(nameof(files)); _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             if (currentVersion < 0) throw new ArgumentOutOfRangeException(nameof(currentVersion));
-            _version = currentVersion; _rootPath = rootPath; _validate = validate; _diagnostics = new DiagnosticLogger("Config.Save", diagnostics);
+            _version = currentVersion;
+            _rootPath = string.IsNullOrWhiteSpace(rootPath) ? null : Path.GetFullPath(rootPath.Trim());
+            _validate = validate; _diagnostics = new DiagnosticLogger("Config.Save", diagnostics);
         }
 
         public async Task<SaveResult<T>> LoadAsync(string key, CancellationToken token = default(CancellationToken))
         {
-            EnsureUsable(); string path = Normalize(key); SemaphoreSlim gate = GetLock(path); Interlocked.Increment(ref _pendingOperations); await gate.WaitAsync(token);
+            string path = Normalize(key); BeginOperation(); SemaphoreSlim gate = GetLock(path); bool entered = false;
             try
             {
+                await gate.WaitAsync(token); entered = true;
                 bool backup = false; bool defaultValue = false; T value;
                 try { value = ReadAndMigrate(path); }
                 catch (Exception primary)
@@ -88,21 +91,30 @@ namespace WFrameWork.Config
                 }
                 return new SaveResult<T>(value, backup, defaultValue, _version);
             }
-            finally { gate.Release(); EndOperation(); }
+            finally { if (entered) gate.Release(); EndOperation(); }
         }
 
         public async Task SaveAsync(string key, T value, CancellationToken token = default(CancellationToken))
         {
-            EnsureUsable(); string path = Normalize(key); SemaphoreSlim gate = GetLock(path); Interlocked.Increment(ref _pendingOperations); await gate.WaitAsync(token);
-            string temp = path + ".tmp";
+            string path = Normalize(key); BeginOperation(); SemaphoreSlim gate = GetLock(path); bool entered = false;
+            string temp = null; bool tempOwned = false;
             try
             {
+                await gate.WaitAsync(token); entered = true;
                 string directory = Path.GetDirectoryName(path); if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
+                temp = path + ".tmp." + Guid.NewGuid().ToString("N");
+                tempOwned = true;
                 _validate?.Invoke(value); _files.Write(temp, _serializer.Serialize(value, _version));
-                if (_files.Exists(path)) _files.Replace(temp, path, path + ".bak"); else _files.Replace(temp, path, path + ".bak");
+                _files.Replace(temp, path, path + ".bak");
+                tempOwned = false;
             }
-            catch (Exception error) { _diagnostics.Error("Save write failed: " + path, error); try { _files.Delete(temp); } catch { } throw; }
-            finally { gate.Release(); EndOperation(); }
+            catch (Exception error)
+            {
+                _diagnostics.Error("Save write failed: " + path, error);
+                if (tempOwned && temp != null) { try { _files.Delete(temp); } catch { } }
+                throw;
+            }
+            finally { if (entered) gate.Release(); EndOperation(); }
         }
 
         private T ReadAndMigrate(string path)
@@ -121,15 +133,55 @@ namespace WFrameWork.Config
         private string Normalize(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Save key is required.", nameof(key));
-            if (Path.IsPathRooted(key) || key.IndexOf("..", StringComparison.Ordinal) >= 0) throw new ArgumentException("Save key must be a relative name.", nameof(key));
             string relative = key.Trim();
-            return string.IsNullOrWhiteSpace(_rootPath) ? Path.GetFullPath(relative) : Path.Combine(_rootPath, relative);
+            if (relative.Length == 0 || Path.IsPathRooted(relative) || relative.StartsWith("\\\\", StringComparison.Ordinal) || relative.IndexOf('\0') >= 0)
+                throw new ArgumentException("Save key must be a relative name.", nameof(key));
+            string[] segments = relative.Split(new[] { '/', '\\' }, StringSplitOptions.None);
+            for (int i = 0; i < segments.Length; i++)
+            {
+                if (segments[i].Length == 0 || segments[i] == "." || segments[i] == ".." ||
+                    segments[i].IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || IsReservedWindowsName(segments[i]))
+                    throw new ArgumentException("Save key contains an invalid path segment.", nameof(key));
+            }
+            string path;
+            try { path = Path.GetFullPath(_rootPath == null ? relative : Path.Combine(_rootPath, relative)); }
+            catch (Exception error) { throw new ArgumentException("Save key is not a valid path.", nameof(key), error); }
+            if (_rootPath != null)
+            {
+                string rootPrefix = _rootPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                    _rootPath.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                    ? _rootPath : _rootPath + Path.DirectorySeparatorChar;
+                StringComparison comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                if (!path.StartsWith(rootPrefix, comparison)) throw new ArgumentException("Save key must stay under the configured root.", nameof(key));
+            }
+            return path;
         }
-        private void EnsureUsable() { if (_disposed) throw new ObjectDisposedException(nameof(SaveService<T>)); }
+
+        private static bool IsReservedWindowsName(string segment)
+        {
+            string name = segment.TrimEnd(' ', '.');
+            int dot = name.IndexOf('.'); if (dot >= 0) name = name.Substring(0, dot);
+            if (name.Equals("CON", StringComparison.OrdinalIgnoreCase) || name.Equals("PRN", StringComparison.OrdinalIgnoreCase) ||
+                name.Equals("AUX", StringComparison.OrdinalIgnoreCase) || name.Equals("NUL", StringComparison.OrdinalIgnoreCase)) return true;
+            if (name.Length == 4 && (name.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || name.StartsWith("LPT", StringComparison.OrdinalIgnoreCase)) &&
+                name[3] >= '1' && name[3] <= '9') return true;
+            return false;
+        }
+        private void BeginOperation()
+        {
+            lock (_gate)
+            {
+                if (_disposed) throw new ObjectDisposedException(nameof(SaveService<T>));
+                Interlocked.Increment(ref _pendingOperations);
+            }
+        }
         public Task CloseAsync()
         {
-            if (_closeTask != null) return _closeTask;
-            _disposed = true; _closeTask = CloseCoreAsync(); return _closeTask;
+            lock (_gate)
+            {
+                if (_closeTask != null) return _closeTask;
+                _disposed = true; _closeTask = CloseCoreAsync(); return _closeTask;
+            }
         }
 
         private async Task CloseCoreAsync()

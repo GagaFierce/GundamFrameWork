@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using WFrameWork.UI;
@@ -7,30 +6,34 @@ using WFrameWork.UI.Unity;
 
 namespace WFrameWork.Samples.Combined
 {
-    public sealed class SampleMenuPanel : MonoBehaviour, IUGuiPanelLifecycle
+    /// <summary>Menu View: serialized controls only; state and actions live in LobbyViewModel.</summary>
+    public sealed class SampleMenuPanel : UiPanelViewBehaviour<LobbyViewModel>
     {
         [SerializeField] private Button startButton;
-        private CombinedSampleRuntimeServices _services;
-        public bool RequiresContinuousUpdate => false;
+        [SerializeField] private Button settingsButton;
+        [SerializeField] private Button helpButton;
+        [SerializeField] private Button aboutButton;
+        [SerializeField] private Button exitButton;
+        [SerializeField] private TMP_Text statusText;
+        [SerializeField] private TMP_Text errorText;
+        [SerializeField] private GameObject busyIndicator;
 
-        public void OnPanelOpened(object argument)
+        protected override LobbyViewModel CreateViewModel(object argument)
         {
-            _services = FindObjectOfType<CombinedSampleRuntimeServices>();
-            if (startButton != null) startButton.onClick.AddListener(OnStartClicked);
+            var services = argument as CombinedSampleRuntimeServices ?? FindObjectOfType<CombinedSampleRuntimeServices>();
+            if (services == null) throw new System.InvalidOperationException("CombinedSampleRuntimeServices is required by the sample menu.");
+            return new LobbyViewModel(services, services, services, true, services);
         }
 
-        public void OnPanelShown() { }
-        public void OnPanelHidden() { }
-        public void OnPanelClosed() { if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked); }
-        public void OnPanelUpdate(in UiPanelUpdateContext context) { }
-
-        private void OnStartClicked() { _ = StartAsync(); }
-
-        private async Task StartAsync()
+        protected override void Bind(LobbyViewModel viewModel, UiBindingSet bindings)
         {
-            try { if (_services != null) await _services.StartGameAsync(); }
-            catch (OperationCanceledException) { }
-            catch (Exception error) { Debug.LogException(error, this); }
+            if (startButton != null) bindings.Add(UiControlBindings.Button(startButton, viewModel.StartCommand, busyIndicator));
+            if (settingsButton != null) bindings.Add(UiControlBindings.Button(settingsButton, viewModel.SettingsCommand));
+            if (helpButton != null) bindings.Add(UiControlBindings.Button(helpButton, viewModel.HelpCommand));
+            if (aboutButton != null) bindings.Add(UiControlBindings.Button(aboutButton, viewModel.AboutCommand));
+            if (exitButton != null) bindings.Add(UiControlBindings.Button(exitButton, viewModel.ExitCommand));
+            if (statusText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Status), () => viewModel.Status, value => statusText.text = value ?? string.Empty));
+            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.Error), () => viewModel.Error, value => errorText.text = value ?? string.Empty));
         }
     }
 }

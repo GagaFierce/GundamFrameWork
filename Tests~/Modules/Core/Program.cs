@@ -11,6 +11,7 @@ using WFrameWork.Core.ResLoad;
 using WFrameWork.Pool;
 using WFrameWork.Config;
 using WFrameWork.Application;
+using WFrameWork.Core.Editor;
 
 namespace WFrameWork.Modules.Tests
 {
@@ -98,6 +99,9 @@ namespace WFrameWork.Modules.Tests
             new TestCase("UI reentrant close does not leak modal state", UiReentrantClose),
             new TestCase("UI concurrent caller cancellation is independent", UiIndependentCancellation),
             new TestCase("Resource leases share and release exactly once", ResourceLeaseOwnership),
+            new TestCase("Resource asset async release is awaited", LifecycleTests.ResourceAsyncReleaseIsAwaited),
+            new TestCase("Resource instance async release is awaited", LifecycleTests.ResourceInstanceAsyncReleaseIsAwaited),
+            new TestCase("Audio close awaits playback and clip release", LifecycleTests.AudioCloseAwaitsClipAndPlaybackRelease),
             new TestCase("Object pool rejects foreign and duplicate returns", ObjectPoolLifecycle),
             new TestCase("Save versioning backup and serialized writes", SaveLifecycle),
             new TestCase("Application runtime merges initialization and shutdown", LifecycleTests.RuntimeConcurrentShutdown),
@@ -106,12 +110,52 @@ namespace WFrameWork.Modules.Tests
             new TestCase("Resource close waits for external leases", LifecycleTests.ResourceCloseWaitsForLease),
             new TestCase("Game flow cancellation returns to menu without stale scene", LifecycleTests.GameFlowCancellation),
             new TestCase("Game flow repeated enter and return has stable releases", LifecycleTests.GameFlowPressure),
+            new TestCase("Game flow merges concurrent return requests", LifecycleTests.GameFlowReturnIsMerged),
+            new TestCase("Business scope closes children before parent cleanups", LifecycleTests.ScopeClosesChildrenBeforeParentCleanups),
             new TestCase("Diagnostics snapshot is on-demand and bounded", LifecycleTests.DiagnosticsBounded),
             new TestCase("Scene unload task completes after backend release", LifecycleTests.SceneUnloadWaits),
+            new TestCase("Scene lease shares one async release task", LifecycleTests.SceneLeaseSharesReleaseTask),
+            new TestCase("Regression save cancellation owns only its temp file", RegressionTests.SaveCancellationOwnsOnlyItsTempFile),
+            new TestCase("Regression save path validation has no side effects", RegressionTests.SavePathValidationHasNoSideEffects),
+            new TestCase("Regression scopes detach and report cancellation errors", RegressionTests.ScopeDetachesAndReportsCancellationErrors),
+            new TestCase("Regression runtime releases resource before service", RegressionTests.RuntimeScopeReleasesResourceBeforeService),
+            new TestCase("Regression canceled instance cleanup is in close lifetime", RegressionTests.CanceledInstanceCleanupIsInCloseLifetime),
+            new TestCase("Regression UI closing shares tasks and generation", RegressionTests.UiClosingUsesSharedTasksAndGeneration),
+            new TestCase("Regression editor comment transform is safe and idempotent", RegressionTests.EditorCommentTransformIsSafeAndIdempotent),
+            new TestCase("Regression stale audio cannot stop current", RegressionTests.AudioStaleRequestCannotStopCurrent),
+            new TestCase("Regression action callbacks can mutate collection", RegressionTests.ActionCallbacksCanMutateCollection),
+            new TestCase("Regression pool uses reference ownership and closes creation", RegressionTests.PoolUsesReferenceOwnershipAndClosesCreation),
+            new TestCase("Regression unrelated input context preserves events", RegressionTests.InputUnrelatedContextPreservesEvents),
+            new TestCase("Followup resource instance failure paths close cleanly", FollowupRegressionTests.ResourceInstanceFailurePaths),
+            new TestCase("Followup runtime rollback closes scope before resources", FollowupRegressionTests.RuntimeRollbackClosesScopeBeforeResources),
+            new TestCase("Followup runtime rollback preserves cleanup errors", FollowupRegressionTests.RuntimeRollbackPreservesCleanupErrors),
+            new TestCase("Followup scene cancellation has no pre-commit side effects", FollowupRegressionTests.SceneCancellationBoundaries),
+            new TestCase("Followup UI single generation survives repeated reopen", FollowupRegressionTests.UiSingleGenerationReopenAndRetry),
+            new TestCase("Followup resource close aggregates release failures", FollowupRegressionTests.ResourceCloseAggregatesReleaseFailures),
+            new TestCase("Followup editor encodings round trip safely", FollowupRegressionTests.EditorEncodingRoundTrips),
+            new TestCase("Followup object pool reentrant return cleanup", FollowupRegressionTests.ObjectPoolReentrantReturnCleanup),
+            new TestCase("Async asset cancellation includes deferred observation", AsyncLifecycleRegressionTests.CanceledAssetIncludesDeferredObservation),
+            new TestCase("Async shared asset publication and failure lifetime", AsyncLifecycleRegressionTests.SharedAssetPublicationAndFailures),
+            new TestCase("Async canceled asset release failure is awaited", AsyncLifecycleRegressionTests.CanceledAssetReleaseFailureIsAwaited),
+            new TestCase("Async late successful initializer uses scope-first rollback", AsyncLifecycleRegressionTests.LateSuccessfulInitializerUsesScopeFirstRollback),
+            new TestCase("Async audio failure drains counts and closes other playback", AsyncLifecycleRegressionTests.AudioFailureReturnsCountAndClosesOthers),
+            new TestCase("Async scene cancellation retains native load and unload", AsyncLifecycleRegressionTests.SceneCancellationRetainsNativeOperation),
+            new TestCase("UI MVVM property notification uses equality", UiMvvmTests.PropertyNotificationUsesEquality),
+            new TestCase("UI MVVM two-way binding avoids feedback loop", UiMvvmTests.TwoWayBindingAvoidsFeedbackLoop),
+            new TestCase("UI MVVM commands protect CanExecute", UiMvvmTests.CommandsProtectCanExecuteAndDuplicateExecution),
+            new TestCase("UI MVVM async command cancellation and duplicate click", UiMvvmTests.AsyncCommandCancellationAndDuplicateClick),
+            new TestCase("UI MVVM settings draft apply rollback and failure", UiMvvmTests.SettingsDraftApplyRollbackAndFailure),
+            new TestCase("UI MVVM closed binding ignores late updates", UiMvvmTests.ClosedBindingStopsLateUpdates),
+            new TestCase("UI MVVM dialog once and bounded toast", UiMvvmTests.DialogCompletesOnceAndToastIsBounded),
         };
 
-        private static async Task Main()
+        private static async Task Main(string[] args)
         {
+            if (args.Length == 1 && args[0] == AsyncLifecycleRegressionTests.AssetProbeArgument)
+            {
+                Environment.ExitCode = AsyncLifecycleRegressionTests.RunAssetLifetimeProbe();
+                return;
+            }
             int passed = 0;
             foreach (var test in Tests)
             {

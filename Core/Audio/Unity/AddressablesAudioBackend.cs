@@ -12,7 +12,7 @@ namespace WFrameWork.Audio.Unity
 {
     public sealed class AddressablesAudioBackend : IAudioBackend
     {
-        private sealed class Playback : IAudioPlayback
+        private sealed class Playback : IAudioPlayback, IAudioPlaybackVolume
         {
             private readonly AddressablesAudioBackend _owner;
             internal readonly AudioSource Source;
@@ -20,6 +20,12 @@ namespace WFrameWork.Audio.Unity
             internal Playback(AddressablesAudioBackend owner, AudioSource source) { _owner = owner; Source = source; }
             public bool IsPlaying => !_stopped && Source != null && Source.isPlaying;
             public void Stop() { if (_stopped) return; _stopped = true; if (Source != null) Source.Stop(); _owner.Release(Source); }
+            public void SetVolume(float volume)
+            {
+                if (_stopped || Source == null) return;
+                if (!_owner._mainThread.IsMainThread) throw new InvalidOperationException("AudioSource volume must be changed on the Unity main thread.");
+                Source.volume = volume;
+            }
             public void Dispose() => Stop();
             internal void Complete() { if (_stopped) return; _stopped = true; _owner.Release(Source); }
         }
@@ -36,12 +42,12 @@ namespace WFrameWork.Audio.Unity
 
         public AddressablesAudioBackend(ResourceService resources, Transform root, AudioMixerGroup bgmGroup = null,
             AudioMixerGroup sfxGroup = null, AudioMixerGroup uiGroup = null, IMainThreadDispatcher mainThread = null)
-        { _resources = resources ?? throw new ArgumentNullException(nameof(resources)); _root = root; _bgmGroup = bgmGroup; _sfxGroup = sfxGroup; _uiGroup = uiGroup; _mainThread = mainThread; }
+        { _resources = resources ?? throw new ArgumentNullException(nameof(resources)); _root = root; _bgmGroup = bgmGroup; _sfxGroup = sfxGroup; _uiGroup = uiGroup; _mainThread = mainThread ?? new UnityMainThreadDispatcher(); }
 
         public async Task<AudioBackendClip> LoadClipAsync(string key, CancellationToken token)
         {
             ResourceLease<AudioClip> lease = await _resources.LoadAssetAsync<AudioClip>(key, cancellationToken: token);
-            return new AudioBackendClip(lease.Asset, lease.Dispose);
+            return new AudioBackendClip(lease.Asset, lease.DisposeAsync, true);
         }
 
         public IAudioPlayback Play(AudioBackendClip clip, AudioPlayRequest request, float effectiveVolume, Action completed)
@@ -76,6 +82,7 @@ namespace WFrameWork.Audio.Unity
         public void Dispose()
         {
             if (_disposed) return; _disposed = true;
+            if (!_mainThread.IsMainThread) throw new InvalidOperationException("Audio backend must be disposed on the Unity main thread.");
             for (int i = _active.Count - 1; i >= 0; i--) _active[i].Stop();
             while (_free.Count > 0) { var source = _free.Pop(); if (source != null) UnityEngine.Object.Destroy(source.gameObject); }
         }
@@ -98,7 +105,8 @@ namespace WFrameWork.Audio.Unity
             _backend = new AddressablesAudioBackend(resources, sourceRoot == null ? transform : sourceRoot, bgmGroup, sfxGroup, uiGroup, mainThread);
             _service = new AudioService(_backend, mainThread: mainThread);
         }
+        public Task ShutdownAsync() => _service == null ? Task.CompletedTask : _service.CloseAsync();
         private void Update() { _service?.Tick(); }
-        private void OnDestroy() { _service?.Dispose(); _service = null; _backend = null; }
+        private void OnDestroy() { _ = ShutdownAsync(); _service = null; _backend = null; }
     }
 }

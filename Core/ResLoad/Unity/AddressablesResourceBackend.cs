@@ -30,7 +30,7 @@ namespace WFrameWork.Core.ResLoad.Unity
             {
                 await AwaitHandle(handle, cancellationToken);
             }
-            finally { await _mainThread.RunAsync(() => Addressables.Release(handle)); }
+            finally { await _mainThread.RunAsync(() => Addressables.Release(handle), CancellationToken.None); }
         }
 
         public Task<ResourceBackendAsset> LoadAssetAsync(string key, Type requestedType, IProgress<float> progress, CancellationToken cancellationToken)
@@ -109,7 +109,7 @@ namespace WFrameWork.Core.ResLoad.Unity
                 return new ResourceBackendInstance(handle.Result, () => mainThread.RunAsync(() =>
                 {
                     if (handle.IsValid()) Addressables.ReleaseInstance(handle);
-                }));
+                }), true);
             }
             catch (OperationCanceledException)
             {

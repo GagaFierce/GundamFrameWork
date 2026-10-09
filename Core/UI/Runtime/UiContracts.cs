@@ -122,23 +122,34 @@ namespace WFrameWork.UI
 
     public sealed class UiResourceHandle : IDisposable
     {
-        private Action _release;
+        private readonly object _gate = new object();
+        private Func<Task> _release;
+        private Task _releaseTask;
         public object Asset { get; }
-        public bool IsReleased { get; private set; }
+        public bool IsReleased { get { lock (_gate) return _releaseTask != null; } }
 
-        public UiResourceHandle(object asset, Action release = null)
+        public UiResourceHandle(object asset, Action release = null) : this(asset, () => { release?.Invoke(); return Task.CompletedTask; }, true)
+        {
+        }
+
+        public UiResourceHandle(object asset, Func<Task> release, bool asynchronousRelease)
         {
             if (asset == null) throw new ArgumentNullException(nameof(asset));
             Asset = asset; _release = release;
         }
 
-        public void Dispose()
+        public void Dispose() { _ = DisposeAsync(); }
+
+        public Task DisposeAsync()
         {
-            if (IsReleased) return;
-            IsReleased = true;
-            var release = _release;
-            _release = null;
-            release?.Invoke();
+            lock (_gate)
+            {
+                if (_releaseTask != null) return _releaseTask;
+                var release = _release; _release = null;
+                try { _releaseTask = release == null ? Task.CompletedTask : (release() ?? Task.CompletedTask); }
+                catch (Exception error) { _releaseTask = Task.FromException(error); }
+                return _releaseTask;
+            }
         }
     }
 
@@ -158,15 +169,18 @@ namespace WFrameWork.UI
         private readonly UiPanelManager _manager;
         private readonly object _entry;
         private bool _disposed;
+        private Task _closeTask;
         internal UiPanelHandle(UiPanelManager manager, object entry) { _manager = manager; _entry = entry; }
         public bool IsOpen => !_disposed && _manager.IsEntryOpen(_entry);
         public UiPanelId PanelId => _manager.GetEntryId(_entry);
         public UiPanelState State => _manager.GetEntryState(_entry);
         public Task CloseAsync()
         {
+            if (_closeTask != null) return _closeTask;
             if (_disposed) return Task.CompletedTask;
             _disposed = true;
-            return _manager.CloseEntryAsync(_entry);
+            _closeTask = _manager.CloseEntryAsync(_entry);
+            return _closeTask;
         }
         public void Dispose() { CloseAsync(); }
     }

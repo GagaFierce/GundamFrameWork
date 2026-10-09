@@ -36,11 +36,11 @@ Physics + Input ── Physics.InputBridge
 
 | 创建方式 | 持有者 | 释放方式 |
 | --- | --- | --- |
-| `ResourceService.LoadAssetAsync<T>` | 每个调用方一个 `ResourceLease<T>` | 调用方 `Dispose`；最后一个租约释放 Addressables handle |
-| `ResourceService.InstantiateAsync` | 一个 `ResourceInstanceLease` | 租约 `Dispose`，Unity 适配使用 `Addressables.ReleaseInstance(handle)` |
+| `ResourceService.LoadAssetAsync<T>` | 每个调用方一个 `ResourceLease<T>` | 调用方 `DisposeAsync`；最后一个租约释放 Addressables handle |
+| `ResourceService.InstantiateAsync` | 一个 `ResourceInstanceLease` | 租约 `DisposeAsync`，Unity 适配使用 `Addressables.ReleaseInstance(handle)` |
 | `AddressableGameObjectPool` prefab | 池的 prefab `ResourceLease<GameObject>` | `CloseAsync` 清理可用及租用对象后释放 prefab 租约 |
-| Addressables 场景 | `SceneLease` | `SceneLease.Dispose`，Unity 适配使用 `UnloadSceneAsync(handle, true)` |
-| UI prefab 实例 | `UGuiPanelInstance` | `Destroy(instance)`；UI 资源租约单独 Dispose |
+| Addressables 场景 | `SceneLease` | `SceneLease.ReleaseAsync`，Unity 适配使用 `UnloadSceneAsync(handle, true)` |
+| UI prefab 实例 | `UGuiPanelInstance` | `DisposeAsync` 等待 `Destroy(instance)`；UI 资源租约单独 `DisposeAsync` |
 | AudioClip | AudioService 的共享 clip entry | 最后一个播放生命周期结束后释放 clip 租约 |
 
 不要对手动 `Object.Instantiate` 的对象调用 `ReleaseInstance`，也不要对 `InstantiateAsync` 的实例手动 `Destroy` 后再 ReleaseInstance。Unity `Destroy` 为延迟销毁，池关闭使用 `CloseAsync` 等待一个调度机会后才释放 prefab 依赖。
@@ -69,11 +69,11 @@ Resources/Audio/click.wav     ->  GFramework.Samples.Audio.Click
 导入 `Combined modules` Sample 后，在宿主工程执行：
 
 1. `GFramework/Samples/Generate Combined Sample Assets`。
-2. 确认宿主已有 Addressables Settings；生成器只创建 `Assets/GFrameworkSamples/Combined` 及名为 `GFramework Samples` 的组，并注册 Player、Settings、Menu、Config 和 Gameplay scene 地址。
-3. `GFramework/Samples/Build Combined Addressables Content`。
+2. 确认宿主已有 Addressables Settings；生成器只创建 `Assets/GFrameworkSamples/Combined` 及名为 `GFramework Samples` 的组，并注册 Player、Settings、Menu、Config、Click 音效和 Gameplay scene 地址。
+3. `GFramework/Samples/Validate And Build Combined Addressables`（或分别执行 Validate 与 Build）。
 4. 打开生成的 `Assets/GFrameworkSamples/Combined/Scenes/CombinedSample.unity` 并运行。
 
-样例入口 `CombinedSampleBootstrap` 展示输入、固定步跳跃、UI 模态、返回和 Gameplay 恢复；`CombinedSampleRuntimeServices` 展示 Addressables 初始化、场景服务、池、音频和 persistentDataPath 设置存档。Escape 在 UI context 下关闭设置，Space 只有 `Pressed` 固定步事件会跳跃。
+样例入口 `CombinedSampleBootstrap` 展示输入、固定步跳跃、UI 模态、返回和 Gameplay 恢复；`CombinedSampleRuntimeServices` 展示 Addressables 初始化、场景服务、池对象租用/归还、生成的短音效、音量存档和 persistentDataPath 设置存档。Escape 在 UI context 下关闭设置，Space 只有 `Pressed` 固定步事件会跳跃。
 
 ## 验证命令
 
@@ -82,4 +82,4 @@ dotnet run --project "D:/wangjian/Project/GundamFrameWork/Tests~/FrameUpdate/Cor
 dotnet run --project "D:/wangjian/Project/GundamFrameWork/Tests~/Modules/Core/GFramework.Modules.Tests.csproj"
 ```
 
-纯逻辑测试使用可控 TaskCompletionSource 和可记录 release 次数的 backend；当前结果为 Modules `28/28`、FrameUpdate `55/55`。Unity EditMode/PlayMode 和构建后的本地 Addressables 内容必须在宿主工程执行；当前仓库不是完整 Unity 工程，不能仅靠 .NET 测试宣称 Unity Addressables 已运行验收。
+纯逻辑测试使用可控 TaskCompletionSource 和可记录 release 次数的 backend；当前结果为 Modules `45/45`、FrameUpdate `55/55`。Unity EditMode/PlayMode 和构建后的本地 Addressables 内容必须在宿主工程执行；本次对 Unity 2022.3.62f3 临时宿主的尝试在 UPM 包解析阶段因 `path` 参数错误退出，不能据此宣称 Unity Addressables 已运行验收。

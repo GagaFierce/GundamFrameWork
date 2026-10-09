@@ -24,17 +24,36 @@ namespace WFrameWork.Audio
 
     public sealed class AudioBackendClip
     {
-        private Action _release;
+        private readonly object _gate = new object();
+        private Func<Task> _release;
+        private Task _releaseTask;
         public object Clip { get; }
-        internal AudioBackendClip(object clip, Action release) { Clip = clip ?? throw new ArgumentNullException(nameof(clip)); _release = release; }
-        public bool IsReleased { get; private set; }
-        public void Release() { if (IsReleased) return; IsReleased = true; var release = _release; _release = null; release?.Invoke(); }
+        public AudioBackendClip(object clip, Action release) : this(clip, () => { release?.Invoke(); return Task.CompletedTask; }, true) { }
+        public AudioBackendClip(object clip, Func<Task> release, bool asynchronousRelease) { Clip = clip ?? throw new ArgumentNullException(nameof(clip)); _release = release; }
+        public bool IsReleased { get { lock (_gate) return _releaseTask != null; } }
+        public void Release() { _ = ReleaseAsync(); }
+        public Task ReleaseAsync()
+        {
+            lock (_gate)
+            {
+                if (_releaseTask != null) return _releaseTask;
+                var release = _release; _release = null;
+                try { _releaseTask = release == null ? Task.CompletedTask : (release() ?? Task.CompletedTask); }
+                catch (Exception error) { _releaseTask = Task.FromException(error); }
+                return _releaseTask;
+            }
+        }
     }
 
     public interface IAudioPlayback : IDisposable
     {
         bool IsPlaying { get; }
         void Stop();
+    }
+
+    public interface IAudioPlaybackVolume
+    {
+        void SetVolume(float volume);
     }
 
     public interface IAudioBackend : IDisposable
@@ -49,18 +68,37 @@ namespace WFrameWork.Audio
         private readonly AudioService _owner;
         private readonly AudioEntry _entry;
         private IAudioPlayback _playback;
-        private bool _stopped;
-        internal AudioPlaybackHandle(AudioService owner, AudioEntry entry, IAudioPlayback playback) { _owner = owner; _entry = entry; _playback = playback; }
-        public bool IsPlaying => !_stopped && _playback != null && _playback.IsPlaying;
-        public void Stop() { if (_stopped) return; _stopped = true; _owner.ReleasePlayback(_entry, _playback); _playback = null; }
+        private int _stopped;
+        private readonly AudioBus _bus;
+        private readonly float _requestVolume;
+        internal AudioPlaybackHandle(AudioService owner, AudioEntry entry, IAudioPlayback playback, AudioBus bus, float requestVolume)
+        { _owner = owner; _entry = entry; _playback = playback; _bus = bus; _requestVolume = requestVolume; }
+        internal IAudioPlayback Playback => _playback;
+        internal AudioBus Bus => _bus;
+        internal float RequestVolume => _requestVolume;
+        internal void ApplyVolume(float effective)
+        { if (_playback is IAudioPlaybackVolume volume) volume.SetVolume(effective); }
+        public bool IsPlaying => Volatile.Read(ref _stopped) == 0 && _playback != null && _playback.IsPlaying;
+        public void Stop() { _ = StopAsync(); }
+        public Task StopAsync()
+        {
+            if (Interlocked.Exchange(ref _stopped, 1) != 0) return Task.CompletedTask;
+            IAudioPlayback playback = _playback; _playback = null;
+            return _owner.ReleasePlayback(_entry, playback);
+        }
         public void Dispose() => Stop();
     }
 
     internal sealed class AudioEntry
     {
         internal readonly string Key; internal readonly Task<AudioBackendClip> Load;
-        internal AudioBackendClip Clip; internal int Holders; internal bool Removed; internal bool Released;
+        internal AudioBackendClip Clip; internal int Holders; internal bool Removed; internal bool Released; internal Task ReleaseTask;
         internal AudioEntry(string key, Task<AudioBackendClip> load) { Key = key; Load = load; }
+    }
+
+    internal sealed class StaleAudioRequestException : OperationCanceledException
+    {
+        internal StaleAudioRequestException() : base("The audio request was superseded before playback was committed.") { }
     }
 
     public sealed class AudioService : IDisposable
@@ -73,6 +111,7 @@ namespace WFrameWork.Audio
         private readonly Dictionary<AudioBus, float> _volume = new Dictionary<AudioBus, float>();
         private readonly Dictionary<AudioBus, int> _limits = new Dictionary<AudioBus, int>();
         private readonly object _gate = new object();
+        private readonly object _playbackCommitGate = new object();
         private long _bgmRequest;
         private AudioPlaybackHandle _bgm;
         private bool _disposed;
@@ -80,6 +119,10 @@ namespace WFrameWork.Audio
         private Task _closeTask;
         private int _pendingOperations;
         private TaskCompletionSource<bool> _operationSignal = NewSignal();
+        private readonly HashSet<Task> _pendingReleases = new HashSet<Task>();
+        private readonly List<Exception> _cleanupFailures = new List<Exception>();
+        private const int MaxRememberedCleanupFailures = 32;
+        private TaskCompletionSource<bool> _releaseSignal = NewSignal();
 
         public AudioService(IAudioBackend backend, IDiagnosticSink diagnostics = null, IMainThreadDispatcher mainThread = null)
         {
@@ -88,14 +131,31 @@ namespace WFrameWork.Audio
             _mainThread = mainThread;
             foreach (AudioBus bus in Enum.GetValues(typeof(AudioBus))) { _volume[bus] = 1; _limits[bus] = bus == AudioBus.Bgm ? 1 : 16; _active[bus] = new List<AudioPlaybackHandle>(); }
         }
-        public bool IsMuted => _muted;
-        public int ActivePlaybackCount { get { int count = 0; foreach (var pair in _active) count += pair.Value.Count; return count; } }
-        public float GetVolume(AudioBus bus) => _volume[bus];
-        public void SetMuted(bool muted) { _muted = muted; }
-        public void SetVolume(AudioBus bus, float volume) { _volume[bus] = Clamp(volume); }
-        public void SetConcurrencyLimit(AudioBus bus, int limit) { if (limit <= 0) throw new ArgumentOutOfRangeException(nameof(limit)); _limits[bus] = limit; }
+        public bool IsMuted { get { lock (_gate) return _muted; } }
+        public int ActivePlaybackCount { get { lock (_gate) { int count = 0; foreach (var pair in _active) count += pair.Value.Count; return count; } } }
+        public int PendingOperationCount { get { lock (_gate) return _pendingOperations + _pendingReleases.Count; } }
+        public float GetVolume(AudioBus bus) { lock (_gate) return _volume[bus]; }
+        public void SetMuted(bool muted)
+        {
+            Action apply = () =>
+            {
+                lock (_gate) _muted = muted;
+                ApplyCurrentVolumes();
+            };
+            DispatchOptional(apply);
+        }
+        public void SetVolume(AudioBus bus, float volume)
+        {
+            float clamped = Clamp(volume);
+            DispatchOptional(() => { lock (_gate) _volume[bus] = clamped; ApplyCurrentVolumes(); });
+        }
+        public void SetConcurrencyLimit(AudioBus bus, int limit) { if (limit <= 0) throw new ArgumentOutOfRangeException(nameof(limit)); lock (_gate) _limits[bus] = limit; }
 
         public async Task<AudioPlaybackHandle> PlayAsync(string key, AudioPlayRequest request, CancellationToken token = default(CancellationToken))
+        { return await PlayAsyncCore(key, request, token, null).ConfigureAwait(false); }
+
+        private async Task<AudioPlaybackHandle> PlayAsyncCore(string key, AudioPlayRequest request,
+            CancellationToken token, Func<bool> commitGuard)
         {
             EnsureUsable();
             AudioEntry entry = GetOrCreateEntry(key);
@@ -103,23 +163,19 @@ namespace WFrameWork.Audio
             bool held = true;
             try
             {
-                if (!await WaitForCompletion(entry.Load, token)) { ReleaseClipHolder(entry); held = false; token.ThrowIfCancellationRequested(); }
+                if (!await WaitForCompletion(entry.Load, token)) { await ReleaseClipHolderAsync(entry).ConfigureAwait(false); held = false; token.ThrowIfCancellationRequested(); }
                 entry.Clip = await entry.Load;
                 EnsureUsable();
-                float effective = (_muted ? 0 : _volume[request.Bus]) * Clamp(request.Volume);
-                EnforceLimit(request.Bus);
+                float effective;
+                lock (_gate) effective = (_muted ? 0 : _volume[request.Bus]) * Clamp(request.Volume);
                 AudioPlaybackHandle result = null;
-                IAudioPlayback playback = _mainThread == null
-                    ? _backend.Play(entry.Clip, request, effective, () => result?.Stop())
-                    : await _mainThread.RunAsync(() => _backend.Play(entry.Clip, request, effective, () => result?.Stop()));
-                if (playback == null) throw new InvalidOperationException("Audio backend returned null playback.");
-                result = new AudioPlaybackHandle(this, entry, playback);
-                _active[request.Bus].Add(result);
+                Func<AudioPlaybackHandle> commit = () => CommitPlayback(entry, request, effective, commitGuard);
+                result = _mainThread == null ? commit() : await _mainThread.RunAsync(commit).ConfigureAwait(false);
                 return result;
             }
             catch
             {
-                if (held) ReleaseClipHolder(entry);
+                if (held) await ReleaseClipHolderAsync(entry).ConfigureAwait(false);
                 throw;
             }
             finally
@@ -131,35 +187,99 @@ namespace WFrameWork.Audio
         public async Task<AudioPlaybackHandle> PlayBgmAsync(string key, float volume = 1, CancellationToken token = default(CancellationToken))
         {
             long request = Interlocked.Increment(ref _bgmRequest);
-            _bgm?.Stop(); _bgm = null;
-            AudioPlaybackHandle next = await PlayAsync(key, new AudioPlayRequest(AudioBus.Bgm, volume, true), token);
-            if (request != Volatile.Read(ref _bgmRequest)) { next.Stop(); return null; }
+            AudioPlaybackHandle next;
+            try
+            {
+                next = await PlayAsyncCore(key, new AudioPlayRequest(AudioBus.Bgm, volume, true), token,
+                    () => request == Volatile.Read(ref _bgmRequest) && !_disposed).ConfigureAwait(false);
+            }
+            catch (StaleAudioRequestException) { return null; }
+            if (request != Volatile.Read(ref _bgmRequest)) { await next.StopAsync().ConfigureAwait(false); return null; }
             _bgm = next; return next;
         }
 
-        internal void ReleasePlayback(AudioEntry entry, IAudioPlayback playback)
+        internal Task ReleasePlayback(AudioEntry entry, IAudioPlayback playback)
         {
-            foreach (var pair in _active) pair.Value.RemoveAll(x => x == null || !x.IsPlaying);
+            lock (_gate) foreach (var pair in _active) pair.Value.RemoveAll(x => x == null || !x.IsPlaying);
             Action dispose = () =>
             {
-                try { playback?.Dispose(); } catch (Exception error) { _diagnostics.Error("Playback dispose failed", error); }
+                try { playback?.Dispose(); }
+                catch (Exception error)
+                {
+                    _diagnostics.Error("Playback dispose failed", error);
+                    lock (_gate) RememberCleanupFailureLocked(error);
+                }
             };
             if (_mainThread != null && !_mainThread.IsMainThread)
             {
                 Interlocked.Increment(ref _pendingOperations);
-                _ = ReleasePlaybackOnMainAsync(entry, dispose);
-                return;
+                return ReleasePlaybackOnMainAsync(entry, dispose);
             }
             dispose();
-            ReleaseClipHolder(entry);
+            return ReleaseClipHolderAsync(entry);
         }
 
         private async Task ReleasePlaybackOnMainAsync(AudioEntry entry, Action dispose)
         {
-            try { await _mainThread.RunAsync(dispose); }
-            catch (Exception error) { _diagnostics.Error("Playback main-thread cleanup failed", error); }
-            finally { ReleaseClipHolder(entry); }
-            if (Interlocked.Decrement(ref _pendingOperations) == 0) _operationSignal.TrySetResult(true);
+            try
+            {
+                try { await _mainThread.RunAsync(dispose); }
+                catch (Exception error)
+                {
+                    _diagnostics.Error("Playback main-thread cleanup failed", error);
+                    lock (_gate) RememberCleanupFailureLocked(error);
+                    throw;
+                }
+                finally { await ReleaseClipHolderAsync(entry).ConfigureAwait(false); }
+            }
+            finally
+            {
+                // Clip release can fail too. No cleanup exception may strand this count.
+                if (Interlocked.Decrement(ref _pendingOperations) == 0) _operationSignal.TrySetResult(true);
+            }
+        }
+
+        private AudioPlaybackHandle CommitPlayback(AudioEntry entry, AudioPlayRequest request, float effective, Func<bool> commitGuard)
+        {
+            lock (_playbackCommitGate)
+            {
+                if (commitGuard != null && !commitGuard()) throw new StaleAudioRequestException();
+                AudioPlaybackHandle result = null;
+                EnforceLimit(request.Bus);
+                IAudioPlayback playback = _backend.Play(entry.Clip, request, effective, () => result?.Stop());
+                if (playback == null) throw new InvalidOperationException("Audio backend returned null playback.");
+                result = new AudioPlaybackHandle(this, entry, playback, request.Bus, request.Volume);
+                lock (_gate) _active[request.Bus].Add(result);
+                return result;
+            }
+        }
+
+        private void ApplyCurrentVolumes()
+        {
+            AudioPlaybackHandle[] handles;
+            bool muted;
+            lock (_gate)
+            {
+                muted = _muted;
+                var list = new List<AudioPlaybackHandle>();
+                foreach (var pair in _active) list.AddRange(pair.Value);
+                handles = list.ToArray();
+            }
+            for (int i = 0; i < handles.Length; i++)
+            {
+                float busVolume;
+                lock (_gate) busVolume = _volume[handles[i].Bus];
+                handles[i].ApplyVolume((muted ? 0 : busVolume) * Clamp(handles[i].RequestVolume));
+            }
+        }
+
+        private void DispatchOptional(Action action)
+        {
+            if (_mainThread == null || _mainThread.IsMainThread) { action(); return; }
+            _ = _mainThread.RunAsync(action).ContinueWith(completed =>
+            {
+                if (completed.IsFaulted) _diagnostics.Error("Audio volume update failed.", completed.Exception);
+            }, TaskScheduler.Default);
         }
 
         private AudioEntry GetOrCreateEntry(string key)
@@ -178,10 +298,10 @@ namespace WFrameWork.Audio
         {
             try { entry.Clip = await entry.Load.ConfigureAwait(false); }
             catch (Exception error) { _diagnostics.Error("Audio clip load failed: " + entry.Key, error); lock (_gate) { if (_clips.TryGetValue(entry.Key, out var current) && ReferenceEquals(current, entry)) _clips.Remove(entry.Key); } }
-            if (entry.Holders == 0 && entry.Clip != null) ReleaseClipHolder(entry);
+            lock (_gate) if (entry.Holders == 0 && entry.Clip != null) { entry.Removed = true; if (_clips.TryGetValue(entry.Key, out var current) && ReferenceEquals(current, entry)) _clips.Remove(entry.Key); StartReleaseClipLocked(entry); }
         }
 
-        private void ReleaseClipHolder(AudioEntry entry)
+        private Task ReleaseClipHolderAsync(AudioEntry entry)
         {
             lock (_gate)
             {
@@ -189,19 +309,66 @@ namespace WFrameWork.Audio
                 if (entry.Holders == 0 && entry.Load.IsCompleted)
                 {
                     entry.Removed = true; if (_clips.TryGetValue(entry.Key, out var current) && ReferenceEquals(current, entry)) _clips.Remove(entry.Key);
-                    if (!entry.Released) { entry.Released = true; entry.Clip?.Release(); }
+                    return StartReleaseClipLocked(entry);
                 }
                 else if (entry.Holders == 0 && !entry.Load.IsCompleted)
                 {
                     entry.Removed = true; if (_clips.TryGetValue(entry.Key, out var current) && ReferenceEquals(current, entry)) _clips.Remove(entry.Key);
                 }
+                return Task.CompletedTask;
             }
+        }
+
+        private Task StartReleaseClipLocked(AudioEntry entry)
+        {
+            if (entry.Released) return entry.ReleaseTask ?? Task.CompletedTask;
+            entry.Released = true;
+            entry.ReleaseTask = entry.Clip == null ? Task.CompletedTask : entry.Clip.ReleaseAsync();
+            if (!entry.ReleaseTask.IsCompleted)
+            {
+                _pendingReleases.Add(entry.ReleaseTask);
+                _ = entry.ReleaseTask.ContinueWith(_ =>
+                {
+                    lock (_gate)
+                    {
+                        RecordReleaseResultLocked(entry.ReleaseTask);
+                        _pendingReleases.Remove(entry.ReleaseTask);
+                        _releaseSignal.TrySetResult(true);
+                    }
+                }, TaskScheduler.Default);
+            }
+            else RecordReleaseResultLocked(entry.ReleaseTask);
+            return entry.ReleaseTask;
+        }
+
+        private void RecordReleaseResultLocked(Task release)
+        {
+            if (release.IsFaulted) RememberCleanupFailureLocked(release.Exception);
+            else if (release.IsCanceled) RememberCleanupFailureLocked(new TaskCanceledException("Audio clip release was canceled."));
+        }
+
+        private void RememberCleanupFailureLocked(Exception error)
+        {
+            if (error is AggregateException aggregate)
+            {
+                foreach (var inner in aggregate.Flatten().InnerExceptions) RememberCleanupFailureLocked(inner);
+            }
+            else if (_cleanupFailures.Count < MaxRememberedCleanupFailures && !_cleanupFailures.Contains(error))
+                _cleanupFailures.Add(error);
         }
 
         private void EnforceLimit(AudioBus bus)
         {
-            List<AudioPlaybackHandle> list = _active[bus];
-            while (list.Count >= _limits[bus]) list[0].Stop();
+            while (true)
+            {
+                AudioPlaybackHandle oldest;
+                lock (_gate)
+                {
+                    if (_active[bus].Count < _limits[bus]) return;
+                    oldest = _active[bus][0];
+                }
+                oldest.Stop();
+            }
         }
         private static float Clamp(float value) => float.IsNaN(value) || float.IsInfinity(value) ? 0 : Math.Max(0, Math.Min(1, value));
         private static async Task<bool> WaitForCompletion(Task operation, CancellationToken token)
@@ -216,21 +383,30 @@ namespace WFrameWork.Audio
         {
             if (_disposed) return;
             _backend.Tick();
-            foreach (var pair in _active)
-                for (int i = pair.Value.Count - 1; i >= 0; i--)
-                    if (!pair.Value[i].IsPlaying) pair.Value[i].Stop();
+            List<AudioPlaybackHandle> stopped = new List<AudioPlaybackHandle>();
+            lock (_gate) foreach (var pair in _active) for (int i = pair.Value.Count - 1; i >= 0; i--) if (!pair.Value[i].IsPlaying) stopped.Add(pair.Value[i]);
+            for (int i = 0; i < stopped.Count; i++) stopped[i].Stop();
         }
         public Task CloseAsync()
         {
-            if (_closeTask != null) return _closeTask;
-            _disposed = true; Interlocked.Increment(ref _bgmRequest);
-            _closeTask = CloseCoreAsync();
-            return _closeTask;
+            lock (_gate)
+            {
+                if (_closeTask != null) return _closeTask;
+                _disposed = true; Interlocked.Increment(ref _bgmRequest);
+                _closeTask = CloseCoreAsync();
+                return _closeTask;
+            }
         }
 
         private async Task CloseCoreAsync()
         {
-            foreach (var pair in _active) for (int i = pair.Value.Count - 1; i >= 0; i--) pair.Value[i]?.Stop();
+            List<AudioPlaybackHandle> active = new List<AudioPlaybackHandle>();
+            lock (_gate) foreach (var pair in _active) active.AddRange(pair.Value);
+            for (int i = 0; i < active.Count; i++)
+            {
+                try { await active[i].StopAsync().ConfigureAwait(false); }
+                catch (Exception error) { lock (_gate) RememberCleanupFailureLocked(error); }
+            }
             Task[] loads;
             lock (_gate)
             {
@@ -239,14 +415,41 @@ namespace WFrameWork.Audio
                 loads = list.ToArray();
             }
             for (int i = 0; i < loads.Length; i++) { try { await loads[i]; } catch { } }
-            while (Volatile.Read(ref _pendingOperations) > 0)
+            while (true)
             {
-                Task signal = _operationSignal.Task;
-                await signal;
-                if (Volatile.Read(ref _pendingOperations) > 0) _operationSignal = NewSignal();
+                Task signal;
+                Task releaseSignal;
+                lock (_gate)
+                {
+                    if (_operationSignal.Task.IsCompleted) _operationSignal = NewSignal();
+                    if (_releaseSignal.Task.IsCompleted) _releaseSignal = NewSignal();
+                    if (Volatile.Read(ref _pendingOperations) == 0 && _pendingReleases.Count == 0) break;
+                    signal = _operationSignal.Task;
+                    releaseSignal = _releaseSignal.Task;
+                }
+                await Task.WhenAny(signal, releaseSignal).ConfigureAwait(false);
             }
-            foreach (var pair in _clips) if (pair.Value.Holders == 0) pair.Value.Clip?.Release();
-            _clips.Clear(); _backend.Dispose();
+            List<Task> releases = new List<Task>();
+            lock (_gate)
+            {
+                foreach (var pair in _clips) { pair.Value.Removed = true; if (pair.Value.Holders == 0) releases.Add(StartReleaseClipLocked(pair.Value)); }
+                _clips.Clear();
+            }
+            for (int i = 0; i < releases.Count; i++)
+            {
+                try { await releases[i].ConfigureAwait(false); }
+                catch (Exception error) { lock (_gate) RememberCleanupFailureLocked(error); }
+            }
+            try
+            {
+                if (_mainThread == null) _backend.Dispose();
+                else await _mainThread.RunAsync(() => _backend.Dispose()).ConfigureAwait(false);
+            }
+            catch (Exception error) { lock (_gate) RememberCleanupFailureLocked(error); }
+            lock (_gate)
+            {
+                if (_cleanupFailures.Count > 0) throw new AggregateException("Audio service close failed.", _cleanupFailures);
+            }
         }
 
         private static TaskCompletionSource<bool> NewSignal() => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace WFrameWork.Pool
 {
@@ -9,8 +10,9 @@ namespace WFrameWork.Pool
         private readonly Action<T> _reset;
         private readonly Action<T> _destroy;
         private readonly Stack<T> _available = new Stack<T>();
-        private readonly HashSet<T> _owned = new HashSet<T>();
-        private readonly HashSet<T> _leased = new HashSet<T>();
+        private readonly HashSet<T> _owned = new HashSet<T>(ReferenceComparer<T>.Instance);
+        private readonly HashSet<T> _leased = new HashSet<T>(ReferenceComparer<T>.Instance);
+        private readonly HashSet<T> _returning = new HashSet<T>(ReferenceComparer<T>.Instance);
         private readonly int _maxCapacity;
         private bool _closed;
 
@@ -30,6 +32,7 @@ namespace WFrameWork.Pool
         public void Warmup(int count)
         {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+            if (_closed) throw new ObjectDisposedException(nameof(ObjectPool<T>));
             for (int i = 0; i < count && _available.Count < _maxCapacity; i++) _available.Push(CreateOwned());
         }
 
@@ -44,13 +47,20 @@ namespace WFrameWork.Pool
         public bool TryReturn(T item)
         {
             if (item == null || !_leased.Remove(item)) return false;
+            _returning.Add(item);
             if (_closed || _available.Count >= _maxCapacity)
             {
-                _owned.Remove(item); _destroy?.Invoke(item); return true;
+                DestroyReturning(item); return true;
             }
             try { _reset?.Invoke(item); }
-            catch { _owned.Remove(item); _destroy?.Invoke(item); throw; }
-            _available.Push(item);
+            catch (Exception error)
+            {
+                try { DestroyReturning(item); }
+                catch (Exception destroyError) { throw new AggregateException("Pool reset and destroy both failed.", error, destroyError); }
+                throw;
+            }
+            if (_closed || _available.Count >= _maxCapacity) DestroyReturning(item);
+            else { _returning.Remove(item); _available.Push(item); }
             return true;
         }
 
@@ -61,24 +71,61 @@ namespace WFrameWork.Pool
 
         public void Clear()
         {
-            while (_available.Count > 0)
-            {
-                T item = _available.Pop(); _owned.Remove(item); _destroy?.Invoke(item);
-            }
+            List<Exception> errors = new List<Exception>();
+            DestroyAvailable(errors);
+            if (errors.Count > 0) throw new AggregateException("Object pool clear failed.", errors);
         }
 
         private T CreateOwned()
         {
             T item = _create();
             if (item == null) throw new InvalidOperationException("Pool factory returned null.");
+            if (_owned.Contains(item)) throw new InvalidOperationException("Pool factory returned an instance already owned by this pool.");
+            if (_closed)
+            {
+                try { _destroy?.Invoke(item); }
+                catch (Exception error) { throw new AggregateException("Pool closed during creation and cleanup failed.", error); }
+                throw new ObjectDisposedException(nameof(ObjectPool<T>));
+            }
             _owned.Add(item); return item;
         }
 
         public void Dispose()
         {
             if (_closed) return;
-            _closed = true; Clear();
-            foreach (T item in new List<T>(_leased)) { _leased.Remove(item); _owned.Remove(item); _destroy?.Invoke(item); }
+            _closed = true;
+            List<Exception> errors = new List<Exception>();
+            DestroyAvailable(errors);
+            foreach (T item in new List<T>(_leased))
+            {
+                _leased.Remove(item); _owned.Remove(item);
+                try { _destroy?.Invoke(item); } catch (Exception error) { errors.Add(error); }
+            }
+            if (errors.Count > 0) throw new AggregateException("Object pool disposal failed.", errors);
+        }
+
+        private void DestroyAvailable(List<Exception> errors)
+        {
+            while (_available.Count > 0)
+            {
+                T item = _available.Pop(); _owned.Remove(item);
+                try { _destroy?.Invoke(item); } catch (Exception error) { errors.Add(error); }
+            }
+        }
+
+        private void DestroyReturning(T item)
+        {
+            _returning.Remove(item);
+            _owned.Remove(item);
+            _leased.Remove(item);
+            _destroy?.Invoke(item);
+        }
+
+        private sealed class ReferenceComparer<TItem> : IEqualityComparer<TItem> where TItem : class
+        {
+            internal static readonly ReferenceComparer<TItem> Instance = new ReferenceComparer<TItem>();
+            public bool Equals(TItem x, TItem y) => ReferenceEquals(x, y);
+            public int GetHashCode(TItem obj) => RuntimeHelpers.GetHashCode(obj);
         }
     }
 }

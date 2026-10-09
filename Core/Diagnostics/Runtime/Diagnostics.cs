@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace WFrameWork.Diagnostics
 {
@@ -34,10 +35,11 @@ namespace WFrameWork.Diagnostics
 
     public sealed class CollectingDiagnosticSink : IDiagnosticSink
     {
+        private readonly object _gate = new object();
         private readonly List<DiagnosticEvent> _events = new List<DiagnosticEvent>();
-        public IReadOnlyList<DiagnosticEvent> Events => _events;
-        public void Report(in DiagnosticEvent diagnostic) { _events.Add(diagnostic); }
-        public void Clear() { _events.Clear(); }
+        public IReadOnlyList<DiagnosticEvent> Events { get { lock (_gate) return new List<DiagnosticEvent>(_events); } }
+        public void Report(in DiagnosticEvent diagnostic) { lock (_gate) _events.Add(diagnostic); }
+        public void Clear() { lock (_gate) _events.Clear(); }
     }
 
     public sealed class DiagnosticLogger
@@ -59,7 +61,7 @@ namespace WFrameWork.Diagnostics
 
         private void Report(DiagnosticLevel level, string message, Exception exception)
         {
-            try { _sink.Report(new DiagnosticEvent(level, _module, message, exception, ++_sequence)); }
+            try { _sink.Report(new DiagnosticEvent(level, _module, message, exception, Interlocked.Increment(ref _sequence))); }
             catch { /* Diagnostics must never break the operation being observed. */ }
         }
     }
@@ -91,8 +93,9 @@ namespace WFrameWork.Diagnostics
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Diagnostic provider name is required.", nameof(name));
             if (provider == null) throw new ArgumentNullException(nameof(provider));
-            lock (_gate) _providers[name.Trim()] = provider;
-            return new Registration(this, name.Trim());
+            string normalized = name.Trim();
+            lock (_gate) _providers[normalized] = provider;
+            return new Registration(this, normalized, provider);
         }
 
         public DiagnosticSnapshot Capture()
@@ -114,13 +117,19 @@ namespace WFrameWork.Diagnostics
         }
 
         public int HistoryCount { get { lock (_gate) return _history.Count; } }
-        private void Remove(string name) { lock (_gate) _providers.Remove(name); }
+        private void Remove(string name, Action<DiagnosticSnapshot> provider)
+        {
+            lock (_gate)
+            {
+                if (_providers.TryGetValue(name, out var current) && ReferenceEquals(current, provider)) _providers.Remove(name);
+            }
+        }
 
         private sealed class Registration : IDisposable
         {
-            private DiagnosticRegistry _owner; private readonly string _name;
-            internal Registration(DiagnosticRegistry owner, string name) { _owner = owner; _name = name; }
-            public void Dispose() { var owner = _owner; _owner = null; owner?.Remove(_name); }
+            private DiagnosticRegistry _owner; private readonly string _name; private readonly Action<DiagnosticSnapshot> _provider;
+            internal Registration(DiagnosticRegistry owner, string name, Action<DiagnosticSnapshot> provider) { _owner = owner; _name = name; _provider = provider; }
+            public void Dispose() { var owner = _owner; _owner = null; owner?.Remove(_name, _provider); }
         }
     }
 }

@@ -58,6 +58,7 @@ namespace WFrameWork.Application
             FrameUpdate = frameUpdate ?? new FrameUpdateManager(FrameUpdateConfig.Default);
             OwnsFrameUpdate = frameUpdate == null;
             MainThread = mainThread ?? new InlineMainThreadDispatcher();
+            OwnsMainThread = mainThread == null;
             _diagnostics = new DiagnosticLogger("Application", diagnostics);
             _applicationScope = new RuntimeScope("Application", diagnostics: diagnostics);
             Diagnostics = new DiagnosticRegistry();
@@ -67,29 +68,42 @@ namespace WFrameWork.Application
                 snapshot.Set("ready", IsReady);
                 snapshot.Set("scope", _applicationScope.State);
                 snapshot.Set("scope.children", _applicationScope.ChildCount);
+                RuntimeScopeSnapshot scopeSnapshot = _applicationScope.CaptureSnapshot();
+                snapshot.Set("scope.operations", scopeSnapshot.ActiveOperationCount);
+                snapshot.Set("scope.cleanups", scopeSnapshot.RegisteredCleanupCount);
+                AppendScopeDiagnostics(snapshot, scopeSnapshot, "scope.tree");
                 snapshot.Set("mainThread.accepting", MainThread.IsAcceptingWork);
                 snapshot.Set("frameUpdate.owned", OwnsFrameUpdate);
                 if (Resources != null)
                 {
                     snapshot.Set("resources.assetEntries", Resources.ActiveAssetEntryCount);
                     snapshot.Set("resources.assetLeases", Resources.ActiveAssetLeaseCount);
+                    snapshot.Set("resources.instanceLeases", Resources.ActiveInstanceLeaseCount);
+                    snapshot.Set("resources.pendingOperations", Resources.PendingOperationCount);
                 }
                 if (SceneFlow != null)
                 {
                     snapshot.Set("scene.state", SceneFlow.State);
                     snapshot.Set("scene.loaded", SceneFlow.LoadedSceneCount);
+                    snapshot.Set("scene.loading", SceneFlow.IsLoading);
+                    snapshot.Set("scene.loadingKey", SceneFlow.LoadingSceneKey);
                 }
                 if (UI != null)
                 {
                     snapshot.Set("ui.openPanels", UI.OpenPanelCount);
                     snapshot.Set("ui.modalDepth", UI.ModalDepth);
                 }
-                if (Audio != null) snapshot.Set("audio.active", Audio.ActivePlaybackCount);
+                if (Audio != null)
+                {
+                    snapshot.Set("audio.active", Audio.ActivePlaybackCount);
+                    snapshot.Set("audio.pendingOperations", Audio.PendingOperationCount);
+                }
             });
         }
 
         public FrameUpdateManager FrameUpdate { get; }
         public IMainThreadDispatcher MainThread { get; }
+        public bool OwnsMainThread { get; }
         public RuntimeScope ApplicationScope => _applicationScope;
         public bool OwnsFrameUpdate { get; }
         public GameRuntimeState State { get { lock (_gate) return _state; } }
@@ -97,6 +111,15 @@ namespace WFrameWork.Application
         public bool IsReady => State == GameRuntimeState.Running;
         public DiagnosticRegistry Diagnostics { get; }
         public DiagnosticSnapshot CaptureDiagnostics() => Diagnostics.Capture();
+
+        private static void AppendScopeDiagnostics(DiagnosticSnapshot snapshot, RuntimeScopeSnapshot scope, string path)
+        {
+            snapshot.Set(path + ".state", scope.State);
+            snapshot.Set(path + ".operations", scope.ActiveOperationCount);
+            snapshot.Set(path + ".cleanups", scope.RegisteredCleanupCount);
+            for (int i = 0; i < scope.Children.Count; i++)
+                AppendScopeDiagnostics(snapshot, scope.Children[i], path + "." + i);
+        }
 
         // These properties keep the composition root discoverable without making it a service locator.
         public ResourceService Resources { get; private set; }
@@ -144,16 +167,20 @@ namespace WFrameWork.Application
 
         public Task ShutdownAsync()
         {
+            TaskCompletionSource<bool> completion;
+            Task initialization;
             lock (_gate)
             {
                 if (_shutdownTask != null) return _shutdownTask;
                 _shutdownRequested = true;
                 if (_state == GameRuntimeState.Created) _state = GameRuntimeState.Stopping;
                 else if (_state != GameRuntimeState.Stopped) _state = GameRuntimeState.Stopping;
-                _lifetime.Cancel();
-                _shutdownTask = ShutdownCoreAsync(_initializeTask);
-                return _shutdownTask;
+                initialization = _initializeTask;
+                completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _shutdownTask = completion.Task;
             }
+            _ = ShutdownCoreAsync(initialization, completion);
+            return completion.Task;
         }
 
         private async Task InitializeCoreAsync(CancellationToken callerToken)
@@ -167,7 +194,18 @@ namespace WFrameWork.Application
                         GameRuntimePart part = _parts[i];
                         linked.Token.ThrowIfCancellationRequested();
                         await InvokePartAsync(part, linked.Token);
-                        lock (_gate) _started.Add(part);
+                        bool shutdownWonRace;
+                        lock (_gate)
+                        {
+                            shutdownWonRace = _shutdownRequested;
+                            // A late successful initializer owns real resources too. Include
+                            // it in the same scope-first rollback as every other started part.
+                            _started.Add(part);
+                        }
+                        if (shutdownWonRace)
+                        {
+                            throw new OperationCanceledException("Runtime shutdown started during initialization.");
+                        }
                     }
                     lock (_gate)
                     {
@@ -177,39 +215,53 @@ namespace WFrameWork.Application
                 }
                 catch (Exception error)
                 {
-                    _failure = error;
-                    await ShutdownStartedPartsAsync();
-                    lock (_gate) _state = _shutdownRequested ? GameRuntimeState.Stopped : GameRuntimeState.Failed;
-                    if (!_shutdownRequested) _diagnostics.Error("Runtime initialization failed.", error);
+                    List<Exception> rollbackErrors = new List<Exception>();
+                    try { await _applicationScope.CloseAsync(); }
+                    catch (Exception cleanupError) { rollbackErrors.Add(cleanupError); }
+                    await ShutdownStartedPartsAsync(rollbackErrors);
+                    lock (_gate)
+                    {
+                        if (rollbackErrors.Count > 0) rollbackErrors.Insert(0, error);
+                        _failure = rollbackErrors.Count == 0 ? error : new AggregateException("Runtime initialization and rollback failed.", rollbackErrors);
+                        _state = _shutdownRequested ? GameRuntimeState.Stopped : GameRuntimeState.Failed;
+                    }
+                    if (!_shutdownRequested) _diagnostics.Error("Runtime initialization failed.", _failure);
+                    if (rollbackErrors.Count > 0) throw _failure;
                     throw;
                 }
             }
         }
 
-        private async Task ShutdownCoreAsync(Task initialization)
+        private async Task ShutdownCoreAsync(Task initialization, TaskCompletionSource<bool> completion)
         {
             List<Exception> errors = new List<Exception>();
+            try { _lifetime.Cancel(); }
+            catch (AggregateException aggregate) { errors.AddRange(aggregate.Flatten().InnerExceptions); }
+            catch (Exception error) { errors.Add(error); }
             if (initialization != null)
             {
                 try { await initialization; }
                 catch (OperationCanceledException) { }
                 catch (Exception error) { errors.Add(error); }
             }
-            await ShutdownStartedPartsAsync(errors);
             try { await _applicationScope.CloseAsync(); }
             catch (Exception error) { errors.Add(error); }
+            // Business scopes release leases held by module consumers. Resource and other
+            // runtime parts are closed only after those leases have been returned.
+            await ShutdownStartedPartsAsync(errors);
             if (OwnsFrameUpdate)
             {
                 try { await MainThread.RunAsync(() => FrameUpdate.Dispose()); }
                 catch (Exception error) { errors.Add(error); }
             }
-            MainThread.StopAcceptingWork();
+            if (OwnsMainThread) MainThread.StopAcceptingWork();
             lock (_gate)
             {
                 if (errors.Count == 0) _state = GameRuntimeState.Stopped;
                 else { _failure = new AggregateException("Runtime shutdown completed with errors.", errors); _state = GameRuntimeState.Failed; }
             }
-            if (errors.Count > 0) throw _failure;
+            if (errors.Count > 0) completion.TrySetException(_failure);
+            else completion.TrySetResult(true);
         }
 
         private Task ShutdownStartedPartsAsync() => ShutdownStartedPartsAsync(new List<Exception>());

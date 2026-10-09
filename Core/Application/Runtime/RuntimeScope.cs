@@ -9,6 +9,22 @@ namespace WFrameWork.Application
     public enum RuntimeScopeState { Open, Closing, Closed, Failed }
     public enum RuntimeOwnership { Borrowed, Owned }
 
+    public sealed class RuntimeScopeSnapshot
+    {
+        internal RuntimeScopeSnapshot(string name, RuntimeScopeState state, int children, int operations, int cleanups,
+            IReadOnlyList<RuntimeScopeSnapshot> descendants)
+        {
+            Name = name; State = state; ChildCount = children; ActiveOperationCount = operations;
+            RegisteredCleanupCount = cleanups; Children = descendants;
+        }
+        public string Name { get; }
+        public RuntimeScopeState State { get; }
+        public int ChildCount { get; }
+        public int ActiveOperationCount { get; }
+        public int RegisteredCleanupCount { get; }
+        public IReadOnlyList<RuntimeScopeSnapshot> Children { get; }
+    }
+
     /// <summary>
     /// A business lifetime boundary. Registration order is dependency order: children and
     /// later registrations close first, so users leave before the resources they use.
@@ -43,6 +59,13 @@ namespace WFrameWork.Application
             if (parent != null) parent.AddChild(this);
         }
 
+        private RuntimeScope(string name, RuntimeScope parent, IDiagnosticSink diagnostics, bool attach)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Scope name is required.", nameof(name));
+            Name = name.Trim(); _parent = parent;
+            _diagnostics = new DiagnosticLogger("Scope." + Name, diagnostics);
+        }
+
         public string Name { get; }
         public RuntimeScopeState State { get { lock (_gate) return _state; } }
         public Exception Failure { get { lock (_gate) return _failure; } }
@@ -58,8 +81,29 @@ namespace WFrameWork.Application
 
         public RuntimeScope CreateChild(string name)
         {
-            EnsureOpen();
-            return new RuntimeScope(name, this, _diagnosticsSink());
+            lock (_gate)
+            {
+                EnsureOpenLocked();
+                var child = new RuntimeScope(name, this, _diagnosticsSink(), false);
+                _children.Add(child);
+                return child;
+            }
+        }
+
+        public RuntimeScopeSnapshot CaptureSnapshot()
+        {
+            RuntimeScope[] children;
+            RuntimeScopeState state;
+            int operations;
+            int cleanups;
+            lock (_gate)
+            {
+                state = _state; operations = _operations.Count; cleanups = _cleanups.Count;
+                children = _children.ToArray();
+            }
+            var snapshots = new List<RuntimeScopeSnapshot>(children.Length);
+            for (int i = 0; i < children.Length; i++) snapshots.Add(children[i].CaptureSnapshot());
+            return new RuntimeScopeSnapshot(Name, state, children.Length, operations, cleanups, snapshots);
         }
 
         public void Track(Task operation, string name = "operation")
@@ -107,17 +151,19 @@ namespace WFrameWork.Application
 
         public Task CloseAsync()
         {
+            TaskCompletionSource<bool> completion;
             lock (_gate)
             {
                 if (_closeTask != null) return _closeTask;
                 _state = RuntimeScopeState.Closing;
-                _cancellation.Cancel();
-                _closeTask = CloseCoreAsync();
-                return _closeTask;
+                completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _closeTask = completion.Task;
             }
+            _ = CloseCoreAsync(completion);
+            return completion.Task;
         }
 
-        private async Task CloseCoreAsync()
+        private async Task CloseCoreAsync(TaskCompletionSource<bool> completion)
         {
             List<Task> operations;
             List<Cleanup> cleanups;
@@ -130,12 +176,15 @@ namespace WFrameWork.Application
             }
             List<Exception> errors = new List<Exception>();
 
-            await AwaitAll(operations, errors, "operation");
+            try { _cancellation.Cancel(); }
+            catch (Exception error) { AddCancellationErrors(errors, error); }
+
             for (int i = children.Count - 1; i >= 0; i--)
             {
                 try { await children[i].CloseAsync(); }
                 catch (Exception error) { errors.Add(error); _diagnostics.Error("Child scope cleanup failed: " + children[i].Name, error); }
             }
+            await AwaitAll(operations, errors, "operation");
             for (int i = cleanups.Count - 1; i >= 0; i--)
             {
                 Cleanup cleanup = cleanups[i];
@@ -148,14 +197,17 @@ namespace WFrameWork.Application
                     _diagnostics.Error("Scope cleanup failed: " + cleanup.Name, error);
                 }
             }
-            _cancellation.Dispose();
+            try { _cancellation.Dispose(); }
+            catch (Exception error) { AddCancellationErrors(errors, error); }
             lock (_gate)
             {
                 _cleanups.Clear(); _operations.Clear();
                 if (errors.Count == 0) _state = RuntimeScopeState.Closed;
                 else { _failure = new AggregateException("Scope '" + Name + "' closed with errors.", errors); _state = RuntimeScopeState.Failed; }
             }
-            if (errors.Count > 0) throw _failure;
+            _parent?.RemoveChild(this);
+            if (errors.Count > 0) completion.TrySetException(_failure);
+            else completion.TrySetResult(true);
         }
 
         private async Task Observe(Task operation, string name)
@@ -163,6 +215,13 @@ namespace WFrameWork.Application
             try { await operation; }
             catch (OperationCanceledException) { }
             catch (Exception error) { _diagnostics.Error("Tracked operation failed: " + name, error); }
+            finally { lock (_gate) _operations.Remove(operation); }
+        }
+
+        private static void AddCancellationErrors(List<Exception> errors, Exception error)
+        {
+            if (error is AggregateException aggregate) errors.AddRange(aggregate.Flatten().InnerExceptions);
+            else errors.Add(error);
         }
 
         private async Task AwaitAll(List<Task> operations, List<Exception> errors, string fallbackName)
@@ -200,6 +259,11 @@ namespace WFrameWork.Application
         private void AddChild(RuntimeScope child)
         {
             lock (_gate) { EnsureOpenLocked(); _children.Add(child); }
+        }
+
+        private void RemoveChild(RuntimeScope child)
+        {
+            lock (_gate) _children.Remove(child);
         }
 
         public void Dispose() { _ = CloseAsync(); }
