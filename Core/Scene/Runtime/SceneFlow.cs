@@ -11,36 +11,34 @@ namespace WFrameWork.Scene
 
     public sealed class SceneLease : IDisposable
     {
+        private readonly object _gate = new object();
         private Func<Task> _release;
         private Task _releaseTask;
         public string Key { get; }
         public object Scene { get; }
-        public bool IsReleased { get; private set; }
-        public bool IsReleaseCompleted => _releaseTask != null && _releaseTask.IsCompleted;
-        internal SceneLease(string key, object scene, Action release) : this(key, scene, () => { release?.Invoke(); return Task.CompletedTask; }) { }
-        internal SceneLease(string key, object scene, Func<Task> release) { Key = key; Scene = scene; _release = release; }
-        public void Dispose()
-        {
-            if (IsReleased) return; IsReleased = true;
-            _releaseTask = ReleaseCoreAsync();
-        }
+        public bool IsReleased { get { lock (_gate) return _releaseTask != null; } }
+        public bool IsReleaseCompleted { get { lock (_gate) return _releaseTask != null && _releaseTask.IsCompleted; } }
+        public SceneLease(string key, object scene, Action release) : this(key, scene, () => { release?.Invoke(); return Task.CompletedTask; }) { }
+        public SceneLease(string key, object scene, Func<Task> release) { Key = key; Scene = scene; _release = release; }
+        public void Dispose() { _ = ReleaseAsync(); }
 
         public Task ReleaseAsync()
         {
-            if (!IsReleased) { IsReleased = true; _releaseTask = ReleaseCoreAsync(); }
-            return _releaseTask ?? Task.CompletedTask;
-        }
-
-        private Task ReleaseCoreAsync()
-        {
-            var release = _release; _release = null;
-            try { return release == null ? Task.CompletedTask : release(); }
-            catch (Exception error) { return Task.FromException(error); }
+            lock (_gate)
+            {
+                if (_releaseTask != null) return _releaseTask;
+                var release = _release; _release = null;
+                try { _releaseTask = release == null ? Task.CompletedTask : (release() ?? Task.CompletedTask); }
+                catch (Exception error) { _releaseTask = Task.FromException(error); }
+                return _releaseTask;
+            }
         }
     }
 
     public interface ISceneBackend : IDisposable
     {
+        // Completion includes any cleanup owned by the backend. SceneFlow cancels its
+        // caller's wait separately and retains the underlying operation until it settles.
         Task<SceneLease> LoadAsync(string key, SceneLoadMode mode, IProgress<float> progress, CancellationToken token);
     }
 
@@ -60,22 +58,32 @@ namespace WFrameWork.Scene
 
         public SceneFlowService(ISceneBackend backend, IDiagnosticSink diagnostics = null)
         { _backend = backend ?? throw new ArgumentNullException(nameof(backend)); _diagnostics = new DiagnosticLogger("Scene", diagnostics); }
-        public SceneFlowState State => _state;
-        public string CurrentSceneKey => _loaded.Count == 0 ? null : _loaded[_loaded.Count - 1].Key;
-        public string LoadingSceneKey => _loadingKey;
-        public int LoadedSceneCount => _loaded.Count;
-        public bool IsLoading => _state == SceneFlowState.Loading;
-        public bool IsClosing => _shutdownTask != null;
+        public SceneFlowState State { get { lock (_gate) return _state; } }
+        public string CurrentSceneKey { get { lock (_gate) return _loaded.Count == 0 ? null : _loaded[_loaded.Count - 1].Key; } }
+        public string LoadingSceneKey { get { lock (_gate) return _loadingKey; } }
+        public int LoadedSceneCount { get { lock (_gate) return _loaded.Count; } }
+        public bool IsLoading => State == SceneFlowState.Loading;
+        public bool IsClosing { get { lock (_gate) return _shutdownTask != null; } }
 
         public async Task WaitForIdleAsync()
         {
             while (true)
             {
+                Task loading;
                 Task cleanup;
-                lock (_gate) cleanup = _loadingCleanup;
-                if (cleanup == null) return;
-                try { await cleanup; } catch { }
-                lock (_gate) if (ReferenceEquals(cleanup, _loadingCleanup)) return;
+                lock (_gate) { loading = _loading; cleanup = _loadingCleanup; }
+                if (loading == null && cleanup == null) return;
+                try { await (cleanup ?? loading).ConfigureAwait(false); } catch { }
+                lock (_gate)
+                {
+                    if (ReferenceEquals(cleanup, _loadingCleanup) && cleanup != null)
+                    {
+                        _loadingCleanup = null; _loading = null; _loadingKey = null; _loadReserved = false;
+                        return;
+                    }
+                    if (ReferenceEquals(loading, _loading) && loading != null && _loadingCleanup == null && _loading.IsCompleted)
+                    { _loading = null; _loadingKey = null; _loadReserved = false; return; }
+                }
             }
         }
 
@@ -84,24 +92,40 @@ namespace WFrameWork.Scene
         {
             if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Scene key is required.", nameof(key));
             EnsureUsable();
+            token.ThrowIfCancellationRequested();
             SceneLease[] previousScenes;
             lock (_gate)
             {
                 if (_loadReserved || _loading != null || _loadingCleanup != null)
                     throw new InvalidOperationException("A scene load or its cleanup is already in progress.");
+                token.ThrowIfCancellationRequested();
                 _loadReserved = true;
                 previousScenes = _loaded.ToArray();
             }
             if (mode == SceneLoadMode.Single)
             {
-                try { for (int i = 0; i < previousScenes.Length; i++) await UnloadAsync(previousScenes[i]); }
+                try
+                {
+                    for (int i = 0; i < previousScenes.Length; i++)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        await UnloadAsync(previousScenes[i]);
+                    }
+                    token.ThrowIfCancellationRequested();
+                }
                 catch { lock (_gate) _loadReserved = false; throw; }
             }
             Task<SceneLease> operation;
             lock (_gate)
             {
                 _state = SceneFlowState.Loading;
-                try { operation = _backend.LoadAsync(key.Trim(), mode, progress, CancellationToken.None); }
+                try
+                {
+                    token.ThrowIfCancellationRequested();
+                    // Admission was checked above. After starting, retain the native load
+                    // through late cleanup instead of truncating its task with caller cancellation.
+                    operation = _backend.LoadAsync(key.Trim(), mode, progress, CancellationToken.None);
+                }
                 catch { _state = SceneFlowState.Failed; _loadReserved = false; throw; }
                 _loadReserved = false;
                 _loading = operation; _loadingKey = key.Trim();
@@ -109,7 +133,7 @@ namespace WFrameWork.Scene
             try
             {
                 SceneLease lease = await AwaitWithCancellation(operation, token);
-                if (_disposed) { lease.Dispose(); throw new ObjectDisposedException(nameof(SceneFlowService)); }
+                if (_disposed) { await lease.ReleaseAsync().ConfigureAwait(false); throw new ObjectDisposedException(nameof(SceneFlowService)); }
                 lock (_gate)
                 {
                     _loaded.Add(lease); _state = SceneFlowState.Loaded; _loading = null; _loadingKey = null; _loadReserved = false;
@@ -132,7 +156,9 @@ namespace WFrameWork.Scene
                     _state = canceled ? SceneFlowState.None : SceneFlowState.Failed;
                     if (!canceled && ReferenceEquals(_loading, operation)) { _loading = null; _loadingKey = null; _loadReserved = false; }
                 }
-                _diagnostics.Error("Scene load failed: " + key, error); throw;
+                if (canceled) _diagnostics.Warning("Scene load canceled: " + key);
+                else _diagnostics.Error("Scene load failed: " + key, error);
+                throw;
             }
         }
 
@@ -145,11 +171,14 @@ namespace WFrameWork.Scene
 
         public async Task UnloadAsync(SceneLease lease)
         {
-            if (lease == null || lease.IsReleased) return;
-            _state = SceneFlowState.Unloading;
-            await lease.ReleaseAsync();
-            lock (_gate) _loaded.Remove(lease);
-            _state = _loaded.Count == 0 ? SceneFlowState.None : SceneFlowState.Loaded;
+            if (lease == null) return;
+            lock (_gate) { if (_loaded.Count == 0 && lease.IsReleased) return; _state = SceneFlowState.Unloading; }
+            await lease.ReleaseAsync().ConfigureAwait(false);
+            lock (_gate)
+            {
+                _loaded.Remove(lease);
+                _state = _loaded.Count == 0 ? SceneFlowState.None : SceneFlowState.Loaded;
+            }
         }
 
         private async Task FinishCanceledLoadAsync(Task<SceneLease> operation)
@@ -164,6 +193,7 @@ namespace WFrameWork.Scene
 
         private static async Task<T> AwaitWithCancellation<T>(Task<T> operation, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             if (!token.CanBeCanceled) return await operation.ConfigureAwait(false);
             var canceled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             using (token.Register(() => canceled.TrySetResult(true)))
@@ -176,28 +206,44 @@ namespace WFrameWork.Scene
         private void EnsureUsable() { if (_disposed) throw new ObjectDisposedException(nameof(SceneFlowService)); }
         public Task ShutdownAsync()
         {
-            if (_shutdownTask != null) return _shutdownTask;
-            _disposed = true;
-            _shutdownTask = ShutdownCoreAsync();
-            return _shutdownTask;
+            lock (_gate)
+            {
+                if (_shutdownTask != null) return _shutdownTask;
+                _disposed = true;
+                _shutdownTask = ShutdownCoreAsync();
+                return _shutdownTask;
+            }
         }
 
         private async Task ShutdownCoreAsync()
         {
-            Task<SceneLease> loading;
-            lock (_gate) loading = _loading;
-            if (loading != null && _loadingCleanup == null)
+            while (true)
             {
+                Task<SceneLease> loading;
+                Task cleanup;
+                lock (_gate) { loading = _loading; cleanup = _loadingCleanup; }
+                if (loading == null && cleanup == null) break;
+                if (cleanup != null)
+                {
+                    try { await cleanup.ConfigureAwait(false); } catch { }
+                    lock (_gate)
+                    {
+                        if (ReferenceEquals(cleanup, _loadingCleanup))
+                        { _loadingCleanup = null; _loading = null; _loadingKey = null; _loadReserved = false; }
+                    }
+                    continue;
+                }
                 try
                 {
-                    SceneLease late = await loading;
-                    if (late != null) await late.ReleaseAsync();
+                    SceneLease late = await loading.ConfigureAwait(false);
+                    if (late != null) await late.ReleaseAsync().ConfigureAwait(false);
                 }
                 catch { }
-            }
-            if (_loadingCleanup != null)
-            {
-                try { await _loadingCleanup; } catch { }
+                lock (_gate)
+                {
+                    if (ReferenceEquals(_loading, loading))
+                    { _loading = null; _loadingKey = null; _loadReserved = false; }
+                }
             }
             SceneLease[] loaded;
             lock (_gate) { loaded = _loaded.ToArray(); }

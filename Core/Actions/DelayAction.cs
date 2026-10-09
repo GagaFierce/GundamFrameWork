@@ -28,11 +28,14 @@ namespace WFrameWork.Core.Actions
         {
             for (int i = mActionList.Count - 1; i >= 0; --i)
             {
+                if (i >= mActionList.Count) { i = mActionList.Count; continue; }
                 ActionBase action = mActionList[i];
-                action.Update(delayTime);
-                if (action.IsFinished())
+                try { action.Update(delayTime); }
+                finally
                 {
-                    mActionList.RemoveAt(i);
+                    // User callbacks may remove this action, another action, or the whole
+                    // list. Remove by identity after the callback instead of using the old index.
+                    if (action.IsFinished()) mActionList.Remove(action);
                 }
             }
         }

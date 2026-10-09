@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using WFrameWork.Core.ResLoad.Unity;
@@ -53,10 +54,10 @@ namespace WFrameWork.UI.Unity
             catch { _manager.Dispose(); _manager = null; _addressables?.Dispose(); _addressables = null; throw; }
         }
 
-        public Task<UiPanelHandle> OpenAsync(UiPanelId id, object argument = null)
+        public Task<UiPanelHandle> OpenAsync(UiPanelId id, object argument = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_manager == null) throw new InvalidOperationException("Initialize the UI manager first.");
-            return _manager.OpenAsync(id, argument);
+            return _manager.OpenAsync(id, argument, cancellationToken);
         }
 
         public Task CloseTopModalAsync() => _manager == null ? Task.CompletedTask : _manager.CloseTopModalAsync();

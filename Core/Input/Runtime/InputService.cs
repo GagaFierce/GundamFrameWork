@@ -40,12 +40,20 @@ namespace WFrameWork.Input
             internal readonly InputActionType ActionType;
             internal readonly InputFixedEventPhase Phase;
             internal readonly InputValue Value;
+            internal readonly bool Valid;
             internal BufferedEvent(long serial, long renderFrameId, InputActionId actionId,
                 InputActionType actionType, InputFixedEventPhase phase, InputValue value)
             {
                 Serial = serial; RenderFrameId = renderFrameId; ActionId = actionId;
-                ActionType = actionType; Phase = phase; Value = value;
+                ActionType = actionType; Phase = phase; Value = value; Valid = true;
             }
+            private BufferedEvent(long serial, long renderFrameId, InputActionId actionId,
+                InputActionType actionType, InputFixedEventPhase phase, InputValue value, bool valid)
+            {
+                Serial = serial; RenderFrameId = renderFrameId; ActionId = actionId;
+                ActionType = actionType; Phase = phase; Value = value; Valid = valid;
+            }
+            internal BufferedEvent Invalidate() => new BufferedEvent(Serial, RenderFrameId, ActionId, ActionType, Phase, Value, false);
         }
 
         private readonly Dictionary<InputActionId, ActionSlot> _actions = new Dictionary<InputActionId, ActionSlot>();
@@ -112,8 +120,9 @@ namespace WFrameWork.Input
                 state = new ContextState(contextId, 0, false, false);
                 _contexts.Add(contextId, state);
             }
+            bool[] before = CaptureVisibility();
             state.LeaseCount++;
-            InvalidatePendingFixedEvents();
+            InvalidateChangedEvents(before);
             ReconcileVisibility(_renderFrameId);
             return new InputContextToken(this, contextId);
         }
@@ -122,8 +131,9 @@ namespace WFrameWork.Input
         {
             EnsureUsable();
             if (!_contexts.TryGetValue(contextId, out var state)) throw new KeyNotFoundException(contextId);
+            bool[] before = CaptureVisibility();
             state.ExplicitlyEnabled = enabled;
-            InvalidatePendingFixedEvents();
+            InvalidateChangedEvents(before);
             ReconcileVisibility(_renderFrameId);
         }
 
@@ -263,8 +273,9 @@ namespace WFrameWork.Input
         internal void ReleaseContext(string contextId)
         {
             if (_disposed || !_contexts.TryGetValue(contextId, out var state)) return;
+            bool[] before = CaptureVisibility();
             if (state.LeaseCount > 0) state.LeaseCount--;
-            InvalidatePendingFixedEvents();
+            InvalidateChangedEvents(before);
             ReconcileVisibility(_renderFrameId);
         }
 
@@ -290,6 +301,7 @@ namespace WFrameWork.Input
                 }
                 var item = _fixedEvents[(int)((cursor - 1) % _fixedEvents.Length)];
                 cursor++;
+                if (!item.Valid || item.Serial != cursor - 1) continue;
                 if (_fixedEventLifetimeFrames > 0 && currentRenderFrameId - item.RenderFrameId > _fixedEventLifetimeFrames)
                     continue;
                 inputEvent = new InputActionEvent(item.Serial, item.RenderFrameId, item.ActionId,
@@ -420,8 +432,55 @@ namespace WFrameWork.Input
 
         private void InvalidatePendingFixedEvents()
         {
-            _fixedEventCount = 0;
-            _firstFixedEventSerial = _nextFixedEventSerial + 1;
+            InvalidatePendingFixedEvents(_ => true);
+        }
+
+        private bool[] CaptureVisibility()
+        {
+            var result = new bool[_actionOrder.Count];
+            for (int i = 0; i < _actionOrder.Count; i++) result[i] = IsActionVisible(_actionOrder[i].Definition.ContextId);
+            return result;
+        }
+
+        private void InvalidateChangedEvents(bool[] before)
+        {
+            bool changed = false;
+            for (int i = 0; i < _actionOrder.Count; i++)
+            {
+                if (before[i] != IsActionVisible(_actionOrder[i].Definition.ContextId)) { changed = true; break; }
+            }
+            if (!changed) return;
+            InvalidatePendingFixedEvents(actionId =>
+            {
+                for (int i = 0; i < _actionOrder.Count; i++)
+                    if (_actionOrder[i].Definition.Id == actionId)
+                        return before[i] != IsActionVisible(_actionOrder[i].Definition.ContextId);
+                return false;
+            });
+        }
+
+        private void InvalidatePendingFixedEvents(Func<InputActionId, bool> shouldInvalidate)
+        {
+            int remaining = 0;
+            for (long serial = _firstFixedEventSerial; serial <= _nextFixedEventSerial; serial++)
+            {
+                int index = (int)((serial - 1) % _fixedEvents.Length);
+                BufferedEvent item = _fixedEvents[index];
+                if (item.Valid && item.Serial == serial && shouldInvalidate(item.ActionId))
+                {
+                    _fixedEvents[index] = item.Invalidate();
+                    item = _fixedEvents[index];
+                }
+                if (item.Valid && item.Serial == serial) remaining++;
+            }
+            _fixedEventCount = remaining;
+            while (_firstFixedEventSerial <= _nextFixedEventSerial)
+            {
+                BufferedEvent item = _fixedEvents[(int)((_firstFixedEventSerial - 1) % _fixedEvents.Length)];
+                if (item.Valid && item.Serial == _firstFixedEventSerial) break;
+                _firstFixedEventSerial++;
+            }
+            if (_fixedEventCount == 0) _firstFixedEventSerial = _nextFixedEventSerial + 1;
         }
 
         private long AppendFixedEvent(ActionSlot slot, InputFixedEventPhase phase, InputValue value)

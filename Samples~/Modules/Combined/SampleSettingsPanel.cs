@@ -1,41 +1,43 @@
-using System;
-using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using WFrameWork.Audio;
 using WFrameWork.UI;
 using WFrameWork.UI.Unity;
 
 namespace WFrameWork.Samples.Combined
 {
-    public sealed class SampleSettingsPanel : MonoBehaviour, IUGuiPanelLifecycle
+    /// <summary>Settings View: two-way controls are registered explicitly and disposed with the generation.</summary>
+    public sealed class SampleSettingsPanel : UiPanelViewBehaviour<SettingsViewModel>
     {
-        [SerializeField] private Slider volume;
+        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("volume")] private Slider masterVolume;
+        [SerializeField] private Slider musicVolume;
+        [SerializeField] private Slider sfxVolume;
+        [SerializeField] private Slider uiVolume;
         [SerializeField] private Toggle muted;
-        [SerializeField] private Button save;
-        private CombinedSampleRuntimeServices _services;
+        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("save")] private Button apply;
+        [SerializeField] private Button cancel;
+        [SerializeField] private Button defaults;
+        [SerializeField] private TMP_Text errorText;
+        [SerializeField] private GameObject busyIndicator;
 
-        public bool RequiresContinuousUpdate => false;
-
-        public void OnPanelOpened(object argument)
+        protected override SettingsViewModel CreateViewModel(object argument)
         {
-            _services = FindObjectOfType<CombinedSampleRuntimeServices>();
-            if (_services?.Audio != null) { if (volume != null) volume.value = _services.Audio.GetVolume(AudioBus.Ui); if (muted != null) muted.isOn = _services.Audio.IsMuted; }
-            if (save != null) save.onClick.AddListener(OnSaveClicked);
+            var services = argument as CombinedSampleRuntimeServices ?? FindObjectOfType<CombinedSampleRuntimeServices>();
+            if (services == null) throw new System.InvalidOperationException("CombinedSampleRuntimeServices is required by settings.");
+            return new SettingsViewModel(services, services);
         }
 
-        public void OnPanelShown() { }
-        public void OnPanelHidden() { }
-        public void OnPanelClosed() { if (save != null) save.onClick.RemoveListener(OnSaveClicked); }
-        public void OnPanelUpdate(in UiPanelUpdateContext context) { }
-
-        private void OnSaveClicked() { _ = SaveAsync(); }
-
-        private async Task SaveAsync()
+        protected override void Bind(SettingsViewModel viewModel, UiBindingSet bindings)
         {
-            try { if (_services != null) await _services.SaveSettingsAsync(volume == null ? 1 : volume.value, muted != null && muted.isOn); }
-            catch (OperationCanceledException) { }
-            catch (Exception error) { Debug.LogException(error, this); }
+            if (masterVolume != null) bindings.Add(UiControlBindings.Slider(viewModel, nameof(viewModel.MasterVolume), () => viewModel.MasterVolume, value => viewModel.MasterVolume = value, masterVolume));
+            if (musicVolume != null) bindings.Add(UiControlBindings.Slider(viewModel, nameof(viewModel.MusicVolume), () => viewModel.MusicVolume, value => viewModel.MusicVolume = value, musicVolume));
+            if (sfxVolume != null) bindings.Add(UiControlBindings.Slider(viewModel, nameof(viewModel.SfxVolume), () => viewModel.SfxVolume, value => viewModel.SfxVolume = value, sfxVolume));
+            if (uiVolume != null) bindings.Add(UiControlBindings.Slider(viewModel, nameof(viewModel.UiVolume), () => viewModel.UiVolume, value => viewModel.UiVolume = value, uiVolume));
+            if (muted != null) bindings.Add(UiControlBindings.Toggle(viewModel, nameof(viewModel.Muted), () => viewModel.Muted, value => viewModel.Muted = value, muted));
+            if (apply != null) bindings.Add(UiControlBindings.Button(apply, viewModel.ApplyCommand, busyIndicator));
+            if (cancel != null) bindings.Add(UiControlBindings.Button(cancel, viewModel.DiscardAndCloseCommand));
+            if (defaults != null) bindings.Add(UiControlBindings.Button(defaults, viewModel.DefaultsCommand));
+            if (errorText != null) bindings.Add(UiControlBindings.Text(viewModel, nameof(viewModel.SaveError), () => viewModel.SaveError, value => errorText.text = value ?? string.Empty));
         }
     }
 }

@@ -24,6 +24,7 @@ namespace WFrameWork.UI
             internal readonly List<OpenWaiter> Waiters = new List<OpenWaiter>(2);
             internal readonly CancellationTokenSource LoadCancellation = new CancellationTokenSource();
             internal Task OpenOperation;
+            internal Task CloseTask;
             internal UiPanelState State = UiPanelState.Loading;
             internal UiResourceHandle Resource;
             internal IUiPanelInstance Instance;
@@ -35,6 +36,7 @@ namespace WFrameWork.UI
             internal int ActiveWaiters;
             internal bool SharedWaiterActive;
             internal bool PartsDisposed;
+            internal Task PartsDisposeTask;
             internal bool Dirty = true;
             internal int Index;
             internal Entry(UiPanelDefinition definition, object argument) { Definition = definition; Argument = argument; }
@@ -91,10 +93,16 @@ namespace WFrameWork.UI
             var definition = _definitions[panelId];
             if (definition.InstanceMode == UiPanelInstanceMode.Single && list.Count > 0)
             {
-                var existing = list[0];
-                if (existing.State == UiPanelState.Loading) return AttachWaiter(existing, cancellationToken);
-                if (existing.State == UiPanelState.Hidden) Show(existing);
-                return Task.FromResult(existing.Handle);
+                Entry existing = FindCurrentGeneration(list);
+                if (existing != null)
+                {
+                    if (existing.State == UiPanelState.Loading) return AttachWaiter(existing, cancellationToken);
+                    if (existing.State == UiPanelState.Hidden) Show(existing);
+                    return Task.FromResult(existing.Handle);
+                }
+                // A closing generation remains in the list until all destruction and
+                // resource release work completes. Start a new generation immediately;
+                // the old generation can no longer publish an open result.
             }
             var entry = new Entry(definition, argument);
             entry.Index = list.Count;
@@ -103,6 +111,17 @@ namespace WFrameWork.UI
             Task<UiPanelHandle> result = AttachWaiter(entry, cancellationToken);
             entry.OpenOperation = StartOpenAsync(entry);
             return result;
+        }
+
+        private static Entry FindCurrentGeneration(List<Entry> list)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                Entry entry = list[i];
+                if (entry.State == UiPanelState.Loading || entry.State == UiPanelState.Visible || entry.State == UiPanelState.Hidden)
+                    return entry;
+            }
+            return null;
         }
 
         private Task<UiPanelHandle> AttachWaiter(Entry entry, CancellationToken token)
@@ -116,6 +135,18 @@ namespace WFrameWork.UI
             entry.Waiters.Add(waiter); entry.ActiveWaiters++;
             waiter.Registration = token.Register(() => CancelWaiter(entry, waiter, token));
             return waiter.Completion.Task;
+        }
+
+        private async Task<UiPanelHandle> ReopenAfterCloseAsync(Entry closing, object argument, CancellationToken token)
+        {
+            Task close = closing.CloseTask;
+            if (close != null)
+            {
+                try { await close.ConfigureAwait(false); }
+                catch (Exception error) { _diagnostics.Error("Panel close failed before reopen.", error); }
+            }
+            token.ThrowIfCancellationRequested();
+            return await OpenAsync(closing.Definition.Id, argument, token).ConfigureAwait(false);
         }
 
         private void CancelWaiter(Entry entry, OpenWaiter waiter, CancellationToken token)
@@ -212,10 +243,10 @@ namespace WFrameWork.UI
             try
             {
                 entry.Resource = await _resources.LoadAsync(entry.Definition.ResourceKey, entry.LoadCancellation.Token);
-                if (!IsEntryActive(entry)) { DisposeEntryParts(entry); return; }
+                if (!IsEntryActive(entry)) { await DisposeEntryPartsAsync(entry); return; }
                 entry.Instance = _factory.Create(entry.Definition, entry.Resource);
                 if (entry.Instance == null) throw new InvalidOperationException("The panel factory returned null.");
-                if (!IsEntryActive(entry) || !entry.Instance.IsAlive) { DisposeEntryParts(entry); return; }
+                if (!IsEntryActive(entry) || !entry.Instance.IsAlive) { await DisposeEntryPartsAsync(entry); return; }
                 entry.State = UiPanelState.Visible;
                 entry.Instance.SetVisible(true);
                 if (entry.Definition.IsModal) { entry.FocusBeforeOpen = _focus.CaptureFocusedElement(); entry.FocusCaptured = true; }
@@ -227,25 +258,48 @@ namespace WFrameWork.UI
                 if (!IsEntryActive(entry)) return;
                 CompleteOpen(entry);
             }
-            catch (OperationCanceledException) { CancelEntry(entry); }
-            catch (Exception error) { FailOpen(entry, error); }
+            catch (OperationCanceledException)
+            {
+                // If cancellation originated from the load itself there is no close task
+                // waiting on this operation. Finish the late cleanup here; an external close
+                // already owns the shared task and will perform the same idempotent cleanup.
+                if (entry.CloseTask == null)
+                {
+                    Interlocked.Exchange(ref entry.CancelRequested, 1);
+                    CancelOpenCompletion(entry); RemoveModal(entry);
+                    entry.State = UiPanelState.Closed; RemoveEntry(entry);
+                    await DisposeEntryPartsAsync(entry).ConfigureAwait(false);
+                }
+            }
+            catch (Exception error) { await FailOpenAsync(entry, error); }
             finally { entry.LoadCancellation.Dispose(); }
         }
 
-        private async Task CloseEntryAsync(Entry entry)
+        private Task CloseEntryAsync(Entry entry)
         {
-            if (entry == null || entry.State == UiPanelState.Closed || entry.State == UiPanelState.Failed) return;
-            if (entry.State == UiPanelState.Loading)
-            {
-                CancelEntry(entry);
-                if (entry.OpenOperation != null) { try { await entry.OpenOperation; } catch { } }
-                await DisposeEntryPartsAsync(entry);
-                return;
-            }
+            if (entry == null || entry.State == UiPanelState.Closed || entry.State == UiPanelState.Failed) return Task.CompletedTask;
+            if (entry.CloseTask != null) return entry.CloseTask;
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            bool wasOpening = !entry.OpenCompletion.Task.IsCompleted;
+            entry.CloseTask = completion.Task;
             entry.State = UiPanelState.Closing;
+            try { entry.LoadCancellation.Cancel(); } catch (ObjectDisposedException) { }
+            if (wasOpening) CancelOpenCompletion(entry);
+            _ = CloseEntryCoreAsync(entry, completion);
+            return completion.Task;
+        }
+
+        private async Task CloseEntryCoreAsync(Entry entry, TaskCompletionSource<bool> completion)
+        {
+            List<Exception> errors = new List<Exception>();
+            if (entry.OpenOperation != null)
+            {
+                try { await entry.OpenOperation.ConfigureAwait(false); }
+                catch (Exception error) { if (!(error is OperationCanceledException)) errors.Add(error); }
+            }
             try
             {
-                if (entry.Instance != null)
+                if (entry.Instance != null && entry.State == UiPanelState.Closing)
                 {
                     Safe(entry.Instance.OnHidden, "OnHidden");
                     Safe(() => entry.Instance.SetVisible(false), "SetVisible(false)");
@@ -255,10 +309,15 @@ namespace WFrameWork.UI
                     Safe(() => _focus.RestoreFocusedElement(entry.FocusBeforeOpen), "RestoreFocusedElement");
                 Safe(() => entry.Instance?.OnClosed(), "OnClosed");
             }
+            catch (Exception error) { errors.Add(error); }
             finally
             {
-                await DisposeEntryPartsAsync(entry); entry.State = UiPanelState.Closed; CancelOpenCompletion(entry); RemoveEntry(entry);
+                try { await DisposeEntryPartsAsync(entry).ConfigureAwait(false); }
+                catch (Exception error) { errors.Add(error); }
+                entry.State = UiPanelState.Closed; CancelOpenCompletion(entry); RemoveEntry(entry);
             }
+            if (errors.Count > 0) completion.TrySetException(new AggregateException("Panel close failed.", errors));
+            else completion.TrySetResult(true);
         }
 
         private void Show(Entry entry)
@@ -288,7 +347,8 @@ namespace WFrameWork.UI
         {
             if (Interlocked.Exchange(ref entry.CancelRequested, 1) != 0) return;
             try { entry.LoadCancellation.Cancel(); } catch (ObjectDisposedException) { }
-            CancelOpenCompletion(entry); entry.State = UiPanelState.Closed; RemoveModal(entry); RemoveEntry(entry);
+            CancelOpenCompletion(entry); RemoveModal(entry);
+            if (entry.CloseTask == null) CloseEntryAsync(entry);
         }
 
         private void CancelOpenCompletion(Entry entry)
@@ -313,10 +373,10 @@ namespace WFrameWork.UI
             entry.Waiters.Clear(); entry.ActiveWaiters = 0;
         }
 
-        private void FailOpen(Entry entry, Exception error)
+        private async Task FailOpenAsync(Entry entry, Exception error)
         {
             _diagnostics.Error("Panel open failed: " + entry.Definition.Id, error);
-            entry.State = UiPanelState.Failed; RemoveModal(entry); RemoveEntry(entry); DisposeEntryParts(entry);
+            entry.State = UiPanelState.Failed; RemoveModal(entry); RemoveEntry(entry); await DisposeEntryPartsAsync(entry);
             entry.OpenCompletion.TrySetException(error);
             for (int i = 0; i < entry.Waiters.Count; i++)
             {
@@ -342,29 +402,33 @@ namespace WFrameWork.UI
             _allEntries.Remove(entry); if (_entries.TryGetValue(entry.Definition.Id, out var list)) list.Remove(entry);
         }
 
-        private void DisposeEntryParts(Entry entry)
-        {
-            if (entry.PartsDisposed) return; entry.PartsDisposed = true;
-            try { entry.Instance?.Dispose(); } catch (Exception error) { _diagnostics.Error("Panel instance dispose failed", error); }
-            entry.Instance = null;
-            try { entry.Resource?.Dispose(); } catch (Exception error) { _diagnostics.Error("Panel resource dispose failed", error); }
-            entry.Resource = null;
-        }
-
         private async Task DisposeEntryPartsAsync(Entry entry)
         {
-            if (entry.PartsDisposed) return;
-            entry.PartsDisposed = true;
+            if (entry.PartsDisposeTask != null) { await entry.PartsDisposeTask.ConfigureAwait(false); return; }
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            entry.PartsDisposeTask = completion.Task;
+            _ = DisposeEntryPartsCoreAsync(entry, completion);
+            await completion.Task.ConfigureAwait(false);
+        }
+
+        private async Task DisposeEntryPartsCoreAsync(Entry entry, TaskCompletionSource<bool> completion)
+        {
             try
             {
-                if (entry.Instance is IUiAsyncPanelInstance asyncInstance) await asyncInstance.DisposeAsync();
-                else entry.Instance?.Dispose();
+                try
+                {
+                    if (entry.Instance is IUiAsyncPanelInstance asyncInstance) await asyncInstance.DisposeAsync().ConfigureAwait(false);
+                    else entry.Instance?.Dispose();
+                }
+                catch (Exception error) { _diagnostics.Error("Panel instance dispose failed", error); }
+                entry.Instance = null;
+                try { if (entry.Resource != null) await entry.Resource.DisposeAsync().ConfigureAwait(false); }
+                catch (Exception error) { _diagnostics.Error("Panel resource dispose failed", error); }
+                entry.Resource = null;
+                entry.PartsDisposed = true;
+                completion.TrySetResult(true);
             }
-            catch (Exception error) { _diagnostics.Error("Panel instance dispose failed", error); }
-            entry.Instance = null;
-            try { entry.Resource?.Dispose(); }
-            catch (Exception error) { _diagnostics.Error("Panel resource dispose failed", error); }
-            entry.Resource = null;
+            catch (Exception error) { completion.TrySetException(error); }
         }
 
         private void Safe(Action action, string operation)
@@ -388,15 +452,17 @@ namespace WFrameWork.UI
             _frameBinding?.Dispose(); _frameBinding = null;
             if (_ownsGroup && _frameManager != null && !_frameManager.IsDisposed) _frameManager.RemoveGroup(_ownedGroup);
             _frameManager = null;
-            for (int i = _allEntries.Count - 1; i >= 0; i--)
+            Entry[] entries = _allEntries.ToArray();
+            List<Exception> errors = new List<Exception>();
+            for (int i = entries.Length - 1; i >= 0; i--)
             {
-                var entry = _allEntries[i]; try { entry.LoadCancellation.Cancel(); } catch (ObjectDisposedException) { }
-                RemoveModal(entry);
-                if (entry.OpenOperation != null) { try { await entry.OpenOperation; } catch { } }
-                await DisposeEntryPartsAsync(entry); entry.State = UiPanelState.Closed; CancelOpenCompletion(entry);
+                var entry = entries[i];
+                try { await CloseEntryAsync(entry).ConfigureAwait(false); }
+                catch (Exception error) { errors.Add(error); }
             }
             _allEntries.Clear(); _modalStack.Clear(); _entries.Clear(); _definitions.Clear();
             if (_ownsGroup) _ownedGroup = default(UpdateGroup);
+            if (errors.Count > 0) throw new AggregateException("One or more panels failed to close.", errors);
         }
 
         public void Dispose() { _ = CloseAllAsync(); }

@@ -21,15 +21,15 @@ namespace WFrameWork.Threading
     public sealed class InlineMainThreadDispatcher : IMainThreadDispatcher
     {
         private readonly int _threadId = Thread.CurrentThread.ManagedThreadId;
-        private bool _accepting = true;
+        private int _accepting = 1;
 
         public bool IsMainThread => Thread.CurrentThread.ManagedThreadId == _threadId;
-        public bool IsAcceptingWork => _accepting;
+        public bool IsAcceptingWork => Volatile.Read(ref _accepting) != 0;
 
         public Task RunAsync(Action action, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
-            if (!_accepting) return Task.FromException(new ObjectDisposedException(nameof(InlineMainThreadDispatcher)));
+            if (!IsAcceptingWork) return Task.FromException(new ObjectDisposedException(nameof(InlineMainThreadDispatcher)));
             if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             if (!IsMainThread) return Task.FromException(new InvalidOperationException("The operation must be dispatched to the main thread."));
             try { action(); return Task.CompletedTask; }
@@ -39,13 +39,13 @@ namespace WFrameWork.Threading
         public Task<T> RunAsync<T>(Func<T> function, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (function == null) throw new ArgumentNullException(nameof(function));
-            if (!_accepting) return Task.FromException<T>(new ObjectDisposedException(nameof(InlineMainThreadDispatcher)));
+            if (!IsAcceptingWork) return Task.FromException<T>(new ObjectDisposedException(nameof(InlineMainThreadDispatcher)));
             if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<T>(cancellationToken);
             if (!IsMainThread) return Task.FromException<T>(new InvalidOperationException("The operation must be dispatched to the main thread."));
             try { return Task.FromResult(function()); }
             catch (Exception error) { return Task.FromException<T>(error); }
         }
 
-        public void StopAcceptingWork() { _accepting = false; }
+        public void StopAcceptingWork() { Interlocked.Exchange(ref _accepting, 0); }
     }
 }

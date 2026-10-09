@@ -15,7 +15,7 @@ namespace WFrameWork.Threading.Unity
     {
         private readonly int _threadId = Thread.CurrentThread.ManagedThreadId;
         private readonly SynchronizationContext _context;
-        private bool _accepting = true;
+        private int _accepting = 1;
 
         public UnityMainThreadDispatcher()
         {
@@ -23,12 +23,12 @@ namespace WFrameWork.Threading.Unity
         }
 
         public bool IsMainThread => Thread.CurrentThread.ManagedThreadId == _threadId;
-        public bool IsAcceptingWork => _accepting;
+        public bool IsAcceptingWork => Volatile.Read(ref _accepting) != 0;
 
         public Task RunAsync(Action action, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
-            if (!_accepting) return Task.FromException(new ObjectDisposedException(nameof(UnityMainThreadDispatcher)));
+            if (!IsAcceptingWork) return Task.FromException(new ObjectDisposedException(nameof(UnityMainThreadDispatcher)));
             if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             if (IsMainThread)
             {
@@ -48,7 +48,7 @@ namespace WFrameWork.Threading.Unity
         public Task<T> RunAsync<T>(Func<T> function, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (function == null) throw new ArgumentNullException(nameof(function));
-            if (!_accepting) return Task.FromException<T>(new ObjectDisposedException(nameof(UnityMainThreadDispatcher)));
+            if (!IsAcceptingWork) return Task.FromException<T>(new ObjectDisposedException(nameof(UnityMainThreadDispatcher)));
             if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<T>(cancellationToken);
             if (IsMainThread)
             {
@@ -65,7 +65,7 @@ namespace WFrameWork.Threading.Unity
             return completion.Task;
         }
 
-        public void StopAcceptingWork() { _accepting = false; }
+        public void StopAcceptingWork() { Interlocked.Exchange(ref _accepting, 0); }
     }
 
     /// <summary>One-frame-safe destruction barrier for Unity objects.</summary>

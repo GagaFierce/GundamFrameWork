@@ -21,6 +21,9 @@
     <Compile Include="../../../Core/UI/Runtime/**/*.cs" Link="UI/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../../Core/Threading/Runtime/**/*.cs" Link="Threading/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../../Core/Application/Runtime/**/*.cs" Link="Application/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Core/Editor/CommentTextTransformer.cs" Link="Editor/CommentTextTransformer.cs" />
+    <Compile Include="../../../Core/Actions/DelayAction.cs" Link="Actions/DelayAction.cs" />
+    <Compile Include="../../../Core/Actions/ActionBase.cs" Link="Actions/ActionBase.cs" />
     <Compile Include="../../../Core/UIBridge/InputUiModalBlocker.cs" Link="Bridges/InputUiModalBlocker.cs" />
     <Compile Include="../../../Core/PhysicsInputBridge/FixedInputParticipant.cs" Link="Bridges/FixedInputParticipant.cs" />
   </ItemGroup>

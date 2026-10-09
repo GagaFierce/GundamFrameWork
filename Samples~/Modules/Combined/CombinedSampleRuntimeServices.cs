@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -30,18 +31,27 @@ namespace WFrameWork.Samples.Combined
     public sealed class CombinedSampleSettings
     {
         public float MasterVolume = 1;
+        public float MusicVolume = 1;
+        public float SfxVolume = 1;
+        public float UiVolume = 1;
         public bool Muted;
+        public int WindowMode;
+        public int ResolutionIndex;
+        public int QualityIndex;
     }
 
     /// <summary>Single composition root for the complete sample flow.</summary>
     [DisallowMultipleComponent]
-    public sealed class CombinedSampleRuntimeServices : MonoBehaviour
+    public sealed class CombinedSampleRuntimeServices : MonoBehaviour,
+        IUiGameFlowService, IUiSettingsService, IUiNavigationService, IUiExitService, IUiDialogService
     {
         [SerializeField] private AudioServiceBehaviour audioBehaviour;
         [SerializeField] private UiPanelManagerBehaviour ui;
         [SerializeField] private RigidbodyFixedStepBehaviour player;
+        [SerializeField] private CombinedSampleConfig configuration;
         [SerializeField] private Transform poolRoot;
         [SerializeField] private string playerPrefabAddress = "GFramework.Samples.Player";
+        [SerializeField] private string sfxAddress = "GFramework.Samples.Click";
         [SerializeField] private string gameSceneAddress = "GFramework.Samples.Game";
         private UnityGameRuntime _unityRuntime;
         private AddressablesResourceService _addressables;
@@ -54,7 +64,15 @@ namespace WFrameWork.Samples.Combined
         private FixedInputParticipant _fixedInput;
         private GameFlowService _flow;
         private Task _readyTask;
+        private readonly object _transitionGate = new object();
+        private Task _startTask;
+        private Task _returnTask;
+        private GameObject _gameplayPlayer;
+        private AudioPlaybackHandle _gameplaySfx;
+        private readonly object _shutdownGate = new object();
+        private Task _shutdownTask;
         private bool _ready;
+        private UiSettingsSnapshot _settingsSnapshot = UiSettingsSnapshot.Default;
 
         public GameRuntime Runtime => _unityRuntime?.Runtime;
         public ResourceService Resources => _addressables?.Service;
@@ -65,19 +83,40 @@ namespace WFrameWork.Samples.Combined
         public GameFlowService Flow => _flow;
         public bool IsReady => _ready;
         public Task ReadyTask => _readyTask ?? Task.FromException(new InvalidOperationException("Runtime has not been created."));
+        public UiSettingsSnapshot Current => _settingsSnapshot;
+
+        public IReadOnlyList<UiHelpItem> GetHelpItems()
+        {
+            return new List<UiHelpItem>
+            {
+                new UiHelpItem("移动/交互", "本示例使用实际配置的输入动作；当前演示提供 Space 跳跃。"),
+                new UiHelpItem("暂停/设置", "Escape 打开或关闭设置，并由 UI 模态上下文屏蔽 Gameplay。"),
+                new UiHelpItem("返回大厅", "R 调用真实 GameFlow 返回菜单并释放场景、玩家和音频资源。")
+            };
+        }
 
         private void Awake()
         {
             try
             {
+                if (configuration != null)
+                {
+                    playerPrefabAddress = configuration.PlayerPrefabAddress;
+                    sfxAddress = configuration.SfxAddress;
+                    gameSceneAddress = configuration.GameSceneAddress;
+                }
                 _unityRuntime = UnityGameRuntime.Create(new UnityDiagnosticSink());
                 var mainThread = _unityRuntime.MainThread;
                 _addressables = new AddressablesResourceService(new UnityDiagnosticSink(), mainThread);
                 _sceneFlow = new SceneFlowService(new AddressablesSceneBackend(mainThread), new UnityDiagnosticSink());
-                _playerPool = new AddressableGameObjectPool(_addressables.Service, playerPrefabAddress, poolRoot, 4);
-                _save = new SaveService<CombinedSampleSettings>(new UnityTextFileStore(), new JsonUtilitySerializer<CombinedSampleSettings>(), 1,
-                    new UnityDiagnosticSink(), UnityEngine.Application.persistentDataPath);
+                _playerPool = new AddressableGameObjectPool(_addressables.Service, playerPrefabAddress, poolRoot, 4,
+                    mainThread: mainThread);
+                _save = new SaveService<CombinedSampleSettings>(new UnityTextFileStore(), new JsonUtilitySerializer<CombinedSampleSettings>(),
+                    configuration == null ? 1 : configuration.SaveVersion, new UnityDiagnosticSink(), UnityEngine.Application.persistentDataPath);
                 CreateInputAndPhysics();
+                if (audioBehaviour != null) audioBehaviour.Initialize(_addressables.Service, mainThread);
+                _unityRuntime.Runtime.SetModuleServices(_addressables.Service, _sceneFlow, audio: audioBehaviour?.Service,
+                    input: _input, physics: _physics);
                 _flow = new GameFlowService(LoadGameSceneForFlowAsync, UnloadGameSceneForFlowAsync,
                     _sceneFlow.WaitForIdleAsync, () => Runtime.ApplicationScope.CreateChild("Gameplay"), new UnityDiagnosticSink());
                 RegisterRuntimeParts();
@@ -121,12 +160,13 @@ namespace WFrameWork.Samples.Combined
             _unityRuntime.Runtime.AddPart(new GameRuntimePart("Pool", _ => _playerPool.WarmupAsync(1), _playerPool.CloseAsync, requiresMainThread: true));
             _unityRuntime.Runtime.AddPart(new GameRuntimePart("Audio", _ =>
             {
-                if (audioBehaviour != null) audioBehaviour.Initialize(_addressables.Service, _unityRuntime.MainThread);
+                if (audioBehaviour != null && audioBehaviour.Service == null)
+                    audioBehaviour.Initialize(_addressables.Service, _unityRuntime.MainThread);
                 return Task.CompletedTask;
-            }, () => audioBehaviour?.Service == null ? Task.CompletedTask : audioBehaviour.Service.CloseAsync(), requiresMainThread: true));
+            }, () => audioBehaviour == null ? Task.CompletedTask : audioBehaviour.ShutdownAsync(), requiresMainThread: true));
             _unityRuntime.Runtime.AddPart(new GameRuntimePart("Save", async _ =>
             {
-                SaveResult<CombinedSampleSettings> settings = await _save.LoadAsync("gframework-settings.json");
+                SaveResult<CombinedSampleSettings> settings = await _save.LoadAsync(configuration == null ? "gframework-settings.json" : configuration.SaveFileName);
                 ApplySettings(settings.Value);
             }, _save.CloseAsync, requiresMainThread: true));
             _unityRuntime.Runtime.AddPart(new GameRuntimePart("Input", shutdown: () =>
@@ -141,8 +181,9 @@ namespace WFrameWork.Samples.Combined
             {
                 if (ui != null) await ui.InitializeAsync(_unityRuntime.FrameUpdate, _unityRuntime.Host.Loops,
                     modalBlocker: new UnityUiModalInputBlocker(input: new InputUiModalBlocker(_input)), resourceService: _addressables.Service);
-                if (ui != null) await ui.OpenAsync(new UiPanelId("Menu"));
+                if (ui != null) await ui.OpenAsync(new UiPanelId("Menu"), this);
             }, () => ui?.Manager == null ? Task.CompletedTask : ui.Manager.CloseAllAsync(), requiresMainThread: true));
+            _unityRuntime.Runtime.AddPart(new GameRuntimePart("Flow", shutdown: () => _flow == null ? Task.CompletedTask : _flow.ShutdownAsync(), requiresMainThread: true));
         }
 
         private async Task InitializeRuntimeAsync()
@@ -158,34 +199,170 @@ namespace WFrameWork.Samples.Combined
 
         private void ApplySettings(CombinedSampleSettings settings)
         {
+            var snapshot = new UiSettingsSnapshot(settings == null ? 1 : settings.MasterVolume,
+                settings == null ? 1 : settings.MusicVolume, settings == null ? 1 : settings.SfxVolume,
+                settings == null ? 1 : settings.UiVolume, settings != null && settings.Muted,
+                settings == null ? 0 : settings.WindowMode, settings == null ? 0 : settings.ResolutionIndex,
+                settings == null ? 0 : settings.QualityIndex);
+            ApplySettingsSnapshot(snapshot);
+        }
+
+        private void ApplySettingsSnapshot(UiSettingsSnapshot snapshot)
+        {
+            _settingsSnapshot = snapshot;
             if (audioBehaviour?.Service == null) return;
-            float volume = Mathf.Clamp01(settings?.MasterVolume ?? 1);
-            audioBehaviour.Service.SetVolume(AudioBus.Bgm, volume);
-            audioBehaviour.Service.SetVolume(AudioBus.Sfx, volume);
-            audioBehaviour.Service.SetVolume(AudioBus.Ui, volume);
-            audioBehaviour.Service.SetMuted(settings != null && settings.Muted);
+            float master = snapshot.MasterVolume;
+            audioBehaviour.Service.SetVolume(AudioBus.Bgm, snapshot.MusicVolume * master);
+            audioBehaviour.Service.SetVolume(AudioBus.Sfx, snapshot.SfxVolume * master);
+            audioBehaviour.Service.SetVolume(AudioBus.Ui, snapshot.UiVolume * master);
+            audioBehaviour.Service.SetMuted(snapshot.Muted);
         }
 
         public async Task SaveSettingsAsync(float masterVolume, bool muted)
         {
             EnsureReady();
-            var settings = new CombinedSampleSettings { MasterVolume = Mathf.Clamp01(masterVolume), Muted = muted };
-            await _save.SaveAsync("gframework-settings.json", settings);
-            ApplySettings(settings);
+            var current = Current;
+            await SaveSettingsSnapshotAsync(new UiSettingsSnapshot(masterVolume, current.MusicVolume, current.SfxVolume,
+                current.UiVolume, muted, current.WindowMode, current.ResolutionIndex, current.QualityIndex), CancellationToken.None);
         }
 
-        public async Task StartGameAsync()
+        public void Preview(UiSettingsSnapshot settings)
         {
-            EnsureReady();
-            await _flow.StartGameAsync();
-            if (ui != null) await ui.Manager.HideAsync(new UiPanelId("Menu"));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            ApplySettingsSnapshot(settings);
         }
 
-        public async Task ReturnToMenuAsync()
+        public Task SaveAsync(UiSettingsSnapshot settings, CancellationToken token)
         {
             EnsureReady();
+            return SaveSettingsSnapshotAsync(settings, token);
+        }
+
+        private async Task SaveSettingsSnapshotAsync(UiSettingsSnapshot settings, CancellationToken token)
+        {
+            var value = new CombinedSampleSettings
+            {
+                MasterVolume = settings.MasterVolume, MusicVolume = settings.MusicVolume, SfxVolume = settings.SfxVolume,
+                UiVolume = settings.UiVolume, Muted = settings.Muted, WindowMode = settings.WindowMode,
+                ResolutionIndex = settings.ResolutionIndex, QualityIndex = settings.QualityIndex
+            };
+            await _save.SaveAsync(configuration == null ? "gframework-settings.json" : configuration.SaveFileName, value, token);
+            ApplySettingsSnapshot(settings);
+        }
+
+        Task IUiGameFlowService.StartGameAsync(CancellationToken token)
+        { token.ThrowIfCancellationRequested(); return StartGameAsync(); }
+
+        async Task IUiGameFlowService.RestartGameAsync(CancellationToken token)
+        { token.ThrowIfCancellationRequested(); await ReturnToMenuAsync(); token.ThrowIfCancellationRequested(); await StartGameAsync(); }
+
+        Task IUiGameFlowService.ReturnToLobbyAsync(CancellationToken token)
+        { token.ThrowIfCancellationRequested(); return ReturnToMenuAsync(); }
+
+        Task IUiNavigationService.OpenSettingsAsync(UiNavigationSource source, CancellationToken token)
+        { return OpenPanelAsync(new UiPanelId("Settings"), token); }
+
+        Task IUiNavigationService.OpenHelpAsync(UiNavigationSource source, CancellationToken token)
+        { return OpenPanelAsync(new UiPanelId("Help"), token); }
+
+        Task IUiNavigationService.OpenAboutAsync(UiNavigationSource source, CancellationToken token)
+        { return OpenPanelAsync(new UiPanelId("About"), token); }
+
+        Task IUiNavigationService.BackAsync(CancellationToken token)
+        { token.ThrowIfCancellationRequested(); return ui == null ? Task.CompletedTask : ui.CloseTopModalAsync(); }
+
+        Task IUiExitService.RequestExitAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            // The runtime adapter is player-safe. An editor host can replace this narrow service
+            // with an EditorApplication adapter without making UI Runtime depend on UnityEditor.
+            UnityEngine.Application.Quit();
+            return Task.CompletedTask;
+        }
+
+        async Task<UiDialogResult> IUiDialogService.ShowAsync(UiDialogRequest request, CancellationToken token)
+        {
+            EnsureReady();
+            if (ui == null) throw new InvalidOperationException("UI manager is not configured.");
+            var viewModel = new DialogViewModel(request);
+            UiPanelHandle handle = null;
+            try
+            {
+                handle = await ui.OpenAsync(new UiPanelId("Dialog"), viewModel, token);
+                using (token.Register(() => viewModel.TryComplete(UiDialogResult.Canceled)))
+                    return await viewModel.WaitForResultAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                if (handle != null) await handle.CloseAsync().ConfigureAwait(false);
+                else viewModel.Dispose();
+            }
+        }
+
+        private async Task OpenPanelAsync(UiPanelId id, CancellationToken token)
+        {
+            EnsureReady();
+            if (ui == null) throw new InvalidOperationException("UI manager is not configured.");
+            await ui.OpenAsync(id, this, token);
+        }
+
+        public Task StartGameAsync()
+        {
+            EnsureReady();
+            lock (_transitionGate)
+            {
+                if (_startTask != null && !_startTask.IsCompleted) return _startTask;
+                _startTask = StartGameCoreAsync();
+                return _startTask;
+            }
+        }
+
+        private async Task StartGameCoreAsync()
+        {
+            try
+            {
+                await _flow.StartGameAsync();
+                if (_gameplayPlayer != null) return;
+                if (_gameplayPlayer == null) _gameplayPlayer = await _unityRuntime.MainThread.RunAsync(() => _playerPool.Rent());
+                if (Audio != null && !string.IsNullOrWhiteSpace(sfxAddress))
+                    _gameplaySfx = await Audio.PlayAsync(sfxAddress, new AudioPlayRequest(AudioBus.Sfx, 0.8f));
+                if (ui != null) await ui.Manager.HideAsync(new UiPanelId("Menu"));
+            }
+            catch
+            {
+                if (_gameplaySfx != null) { await _gameplaySfx.StopAsync(); _gameplaySfx = null; }
+                if (_gameplayPlayer != null)
+                {
+                    GameObject playerToReturn = _gameplayPlayer; _gameplayPlayer = null;
+                    await _unityRuntime.MainThread.RunAsync(() => _playerPool.TryReturn(playerToReturn));
+                }
+                if (_flow.State == GameFlowState.Playing || _flow.State == GameFlowState.Returning)
+                { try { await _flow.ReturnToMenuAsync(); } catch { } }
+                throw;
+            }
+        }
+
+        public Task ReturnToMenuAsync()
+        {
+            EnsureReady();
+            lock (_transitionGate)
+            {
+                if (_returnTask != null && !_returnTask.IsCompleted) return _returnTask;
+                _returnTask = ReturnToMenuCoreAsync();
+                return _returnTask;
+            }
+        }
+
+        private async Task ReturnToMenuCoreAsync()
+        {
+            if (_gameplaySfx != null) { await _gameplaySfx.StopAsync(); _gameplaySfx = null; }
+            if (_gameplayPlayer != null)
+            {
+                GameObject playerToReturn = _gameplayPlayer; _gameplayPlayer = null;
+                await _unityRuntime.MainThread.RunAsync(() => _playerPool.TryReturn(playerToReturn));
+            }
             await _flow.ReturnToMenuAsync();
-            if (ui != null) await ui.OpenAsync(new UiPanelId("Menu"));
+            if (ui != null) await ui.Manager.OpenAsync(new UiPanelId("Menu"), this);
         }
 
         public Task<SceneLease> LoadGameSceneAsync() { EnsureReady(); return _sceneFlow.LoadAsync(gameSceneAddress, SceneLoadMode.Additive); }
@@ -206,10 +383,21 @@ namespace WFrameWork.Samples.Combined
 
         public async Task ShutdownAsync()
         {
+            Task shutdown;
+            lock (_shutdownGate)
+            {
+                if (_shutdownTask == null) _shutdownTask = ShutdownCoreAsync();
+                shutdown = _shutdownTask;
+            }
+            await shutdown;
+        }
+
+        private async Task ShutdownCoreAsync()
+        {
             if (_unityRuntime == null) return;
             _ready = false;
             await _unityRuntime.ShutdownAsync();
-            _flow = null; _sceneFlow = null; _playerPool = null; _save = null; _addressables = null;
+            _flow = null; _sceneFlow = null; _playerPool = null; _save = null; _addressables = null; _unityRuntime = null;
         }
 
         private void OnDestroy() { _ = ShutdownAsync(); }

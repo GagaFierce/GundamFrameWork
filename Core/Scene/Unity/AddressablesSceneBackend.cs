@@ -42,7 +42,8 @@ namespace WFrameWork.Scene.Unity
             }
             catch (OperationCanceledException)
             {
-                _ = FinishCanceledLoad(handle, mainThread);
+                // Direct backend callers also receive a task covering native cleanup.
+                await FinishCanceledLoad(handle, mainThread);
                 throw;
             }
             catch

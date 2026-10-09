@@ -1,7 +1,7 @@
 {
   "name": "WFrameWork.GFramework.Unity.Tests",
   "rootNamespace": "WFrameWork.Tests.Unity",
-  "references": ["WFrameWork.Diagnostics", "WFrameWork.Input", "WFrameWork.UI", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Pool", "WFrameWork.Scene", "WFrameWork.Audio", "WFrameWork.Config", "Unity.Addressables"],
+  "references": ["WFrameWork.Diagnostics", "WFrameWork.Application", "WFrameWork.Application.Unity", "WFrameWork.Input", "WFrameWork.UI", "WFrameWork.UI.Unity", "WFrameWork.ResLoad", "WFrameWork.ResLoad.Unity", "WFrameWork.Pool", "WFrameWork.Pool.Unity", "WFrameWork.Scene", "WFrameWork.Scene.Unity", "WFrameWork.Threading.Unity", "WFrameWork.Audio", "WFrameWork.Config", "Unity.Addressables", "Unity.TextMeshPro"],
   "optionalUnityReferences": ["TestAssemblies"],
   "includePlatforms": [],
   "excludePlatforms": [],

@@ -17,7 +17,7 @@ namespace WFrameWork.UI.Unity
         {
             if (_initialization != null) await _initialization;
             ResourceLease<GameObject> lease = await _resources.LoadAssetAsync<GameObject>(resourceKey, cancellationToken: cancellationToken);
-            return new UiResourceHandle(lease.Asset, lease.Dispose);
+            return new UiResourceHandle(lease.Asset, lease.DisposeAsync, true);
         }
     }
 }

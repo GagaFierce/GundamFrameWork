@@ -12,16 +12,21 @@ namespace WFrameWork.Samples.Combined.Editor
         private static readonly string[] Addresses =
         {
             "GFramework.Samples.Player", "GFramework.Samples.Settings",
-            "GFramework.Samples.Menu", "GFramework.Samples.Config", "GFramework.Samples.Game"
+            "GFramework.Samples.Menu", "GFramework.Samples.Help", "GFramework.Samples.About", "GFramework.Samples.Dialog",
+            "GFramework.Samples.Config", "GFramework.Samples.Game",
+            "GFramework.Samples.Click"
         };
 
         [MenuItem("GFramework/Samples/Validate Combined Addressables")]
-        public static void ValidateMenu() { Validate(false); }
+        public static void ValidateMenu() { Validate(false, false); }
+
+        [MenuItem("GFramework/Samples/Validate And Build Combined Addressables")]
+        public static void ValidateAndBuildMenu() { Validate(false, true); }
 
         // Unity -batchmode -executeMethod WFrameWork.Samples.Combined.Editor.CombinedSampleAddressablesValidator.ValidateCommandLine
-        public static void ValidateCommandLine() { Validate(true); }
+        public static void ValidateCommandLine() { Validate(true, true); }
 
-        private static void Validate(bool throwOnError)
+        private static void Validate(bool throwOnError, bool buildLocalContent)
         {
             int errors = 0;
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -35,16 +40,32 @@ namespace WFrameWork.Samples.Combined.Editor
                 {
                     AddressableAssetEntry entry = FindByAddress(settings, Addresses[i]);
                     if (entry == null) { Report("Missing address: " + Addresses[i], ref errors); continue; }
+                    int duplicateCount = CountByAddress(settings, Addresses[i]);
+                    if (duplicateCount != 1) Report("Address is registered " + duplicateCount + " times: " + Addresses[i], ref errors);
                     string path = AssetDatabase.GUIDToAssetPath(entry.guid);
                     if (string.IsNullOrEmpty(path)) Report("Missing asset for address: " + Addresses[i], ref errors);
                     else if (Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !path.EndsWith(".unity", StringComparison.OrdinalIgnoreCase))
                         Report("Game address is not a scene: " + path, ref errors);
                     else if (!Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".asset", StringComparison.OrdinalIgnoreCase))
                         Report("Sample address has an unexpected asset type: " + Addresses[i], ref errors);
+                    else if (Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && AssetDatabase.LoadAssetAtPath<SceneAsset>(path) == null)
+                        Report("Game address does not resolve to a SceneAsset: " + path, ref errors);
+                    else if (Addresses[i].EndsWith(".Click", StringComparison.Ordinal) && AssetDatabase.LoadAssetAtPath<AudioClip>(path) == null)
+                        Report("Click address does not resolve to AudioClip: " + path, ref errors);
+                    else if (!Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && Addresses[i].EndsWith(".Config", StringComparison.Ordinal) && AssetDatabase.LoadAssetAtPath<CombinedSampleConfig>(path) == null)
+                        Report("Config address does not resolve to CombinedSampleConfig: " + path, ref errors);
+                    else if (!Addresses[i].EndsWith(".Game", StringComparison.Ordinal) && !Addresses[i].EndsWith(".Config", StringComparison.Ordinal) && !Addresses[i].EndsWith(".Click", StringComparison.Ordinal) && AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+                        Report("Prefab address does not resolve to GameObject: " + path, ref errors);
                 }
             }
             string generatedScene = "Assets/GFrameworkSamples/Combined/Scenes/CombinedSample.unity";
             if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(generatedScene)) Report("Generated Combined scene is missing: " + generatedScene, ref errors);
+            if (errors == 0 && buildLocalContent && settings != null)
+            {
+                AddressableAssetSettings.BuildPlayerContent(out var result);
+                if (!string.IsNullOrEmpty(result.Error)) Report("Local Addressables content build failed: " + result.Error, ref errors);
+                else Debug.Log("GFramework combined local Addressables content build passed.");
+            }
             if (errors > 0 && throwOnError) throw new InvalidOperationException("Combined Addressables validation failed with " + errors + " error(s).");
             if (errors == 0) Debug.Log("GFramework combined Addressables validation passed.");
         }
@@ -61,6 +82,18 @@ namespace WFrameWork.Samples.Combined.Editor
                     if (entry != null && string.Equals(entry.address, address, StringComparison.Ordinal)) return entry;
             }
             return null;
+        }
+
+        private static int CountByAddress(AddressableAssetSettings settings, string address)
+        {
+            int count = 0;
+            foreach (AddressableAssetGroup group in settings.groups)
+            {
+                if (group == null) continue;
+                foreach (AddressableAssetEntry entry in group.entries)
+                    if (entry != null && string.Equals(entry.address, address, StringComparison.Ordinal)) count++;
+            }
+            return count;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using WFrameWork.Application;
@@ -58,9 +59,15 @@ namespace WFrameWork.Application.Unity
             try { await _runtime.ShutdownAsync(); }
             finally
             {
-                _host.Dispose();
-                _manager.Dispose();
-                _mainThread.StopAcceptingWork();
+                try
+                {
+                    await _mainThread.RunAsync(() =>
+                    {
+                        _host.Dispose();
+                        _manager.Dispose();
+                    }, CancellationToken.None);
+                }
+                finally { _mainThread.StopAcceptingWork(); }
             }
         }
 
