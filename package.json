@@ -1,6 +1,6 @@
 {
   "name": "com.gagafierce.gundamframework",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "GFramework",
   "description": "常用代码仓库，日后不断完善.",
   "unity": "2022.3",
@@ -14,8 +14,7 @@
     "url": "https://github.com/GagaFierce/GundamFrameWork.git"
   },
   "dependencies": {
-    "com.unity.textmeshpro": "3.0.9",
-    "com.unity.addressables": "1.22.3",
+    "com.unity.textmeshpro": "3.0.7",
     "com.unity.ugui": "1.0.0"
   },
   "samples": [
@@ -31,7 +30,7 @@
     },
     {
       "displayName": "UI module",
-      "description": "uGUI root, Addressables-backed panels, modal stack and Presentation refresh.",
+      "description": "uGUI root, direct-reference panels, modal stack and Presentation refresh.",
       "path": "Samples~/Modules/UI"
     },
     {

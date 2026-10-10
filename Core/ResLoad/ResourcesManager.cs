@@ -50,7 +50,7 @@ namespace WFrameWork.Core.ResLoad
 
     //==========================================================================================================================
 
-    [Obsolete("ResourcesManagerImpl is a migration-only compatibility API. Use AddressablesResourceService.", false)]
+    [Obsolete("ResourcesManagerImpl is a migration-only compatibility API. Use ResourceService with an explicit backend.", false)]
     public class ResourcesManagerImpl : Singleton.MonoSingleton<ResourcesManagerImpl>, ResourcesManager
     {
         struct LoadResInfo
@@ -416,4 +416,3 @@ namespace WFrameWork.Core.ResLoad
         //}
     }
 }
-

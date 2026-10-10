@@ -33,6 +33,23 @@ namespace WFrameWork.Diagnostics
         public void Report(in DiagnosticEvent diagnostic) { }
     }
 
+    public sealed class CompositeDiagnosticSink : IDiagnosticSink
+    {
+        private readonly IDiagnosticSink[] _sinks;
+
+        public CompositeDiagnosticSink(params IDiagnosticSink[] sinks)
+        { _sinks = sinks == null ? Array.Empty<IDiagnosticSink>() : (IDiagnosticSink[])sinks.Clone(); }
+
+        public void Report(in DiagnosticEvent diagnostic)
+        {
+            for (int i = 0; i < _sinks.Length; i++)
+            {
+                try { _sinks[i]?.Report(diagnostic); }
+                catch { /* A failing sink must not block the remaining sinks. */ }
+            }
+        }
+    }
+
     public sealed class CollectingDiagnosticSink : IDiagnosticSink
     {
         private readonly object _gate = new object();

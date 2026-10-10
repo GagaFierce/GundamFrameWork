@@ -2,7 +2,7 @@
 
 ## 版本与依赖
 
-包声明 `com.unity.addressables: 1.22.3`，目标 Unity 版本为 2022.3。Addressables 1.22.3 的 `Addressables.InitializeAsync(false)`、`LoadAssetAsync<T>`、`InstantiateAsync`、`LoadSceneAsync` 和 `ReleaseInstance` API 是本包适配的契约；包不声明或使用未经验证的 2.x API。实际兼容性仍需在宿主 Unity 2022.3 编辑器中验证。
+目标 Unity 版本为 2022.3。基础包只要求 TextMeshPro 3.0.7 和 uGUI 1.0.0。Addressables 1.22.x 是可选依赖；安装后才启用 `WFrameWork.ResLoad.Addressables` 与 `WFrameWork.Scene.Addressables`。这些适配使用 `Addressables.InitializeAsync(false)`、`LoadAssetAsync<T>`、`InstantiateAsync`、`LoadSceneAsync` 和 `ReleaseInstance` API，不声明未经验证的 2.x API。
 
 Addressables Settings、Groups、Catalog 和内容构建由宿主 Unity 工程管理。UPM 包内的地址字符串不会自动成为宿主工程的 Addressables 内容。
 
@@ -11,14 +11,15 @@ Addressables Settings、Groups、Catalog 和内容构建由宿主 Unity 工程�
 ```text
 Diagnostics
   ├─ Input ── Input.Unity
-  ├─ ResLoad ── ResLoad.Unity (Unity.Addressables)
+  ├─ ResLoad ── ResLoad.Unity (Unity Resources)
+  │         └─ ResLoad.Addressables (optional)
   ├─ Pool ── Pool.Unity ── ResLoad
-  ├─ Scene ── Scene.Unity (Unity.Addressables)
+  ├─ Scene ── Scene.Addressables (optional)
   ├─ Audio ── Audio.Unity ── ResLoad
   └─ Config ── Config.Unity ── ResLoad
 
 FrameUpdate ── FrameUpdate.Unity
-UI ── UI.Unity ── ResLoad / ResLoad.Unity
+UI ── UI.Unity ── ResLoad (direct prefab references or a ResourceService)
 Input + UI ── Input.UIBridge
 Physics + Input ── Physics.InputBridge
 ```
@@ -28,7 +29,7 @@ Physics + Input ── Physics.InputBridge
 ## 初始化与释放顺序
 
 1. 综合装配使用 `UnityGameRuntime.Create()` 创建唯一的 FrameUpdate、Host 和主线程边界。
-2. `GameRuntime` 先初始化 `AddressablesResourceService`，再按依赖顺序初始化 Scene、Pool、Audio、Save、Input、Physics 和 UI。
+2. Combined Addressables 样例先初始化 `AddressablesResourceService`，再按依赖顺序初始化 Scene、Pool、Audio、Save、Input、Physics 和 UI。基础包也可使用 `UnityResourcesResourceBackend` 或自定义 backend。
 3. 运行时关闭先等待 UI/Physics/Input/Save/Audio/Pool/Scene 的使用者退出，最后等待并关闭 `ResourceService`。
 4. 独立模块示例可以自建局部运行时，但必须明确其所有权；不能由 UI、音频各自隐式创建应用级资源服务。
 
@@ -47,7 +48,7 @@ Physics + Input ── Physics.InputBridge
 
 ## Resources 迁移
 
-`ResourcesManagerImpl` 是历史 public API，保留用于迁移期兼容；它不再被 UI、场景、池或音频新入口调用。旧的 `Resources` 路径不是 Addressables address，必须在宿主工程显式建立映射：
+`ResourcesManagerImpl` 是历史 public API，保留用于迁移期兼容；它不再被 UI、场景、池或音频新入口调用。基础包提供 `UnityResourcesResourceBackend` 供 `ResourceService` 继续加载 `Resources` 资产。若改用 Addressables，旧的 `Resources` 路径不是 Addressables address，宿主工程需要显式建立映射：
 
 ```text
 Resources/UI/Settings.prefab  ->  GFramework.Samples.Settings
@@ -55,7 +56,7 @@ Resources/Scenes/Game.unity   ->  GFramework.Samples.Game
 Resources/Audio/click.wav     ->  GFramework.Samples.Audio.Click
 ```
 
-迁移步骤：把资产加入宿主 Addressables Group，设置稳定 address；将旧调用替换为 `LoadAssetAsync<T>`/`InstantiateAsync`；把旧的 `UnloadResources` 替换为对应租约或实例释放。同步旧方法不能伪装成异步，也不再自动调用 `WaitForCompletion`。
+迁移到 Addressables 时，把资产加入宿主 Addressables Group 并设置稳定 address；将旧调用替换为 `LoadAssetAsync<T>`/`InstantiateAsync`；把旧的 `UnloadResources` 替换为对应租约或实例释放。同步旧方法不能伪装成异步，也不再自动调用 `WaitForCompletion`。UI 也可以使用 `DirectReferenceUiResourceProvider` 直接引用 prefab。
 
 ## 场景、池、音频和存档
 

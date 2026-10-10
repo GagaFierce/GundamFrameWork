@@ -1,7 +1,7 @@
 {
   "name": "WFrameWork.ResLoad.Unity",
   "rootNamespace": "WFrameWork.Core.ResLoad.Unity",
-  "references": ["WFrameWork.ResLoad", "WFrameWork.Threading", "WFrameWork.Threading.Unity", "Unity.Addressables"],
+  "references": ["WFrameWork.ResLoad", "WFrameWork.Threading", "WFrameWork.Threading.Unity"],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

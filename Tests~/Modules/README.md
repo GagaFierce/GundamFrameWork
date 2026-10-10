@@ -10,4 +10,4 @@ dotnet run --project "D:/wangjian/Project/GundamFrameWork/Tests~/Modules/Core/GF
 
 ## Unity 测试导入
 
-把宿主工程中的 `Tests~/Unity` 目录复制到宿主工程 `Assets/Tests/GFramework`，然后在 Unity Test Runner 运行 EditMode/PlayMode。宿主必须已安装 Addressables 1.22.x，并提供自己的 Addressables Settings、Groups 和本地构建内容；包不能替宿主工程创建 Settings。
+把 `Tests~/Unity` 目录复制到宿主工程 `Assets/Tests/GFramework`，可运行基础 Unity EditMode/PlayMode 测试。Addressables 是可选依赖；专项测试在 `Tests~/Addressables`，需要宿主安装 Addressables 1.22.x 并提供自己的 Settings、Groups 和本地构建内容。

@@ -6,10 +6,10 @@ using UnityEngine;
 namespace WFrameWork.UI.Unity
 {
     /// <summary>
-    /// Migration-only Resources provider. New UI code must use AddressablesUiResourceProvider;
-    /// this type is kept to preserve an existing public entry during address migration.
+    /// Migration-only Resources provider. New UI code should use direct prefab references
+    /// or a ResourceService-backed provider; this type keeps an existing public entry usable.
     /// </summary>
-    [Obsolete("Use AddressablesUiResourceProvider and an explicit Addressables address.", false)]
+    [Obsolete("Use DirectReferenceUiResourceProvider or a ResourceService-backed provider.", false)]
     public sealed class ResourcesUiResourceProvider : IUiResourceProvider
     {
         public Task<UiResourceHandle> LoadAsync(string resourceKey, CancellationToken cancellationToken)

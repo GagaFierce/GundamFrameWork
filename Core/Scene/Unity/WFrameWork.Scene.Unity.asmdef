@@ -1,7 +1,7 @@
 {
   "name": "WFrameWork.Scene.Unity",
   "rootNamespace": "WFrameWork.Scene.Unity",
-  "references": ["WFrameWork.Scene", "WFrameWork.Threading", "WFrameWork.Threading.Unity", "Unity.Addressables"],
+  "references": ["WFrameWork.Scene", "WFrameWork.Threading", "WFrameWork.Threading.Unity"],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
