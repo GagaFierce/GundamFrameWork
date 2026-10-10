@@ -1,0 +1,26 @@
+{
+  "name": "WFrameWork.GFramework.Addressables.Tests",
+  "rootNamespace": "WFrameWork.Tests.Unity",
+  "references": [
+    "WFrameWork.Diagnostics",
+    "WFrameWork.ResLoad",
+    "WFrameWork.ResLoad.Addressables",
+    "WFrameWork.Scene.Addressables",
+    "WFrameWork.Pool.Unity",
+    "WFrameWork.Scene",
+    "WFrameWork.Threading",
+    "WFrameWork.Threading.Unity",
+    "Unity.Addressables",
+    "Unity.ResourceManager"
+  ],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS", "WFRAMEWORK_ADDRESSABLES"],
+  "versionDefines": [{"name": "com.unity.addressables", "expression": "1.0.0", "define": "WFRAMEWORK_ADDRESSABLES"}],
+  "noEngineReferences": false
+}

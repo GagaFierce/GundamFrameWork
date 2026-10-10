@@ -9,7 +9,7 @@ Diagnostics ── Threading ── Threading.Unity
       │
       └─ Application(Runtime) ── Application.Unity
                                       │
-                              Combined Sample
+                              Combined Addressables Sample
 ```
 
 `WFrameWork.Application` 是纯 C# 装配契约，引用 Runtime 模块但不引用 UnityEngine。`Application.Unity` 创建一个 `FrameUpdateManager`、一个 `UnityFrameUpdateHost` 和一个显式 `UnityMainThreadDispatcher`。Combined 示例只创建这一套对象。FrameUpdate 核心仍保持自己的线程所有者校验和 `noEngineReferences=true`。
@@ -19,7 +19,7 @@ Diagnostics ── Threading ── Threading.Unity
 ```text
 UnityGameRuntime (Owned: FrameUpdateManager, Host, MainThread)
 └─ GameRuntime (Owned: application scope + registered parts)
-   ├─ AddressablesResourceService (Owned: ResourceService + Addressables backend)
+   ├─ ResourceService (Owned: ResourceService + selected backend)
    ├─ SceneFlowService (Owned: scene backend and scene leases)
    ├─ AddressableGameObjectPool (Owned: prefab lease and instances)
    ├─ AudioServiceBehaviour (Owned: AudioService, Borrowed: shared ResourceService)
@@ -28,7 +28,7 @@ UnityGameRuntime (Owned: FrameUpdateManager, Host, MainThread)
    └─ GameFlowService (Owned: gameplay scope and current scene lease)
 ```
 
-`SetModuleServices` 只在 `Created` 状态接收外部服务；传入服务默认是 Borrowed，Combined 示例显式把 Addressables、Scene、Input 和 Physics 绑定到同一装配入口。模块不会通过 UI 或音频组件再创建应用级资源服务。
+`SetModuleServices` 只在 `Created` 状态接收外部服务；传入服务默认是 Borrowed，Combined Addressables 示例显式把资源、Scene、Input 和 Physics 绑定到同一装配入口。模块不会通过 UI 或音频组件再创建应用级资源服务。
 
 ## 应用、模块与业务作用域
 
@@ -46,14 +46,14 @@ Application scope
 
 ## Unity 主线程边界
 
-Unity 适配器接收同一个 `IMainThreadDispatcher`。Addressables 的创建、释放、场景卸载、AudioSource 操作和 GameObject 销毁都通过该边界执行。`UnityMainThreadDispatcher` 在根创建时显式捕获 Unity 主线程上下文；业务代码不会在每个 `await` 处依赖偶然的上下文捕获。清理使用不受 Gameplay 分组暂停和 `Time.timeScale` 影响的 Unity Update 驱动。
+Unity 适配器接收同一个 `IMainThreadDispatcher`。Addressables 资源创建和释放、场景卸载、AudioSource 操作和 GameObject 销毁都通过该边界执行。`UnityMainThreadDispatcher` 在根创建时显式捕获 Unity 主线程上下文；业务代码不会在每个 `await` 处依赖偶然的上下文捕获。清理使用不受 Gameplay 分组暂停和 `Time.timeScale` 影响的 Unity Update 驱动。
 
 纯计算和存档文件 I/O 可以异步执行。跨线程直接使用 Unity 后端会被拒绝。`Dispose` 是兼容的非等待入口；需要知道清理已经完成时必须等待 `CloseAsync`、`ShutdownAsync`、`ReleaseAsync` 或 `DisposeAsync`。
 
 ## 资源、场景、池和音频语义
 
-- `ResourceService` 为共享资产发放独立租约；一个等待者取消不会取消其他等待者。服务关闭会等待外部资产租约和实例租约归还，也会等待底层加载收尾及异步释放任务，之后才关闭后端；释放失败、取消实例迟到清理失败和后端关闭失败会作为关闭结果报告。`ResourceLease.Dispose` 是兼容的非等待入口，需要确认 Addressables 释放已完成时使用 `DisposeAsync`。
-- `SceneLease.ReleaseAsync` 完成时才表示 Addressables `UnloadSceneAsync` 完成。提交前取消不会卸载旧场景或调用加载后端；提交后的取消只取消调用方等待，迟到成功仍会被卸载；SceneFlow 在迟到清理结束前拒绝新的加载请求。
+- `ResourceService` 为共享资产发放独立租约；一个等待者取消不会取消其他等待者。服务关闭会等待外部资产租约和实例租约归还，也会等待底层加载收尾及异步释放任务，之后才关闭后端；释放失败、取消实例迟到清理失败和后端关闭失败会作为关闭结果报告。`ResourceLease.Dispose` 是兼容的非等待入口，需要确认 backend 释放已完成时使用 `DisposeAsync`。
+- `SceneLease.ReleaseAsync` 完成时才表示底层场景释放完成；Addressables backend 会等待 `UnloadSceneAsync`。提交前取消不会卸载旧场景或调用加载后端；提交后的取消只取消调用方等待，迟到成功仍会被卸载；SceneFlow 在迟到清理结束前拒绝新的加载请求。
 - Single UI 面板将当前 Loading/Visible/Hidden generation 与 Closing 历史 generation 分开选择；连续重开最多保留一个有效 generation，CloseAll 仍等待所有历史清理。
 - `AddressableGameObjectPool.CloseAsync` 先阻止迟到 Warmup，再逐个销毁实例，等待 `UnityObjectLifetime.DestroyAndWait`，最后释放 prefab 租约。`Task.Yield` 不再作为销毁完成证明。
 - `AudioService.CloseAsync` 先停止播放、等待加载中的播放请求完成收尾，再等待 Clip 的异步释放。音量/静音修改会更新已存在的可调播放；AudioSource 操作由 Unity 主线程边界执行。
@@ -73,7 +73,7 @@ Boot → Menu → Loading → Playing → Returning → Menu
 
 ## 综合示例
 
-导入 `Combined modules` Sample 后：
+安装 Addressables 并导入 `Combined modules` Sample 后：
 
 1. 执行 `GFramework/Samples/Generate Combined Sample Assets`。
 2. 执行 `GFramework/Samples/Validate And Build Combined Addressables`；该入口先检查本 Sample 的地址、资源类型和场景，再构建本地 Addressables 内容。也可分别执行 Validate 和 Build 菜单。

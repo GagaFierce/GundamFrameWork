@@ -28,7 +28,7 @@ namespace WFrameWork.Audio
         private Func<Task> _release;
         private Task _releaseTask;
         public object Clip { get; }
-        public AudioBackendClip(object clip, Action release) : this(clip, () => { release?.Invoke(); return Task.CompletedTask; }, true) { }
+        public AudioBackendClip(object clip, Action release = null) : this(clip, () => { release?.Invoke(); return Task.CompletedTask; }, true) { }
         public AudioBackendClip(object clip, Func<Task> release, bool asynchronousRelease) { Clip = clip ?? throw new ArgumentNullException(nameof(clip)); _release = release; }
         public bool IsReleased { get { lock (_gate) return _releaseTask != null; } }
         public void Release() { _ = ReleaseAsync(); }
@@ -55,6 +55,9 @@ namespace WFrameWork.Audio
     {
         void SetVolume(float volume);
     }
+
+    /// <summary>Compatibility name for backends that support live playback volume updates.</summary>
+    public interface IAudioVolumePlayback : IAudioPlayback, IAudioPlaybackVolume { }
 
     public interface IAudioBackend : IDisposable
     {
@@ -196,6 +199,14 @@ namespace WFrameWork.Audio
             catch (StaleAudioRequestException) { return null; }
             if (request != Volatile.Read(ref _bgmRequest)) { await next.StopAsync().ConfigureAwait(false); return null; }
             _bgm = next; return next;
+        }
+
+        public void StopBgm()
+        {
+            Interlocked.Increment(ref _bgmRequest);
+            AudioPlaybackHandle current = _bgm;
+            _bgm = null;
+            current?.Stop();
         }
 
         internal Task ReleasePlayback(AudioEntry entry, IAudioPlayback playback)

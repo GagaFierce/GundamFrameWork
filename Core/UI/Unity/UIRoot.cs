@@ -14,6 +14,16 @@ namespace WFrameWork.UI.Unity
         [SerializeField] private RectTransform overlayLayer;
 
         public Canvas Canvas => canvas;
+
+        public void Configure(Canvas value, RectTransform hud, RectTransform normal, RectTransform modal, RectTransform overlay)
+        {
+            canvas = value;
+            hudLayer = hud;
+            normalLayer = normal;
+            modalLayer = modal;
+            overlayLayer = overlay;
+        }
+
         public bool TryValidate(out string error)
         {
             if (canvas == null) { error = "UIRoot requires a Canvas."; return false; }
@@ -37,4 +47,3 @@ namespace WFrameWork.UI.Unity
         }
     }
 }
-

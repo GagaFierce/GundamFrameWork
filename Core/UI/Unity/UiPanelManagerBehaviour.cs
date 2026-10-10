@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using WFrameWork.Core.ResLoad.Unity;
 using WFrameWork.Core.ResLoad;
 using WFrameWork.Core.FrameUpdate;
 using WFrameWork.Core.FrameUpdate.Unity;
@@ -15,9 +14,8 @@ namespace WFrameWork.UI.Unity
         [SerializeField] private UIRoot root;
         [SerializeField] private UiPanelDefinitionAsset[] definitions;
         [SerializeField] private CanvasGroup modalBarrier;
+        [SerializeField] private DirectReferenceUiResourceProvider directReferenceProvider;
         private UiPanelManager _manager;
-        private AddressablesResourceService _addressables;
-        private Task _addressablesInitialization;
 
         public UiPanelManager Manager => _manager;
 
@@ -28,19 +26,15 @@ namespace WFrameWork.UI.Unity
             string validationError;
             if (root == null) throw new InvalidOperationException("A UIRoot is required.");
             if (!root.TryValidate(out validationError)) throw new InvalidOperationException(validationError ?? "Invalid UIRoot.");
-            bool ownsResources = resourceService == null;
-            if (ownsResources)
-            {
-                _addressables = new AddressablesResourceService();
-                _addressablesInitialization = _addressables.InitializeAsync();
-                resourceService = _addressables.Service;
-            }
+            IUiResourceProvider resources = resourceService != null
+                ? (IUiResourceProvider)new AddressablesUiResourceProvider(resourceService)
+                : directReferenceProvider;
+            if (resources == null) throw new InvalidOperationException("A direct-reference UI resource provider or resource service is required.");
             focus = focus ?? new EventSystemUiFocusService();
             if (modalBlocker == null) modalBlocker = new UnityUiModalInputBlocker(modalBarrier);
             else if (modalBarrier != null && !(modalBlocker is UnityUiModalInputBlocker))
                 modalBlocker = new UnityUiModalInputBlocker(modalBarrier, modalBlocker);
-            _manager = new UiPanelManager(new AddressablesUiResourceProvider(resourceService, _addressablesInitialization),
-                new UGuiPanelFactory(root), focus, modalBlocker);
+            _manager = new UiPanelManager(resources, new UGuiPanelFactory(root), focus, modalBlocker);
             try
             {
                 if (definitions == null) throw new InvalidOperationException("At least one UI panel definition is required.");
@@ -51,7 +45,7 @@ namespace WFrameWork.UI.Unity
                 }
                 _manager.AttachToFrameUpdate(frameUpdateManager, loops.Presentation);
             }
-            catch { _manager.Dispose(); _manager = null; _addressables?.Dispose(); _addressables = null; throw; }
+            catch { _manager.Dispose(); _manager = null; throw; }
         }
 
         public Task<UiPanelHandle> OpenAsync(UiPanelId id, object argument = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -64,13 +58,13 @@ namespace WFrameWork.UI.Unity
         public Task RequestCloseTopModalAsync(CancellationToken token = default(CancellationToken)) =>
             _manager == null ? Task.CompletedTask : _manager.RequestCloseTopModalAsync(token);
 
-        public async Task InitializeAsync(FrameUpdateManager frameUpdateManager, UnityFrameUpdateLoops loops,
+        public Task InitializeAsync(FrameUpdateManager frameUpdateManager, UnityFrameUpdateLoops loops,
             IUiFocusService focus = null, IUiModalInputBlocker modalBlocker = null, ResourceService resourceService = null)
         {
             Initialize(frameUpdateManager, loops, focus, modalBlocker, resourceService);
-            if (_addressablesInitialization != null) await _addressablesInitialization;
+            return Task.CompletedTask;
         }
 
-        private void OnDestroy() { _manager?.Dispose(); _manager = null; _addressables?.Dispose(); _addressables = null; }
+        private void OnDestroy() { _manager?.Dispose(); _manager = null; }
     }
 }

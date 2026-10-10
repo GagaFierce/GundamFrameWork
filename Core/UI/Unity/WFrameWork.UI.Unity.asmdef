@@ -5,7 +5,6 @@
     "WFrameWork.UI",
     "WFrameWork.FrameUpdate.Unity",
     "WFrameWork.ResLoad",
-    "WFrameWork.ResLoad.Unity",
     "WFrameWork.Threading.Unity",
     "Unity.TextMeshPro",
     "WFrameWork.FrameUpdate",
