@@ -1,3 +1,15 @@
 # Generated output from the standalone .NET test projects.
 **/bin/
 **/obj/
+
+# Unity project generated data.
+UnityProject~/Library/
+UnityProject~/Temp/
+UnityProject~/Obj/
+UnityProject~/Logs/
+UnityProject~/MemoryCaptures/
+UnityProject~/Build/
+UnityProject~/Builds/
+UnityProject~/*.log
+UnityProject~/UserSettings/*
+!UnityProject~/UserSettings/.gitkeep
