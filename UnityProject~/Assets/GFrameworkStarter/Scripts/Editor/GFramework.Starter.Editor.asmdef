@@ -1,0 +1,20 @@
+{
+  "name": "GFramework.Starter.Editor",
+  "rootNamespace": "GFramework.Starter.Editor",
+  "references": [
+    "GFramework.Starter",
+    "WFrameWork.UI",
+    "WFrameWork.UI.Unity",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

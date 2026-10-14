@@ -1,0 +1,20 @@
+{
+    "name": "Unity.Pipeline.IlInterpreter",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "UnityPipeline.System.Reflection.Metadata.dll",
+        "UnityPipeline.System.Collections.Immutable.dll",
+        "UnityPipeline.System.Runtime.CompilerServices.Unsafe.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR || DEVELOPMENT_BUILD || ENABLE_RUNTIME_PIPELINE"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
