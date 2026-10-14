@@ -1,0 +1,22 @@
+{
+  "name": "GFramework.Starter",
+  "rootNamespace": "GFramework.Starter",
+  "references": [
+    "WFrameWork.UI",
+    "WFrameWork.UI.Unity",
+    "WFrameWork.ResLoad",
+    "WFrameWork.FrameUpdate",
+    "WFrameWork.FrameUpdate.Unity",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

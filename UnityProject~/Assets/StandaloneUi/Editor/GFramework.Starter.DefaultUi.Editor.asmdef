@@ -1,0 +1,19 @@
+{
+    "name": "GFramework.Starter.DefaultUi.Editor",
+    "rootNamespace": "GFramework.Starter.DefaultUi.Editor",
+    "references": [
+        "GFramework.Starter.DefaultUi.Runtime",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

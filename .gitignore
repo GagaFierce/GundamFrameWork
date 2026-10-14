@@ -11,5 +11,16 @@ UnityProject~/MemoryCaptures/
 UnityProject~/Build/
 UnityProject~/Builds/
 UnityProject~/*.log
+UnityProject~/*.csproj
+UnityProject~/*.sln
+UnityProject~/*.user
+UnityProject~/.mcp.json
+UnityProject~/ProjectSettings/ProjectSettings/
 UnityProject~/UserSettings/*
 !UnityProject~/UserSettings/.gitkeep
+
+# Local recovery snapshots and probes.
+/$probe*
+/UnityProjectLibraryBackup*
+/_UnityProject*Backup-*
+/_GFramework*Backup-*
