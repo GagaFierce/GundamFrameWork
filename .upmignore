@@ -1,0 +1,16 @@
+# The repository also contains a Unity host project and local recovery snapshots.
+# They must not be copied into the UPM package when the package is referenced by file path.
+UnityProject~
+UnityProjectLibraryBackup
+_UnityProjectPackageManagerBackup-20261014
+_UnityProjectEmbeddedPackagesBackup-20261013
+_UnityProjectLibraryBackup-20261013-final-run
+_UnityProjectLibraryBackup-20261013-latest-run
+_UnityProjectLibraryBackup-20261013-upmfix
+_GFrameworkEmbeddedPackageBackup-20261013-raw
+_GFrameworkThirdPartyAssetsBackup-20261013
+$probe
+Documentation~
+Tests~
+Validation~
+
