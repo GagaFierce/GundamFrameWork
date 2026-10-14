@@ -1,0 +1,14 @@
+{
+  "name": "WFrameWork.Config",
+  "rootNamespace": "WFrameWork.Config",
+  "references": ["WFrameWork.Diagnostics"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

@@ -1,0 +1,6 @@
+{
+  "name": "WFrameWork.FrameUpdate",
+  "rootNamespace": "WFrameWork.Core.FrameUpdate",
+  "autoReferenced": false,
+  "noEngineReferences": true
+}
