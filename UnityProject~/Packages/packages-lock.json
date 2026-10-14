@@ -24,14 +24,14 @@
       }
     },
     "com.gagafierce.gundamframework": {
-      "version": "https://github.com/GagaFierce/GundamFrameWork.git?path=/Package#4e19aa1",
+      "version": "https://github.com/GagaFierce/GundamFrameWork.git?path=/Package#f9c9c19",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.textmeshpro": "3.0.7",
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "4e19aa1a1e25e399a41f7a18b488a68150c0b028"
+      "hash": "f9c9c19f85cf1480f6d8f9906238861bec5d7196"
     },
     "com.autodesk.fbx": {
       "version": "4.2.1",
