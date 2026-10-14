@@ -1,0 +1,15 @@
+{
+  "name": "WFrameWork.Input.UIBridge",
+  "rootNamespace": "WFrameWork.UIBridge",
+  "references": ["WFrameWork.Input", "WFrameWork.UI"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}
+

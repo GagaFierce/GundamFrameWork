@@ -1,0 +1,17 @@
+{
+    "name": "WFrameWork.FrameUpdate.Samples",
+    "rootNamespace": "WFrameWork.Core.FrameUpdate.Samples",
+    "references": [
+        "WFrameWork.FrameUpdate",
+        "WFrameWork.FrameUpdate.Unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
