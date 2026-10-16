@@ -323,10 +323,15 @@ namespace WFrameWork.Input
 
         private void ReconcileVisibility(long renderFrameId)
         {
+            // Precompute the single highest "blocking" priority once per reconcile
+            // (enabled context that blocks lower priorities). Previously each action
+            // rescanned every context to find such a blocker, making this
+            // O(actions * contexts); folding the scan out makes it O(actions + contexts).
+            int maxBlockingPriority = ComputeMaxBlockingPriority();
             for (int i = 0; i < _actionOrder.Count; i++)
             {
                 var slot = _actionOrder[i];
-                bool visible = IsActionVisible(slot.Definition.ContextId);
+                bool visible = IsActionVisible(slot.Definition.ContextId, maxBlockingPriority);
                 bool previousHeld = slot.Delivered.IsHeld;
                 bool wasCanceled = slot.Delivered.IsCanceled;
                 bool currentHeld = visible && slot.RawHeld && !slot.RawCanceled;
@@ -341,25 +346,62 @@ namespace WFrameWork.Input
                     Emit(slot, InputFixedEventPhase.Released, slot.Delivered.Value);
                 else if (currentHeld && previousHeld)
                     Notify(slot, InputFixedEventPhase.Pressed, value, 0, false);
-                InputButtonPhase phase = currentHeld
-                    ? (previousHeld ? InputButtonPhase.Held : InputButtonPhase.Pressed)
-                    : ((!visible || slot.RawCanceled) && (previousHeld || wasCanceled)
-                        ? InputButtonPhase.Canceled
-                        : (previousHeld ? InputButtonPhase.Released : (slot.RawCanceled ? InputButtonPhase.Canceled : InputButtonPhase.None)));
+                // Button phase truth table (bit-for-bit equivalent to the former nested ternary).
+                // Note currentHeld implies visible && !RawCanceled by construction above.
+                //   currentHeld  previousHeld -> Held
+                //   currentHeld  !previousHeld -> Pressed
+                // When !currentHeld, let A = (!visible || RawCanceled), B = (previousHeld || wasCanceled):
+                //   A && B                         -> Canceled
+                //   !(A && B) && previousHeld      -> Released
+                //   !(A && B) && !previousHeld && RawCanceled -> Canceled
+                //   otherwise                      -> None
+                InputButtonPhase phase;
+                if (currentHeld)
+                {
+                    phase = previousHeld ? InputButtonPhase.Held : InputButtonPhase.Pressed;
+                }
+                else
+                {
+                    bool blockedOrCanceled = !visible || slot.RawCanceled;
+                    bool hadActiveOrCancel = previousHeld || wasCanceled;
+                    if (blockedOrCanceled && hadActiveOrCancel)
+                        phase = InputButtonPhase.Canceled;
+                    else if (previousHeld)
+                        phase = InputButtonPhase.Released;
+                    else if (slot.RawCanceled)
+                        phase = InputButtonPhase.Canceled;
+                    else
+                        phase = InputButtonPhase.None;
+                }
                 slot.Delivered = new InputActionState(slot.Definition.Id, slot.Definition.Type, value, phase);
                 slot.RawCanceled = false;
             }
         }
 
-        private bool IsActionVisible(string contextId)
+        // Highest priority among currently enabled contexts that block lower priorities,
+        // or int.MinValue when none block. An action's context is hidden iff some blocking
+        // context has a strictly greater priority, i.e. maxBlockingPriority > own.Priority.
+        private int ComputeMaxBlockingPriority()
         {
-            if (!_contexts.TryGetValue(contextId, out var own) || !own.Enabled) return false;
+            int max = int.MinValue;
             foreach (var pair in _contexts)
             {
-                var other = pair.Value;
-                if (other.Enabled && other.BlocksLowerPriority && other.Priority > own.Priority) return false;
+                var ctx = pair.Value;
+                if (ctx.Enabled && ctx.BlocksLowerPriority && ctx.Priority > max) max = ctx.Priority;
             }
-            return true;
+            return max;
+        }
+
+        private bool IsActionVisible(string contextId)
+        {
+            return IsActionVisible(contextId, ComputeMaxBlockingPriority());
+        }
+
+        private bool IsActionVisible(string contextId, int maxBlockingPriority)
+        {
+            if (!_contexts.TryGetValue(contextId, out var own) || !own.Enabled) return false;
+            // Equivalent to: no enabled blocking context has Priority > own.Priority.
+            return maxBlockingPriority <= own.Priority;
         }
 
         private static InputValue Normalize(InputActionDefinition definition, InputValue raw)

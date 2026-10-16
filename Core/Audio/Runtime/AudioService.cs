@@ -126,6 +126,9 @@ namespace WFrameWork.Audio
         private readonly List<Exception> _cleanupFailures = new List<Exception>();
         private const int MaxRememberedCleanupFailures = 32;
         private TaskCompletionSource<bool> _releaseSignal = NewSignal();
+        // Reused by Tick to collect handles that have stopped playing, avoiding a per-frame allocation.
+        // Only touched inside Tick (main thread, non-reentrant); the snapshot is taken under _gate.
+        private readonly List<AudioPlaybackHandle> _tickStopped = new List<AudioPlaybackHandle>();
 
         public AudioService(IAudioBackend backend, IDiagnosticSink diagnostics = null, IMainThreadDispatcher mainThread = null)
         {
@@ -267,21 +270,25 @@ namespace WFrameWork.Audio
 
         private void ApplyCurrentVolumes()
         {
-            AudioPlaybackHandle[] handles;
-            bool muted;
+            // Snapshot each active handle together with its resolved effective volume in a single
+            // pass under _gate, then apply outside the lock. This avoids re-taking _gate per handle
+            // (and per-handle _volume lookups racing with concurrent SetVolume) and the extra ToArray.
+            var updates = new List<(AudioPlaybackHandle handle, float effective)>();
             lock (_gate)
             {
-                muted = _muted;
-                var list = new List<AudioPlaybackHandle>();
-                foreach (var pair in _active) list.AddRange(pair.Value);
-                handles = list.ToArray();
+                bool muted = _muted;
+                foreach (var pair in _active)
+                {
+                    var list = pair.Value;
+                    float busVolume = _volume[pair.Key];
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var handle = list[i];
+                        updates.Add((handle, (muted ? 0 : busVolume) * Clamp(handle.RequestVolume)));
+                    }
+                }
             }
-            for (int i = 0; i < handles.Length; i++)
-            {
-                float busVolume;
-                lock (_gate) busVolume = _volume[handles[i].Bus];
-                handles[i].ApplyVolume((muted ? 0 : busVolume) * Clamp(handles[i].RequestVolume));
-            }
+            for (int i = 0; i < updates.Count; i++) updates[i].handle.ApplyVolume(updates[i].effective);
         }
 
         private void DispatchOptional(Action action)
@@ -394,9 +401,11 @@ namespace WFrameWork.Audio
         {
             if (_disposed) return;
             _backend.Tick();
-            List<AudioPlaybackHandle> stopped = new List<AudioPlaybackHandle>();
+            List<AudioPlaybackHandle> stopped = _tickStopped;
+            stopped.Clear();
             lock (_gate) foreach (var pair in _active) for (int i = pair.Value.Count - 1; i >= 0; i--) if (!pair.Value[i].IsPlaying) stopped.Add(pair.Value[i]);
             for (int i = 0; i < stopped.Count; i++) stopped[i].Stop();
+            stopped.Clear();
         }
         public Task CloseAsync()
         {

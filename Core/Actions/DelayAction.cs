@@ -28,7 +28,9 @@ namespace WFrameWork.Core.Actions
         {
             for (int i = mActionList.Count - 1; i >= 0; --i)
             {
-                if (i >= mActionList.Count) { i = mActionList.Count; continue; }
+                // Callbacks from an earlier iteration may have shrunk the list, leaving the
+                // current (higher) index out of range. Skip it; --i then continues safely.
+                if (i >= mActionList.Count) continue;
                 ActionBase action = mActionList[i];
                 try { action.Update(delayTime); }
                 finally
