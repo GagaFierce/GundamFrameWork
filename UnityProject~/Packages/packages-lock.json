@@ -23,22 +23,21 @@
         "com.unity.ugui": "1.0.0"
       }
     },
-    "com.gagafierce.gundamframework": {
-      "version": "https://github.com/GagaFierce/GundamFrameWork.git?path=/Package#f9c9c19",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.textmeshpro": "3.0.7",
-        "com.unity.ugui": "1.0.0"
-      },
-      "hash": "f9c9c19f85cf1480f6d8f9906238861bec5d7196"
-    },
     "com.autodesk.fbx": {
       "version": "4.2.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.cn"
+    },
+    "com.gagafierce.gundamframework": {
+      "version": "file:../../",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.textmeshpro": "3.0.7",
+        "com.unity.ugui": "1.0.0"
+      }
     },
     "com.unity.2d.animation": {
       "version": "9.2.2",
