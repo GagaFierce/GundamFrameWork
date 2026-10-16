@@ -11,7 +11,8 @@ namespace WFrameWork.Config.Unity
     {
         [Serializable] private sealed class Envelope { public int version; public string payload, checksum; }
         private readonly Func<T> _factory;
-        public CheckedJsonSerializer(Func<T> factory = null) { _factory = factory ?? (() => new T()); }
+        private readonly Func<T, int, int, T> _migrate;
+        public CheckedJsonSerializer(Func<T> factory = null, Func<T, int, int, T> migrate = null) { _factory = factory ?? (() => new T()); _migrate = migrate; }
         private static string Digest(string value)
         { using (var algorithm = SHA256.Create()) return Convert.ToBase64String(algorithm.ComputeHash(Encoding.UTF8.GetBytes(value))); }
         public string Serialize(T value, int version)
@@ -24,6 +25,10 @@ namespace WFrameWork.Config.Unity
         }
         public T CreateDefault() => _factory();
         public T Migrate(T value, int fromVersion, int currentVersion)
-        { if (fromVersion != currentVersion) throw new InvalidDataException("No compatible migration is registered."); return value; }
+        {
+            if (fromVersion == currentVersion) return value;
+            if (_migrate == null) throw new InvalidDataException("No compatible migration is registered.");
+            return _migrate(value, fromVersion, currentVersion);
+        }
     }
 }
