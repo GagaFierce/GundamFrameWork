@@ -1,7 +1,0 @@
-{
-  "name": "WFrameWork.FrameUpdate.Unity",
-  "rootNamespace": "WFrameWork.Core.FrameUpdate.Unity",
-  "references": ["WFrameWork.FrameUpdate"],
-  "autoReferenced": true,
-  "noEngineReferences": false
-}

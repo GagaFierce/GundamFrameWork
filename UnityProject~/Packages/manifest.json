@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.gagafierce.gundamframework": "https://github.com/GagaFierce/GundamFrameWork.git?path=/Package#f9c9c19",
+    "com.gagafierce.gundamframework": "file:../../",
     "com.unity.2d.animation": "9.2.2",
     "com.unity.animation.rigging": "1.2.1",
     "com.unity.cinemachine": "3.1.7",
