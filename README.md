@@ -14,4 +14,4 @@ Unity 2022.3 常用 C# 工具包。
 
 ## Input、Physics、UI 模块
 
-模块按纯逻辑层、Unity 适配层和可选桥接程序集拆分，统一复用显式 `UnityFrameUpdateHost`。Package Manager 的 Samples 提供 Input、Physics、UI 三个入口；完整的游戏 UI 流程已迁入 `UnityProject~`，输入系统适配默认使用 Legacy API，可选 Input System 单独导入。
+模块按纯逻辑层、Unity 适配层和可选桥接程序集拆分，统一复用显式 `UnityFrameUpdateHost`。完整的游戏 UI 流程已迁入 `UnityProject~`，输入系统适配默认使用 Legacy API，可选 Input System 单独导入。

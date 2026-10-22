@@ -10,7 +10,7 @@ $packageRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $packageRoot
 
 Write-Host '== asmdef boundary check =='
-$asmdefs = Get-ChildItem Core, Samples~ -Recurse -Filter '*.asmdef'
+$asmdefs = Get-ChildItem Core -Recurse -Filter '*.asmdef'
 $names = @{}
 foreach ($file in $asmdefs) {
     $definition = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
