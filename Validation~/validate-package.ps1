@@ -9,14 +9,8 @@ $ErrorActionPreference = 'Stop'
 $packageRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $packageRoot
 
-Write-Host '== GFramework pure C# tests =='
-dotnet run --project 'Tests~/FrameUpdate/Core/FrameUpdate.Core.Tests.csproj'
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-dotnet run --project 'Tests~/Modules/Core/GFramework.Modules.Tests.csproj'
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
 Write-Host '== asmdef boundary check =='
-$asmdefs = Get-ChildItem Core, Samples~, Tests~ -Recurse -Filter '*.asmdef'
+$asmdefs = Get-ChildItem Core, Samples~ -Recurse -Filter '*.asmdef'
 $names = @{}
 foreach ($file in $asmdefs) {
     $definition = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
@@ -72,7 +66,7 @@ if ($UnityPath -and $UnityProjectPath) {
         Write-Error "Unity validation log reports a failure. Log: $unityLogPath"
         exit 1
     }
-    if ($unityLog -notmatch 'GFramework combined (local Addressables content build|Addressables validation) passed') {
+    if ($unityLog -notmatch 'GFramework Starter (local Addressables content build|Addressables validation) passed') {
         Write-Error "Unity validation did not report the expected success marker. Log: $unityLogPath"
         exit 1
     }

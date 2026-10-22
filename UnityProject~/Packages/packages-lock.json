@@ -73,7 +73,7 @@
     },
     "com.unity.addressables": {
       "version": "1.22.3",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.scriptablebuildpipeline": "1.21.25",

@@ -18,14 +18,14 @@ namespace WFrameWork.Samples.Combined.Editor
 {
     public static class CombinedSampleAssetGenerator
     {
-        private const string Root = "Assets/GFrameworkSamples/Combined";
+        private const string Root = "Assets/GFrameworkStarter/Demo/Combined";
         private static TMP_FontAsset _font;
         private static readonly Dictionary<string, GameObject> Panels = new Dictionary<string, GameObject>();
 
-        [MenuItem("GFramework/Samples/Generate Combined Sample Assets")]
+        [MenuItem("GFramework/Starter/Generate Game UI Assets")]
         public static void Generate()
         {
-            Folder("Assets", "GFrameworkSamples"); Folder("Assets/GFrameworkSamples", "Combined");
+            Folder("Assets", "GFrameworkStarter"); Folder("Assets/GFrameworkStarter", "Demo"); Folder("Assets/GFrameworkStarter/Demo", "Combined");
             foreach (string name in new[] { "Prefabs", "Configs", "Scenes" }) Folder(Root, name);
             var config = Asset<CombinedSampleConfig>(Root + "/Configs/CombinedSampleConfig.asset");
             _font = config.UiFont != null ? config.UiFont : TMP_Settings.defaultFontAsset;
@@ -37,7 +37,7 @@ namespace WFrameWork.Samples.Combined.Editor
             foreach (var pair in Panels)
             {
                 var definition = Asset<UiPanelDefinitionAsset>(Root + "/Configs/" + pair.Key + "Panel.asset");
-                Set(definition, "panelId", pair.Key); Set(definition, "resourceKey", "GFramework.Samples." + pair.Key);
+                Set(definition, "panelId", pair.Key); Set(definition, "resourceKey", "GFramework.Starter." + pair.Key);
                 Set(definition, "layer", (int)(pair.Key == "Menu" ? UiPanelLayer.Normal : pair.Key == "Toast" ? UiPanelLayer.Overlay : UiPanelLayer.Modal));
                 Set(definition, "modal", pair.Key != "Menu" && pair.Key != "Toast"); definitions.Add(definition);
             }
@@ -48,10 +48,10 @@ namespace WFrameWork.Samples.Combined.Editor
             CreateGameplayScene();
             RegisterContent(config, playerPrefab, CreateSound());
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
-            Debug.Log("Generated MVVM UI under " + Root + ". Existing generated UI prefabs are rebuilt with stable asset GUIDs. Validate and build local Addressables content before Play.");
+            Debug.Log("Generated Starter game UI under " + Root + ". Validate and build local Addressables content before Play.");
         }
 
-        [MenuItem("GFramework/Samples/Build Combined Addressables Content")]
+        [MenuItem("GFramework/Starter/Build Addressables Content")]
         public static void BuildContent()
         {
             if (AddressableAssetSettingsDefaultObject.Settings == null) throw new InvalidOperationException("Create host Addressables Settings first.");
@@ -212,14 +212,14 @@ namespace WFrameWork.Samples.Combined.Editor
             var audio = new GameObject("Audio").AddComponent<WFrameWork.Audio.Unity.AudioServiceBehaviour>();
             var services = new GameObject("Runtime").AddComponent<CombinedSampleRuntimeServices>(); Set(services, "audioBehaviour", audio); Set(services, "ui", ui); Set(services, "configuration", config); Set(services, "poolRoot", new GameObject("PlayerPool").transform);
             var bootstrap = new GameObject("Input Routes").AddComponent<CombinedSampleBootstrap>(); Set(bootstrap, "services", services);
-            EditorSceneManager.SaveScene(scene, Root + "/Scenes/CombinedSample.unity");
+            EditorSceneManager.SaveScene(scene, Root + "/Scenes/GFrameworkStarter.unity");
         }
         private static void CreateGameplayScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane); ground.name = "Ground"; ground.transform.position = Vector3.down;
             new GameObject("Light", typeof(Light)).GetComponent<Light>().type = LightType.Directional;
-            EditorSceneManager.SaveScene(scene, Root + "/Scenes/Gameplay.unity"); EditorSceneManager.OpenScene(Root + "/Scenes/CombinedSample.unity");
+            EditorSceneManager.SaveScene(scene, Root + "/Scenes/Gameplay.unity"); EditorSceneManager.OpenScene(Root + "/Scenes/GFrameworkStarter.unity");
         }
         private static AudioClip CreateSound()
         {
@@ -239,9 +239,9 @@ namespace WFrameWork.Samples.Combined.Editor
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null) { Debug.LogWarning("Create host Addressables Settings, then regenerate to register content."); return; }
-            var group = settings.FindGroup("GFramework Samples") ?? settings.CreateGroup("GFramework Samples", false, false, true, null, typeof(BundledAssetGroupSchema));
-            foreach (var pair in Panels) Register(settings, group, AssetDatabase.GetAssetPath(pair.Value), "GFramework.Samples." + pair.Key);
-            Register(settings, group, AssetDatabase.GetAssetPath(config), "GFramework.Samples.Config"); Register(settings, group, AssetDatabase.GetAssetPath(player), "GFramework.Samples.Player"); Register(settings, group, AssetDatabase.GetAssetPath(sound), "GFramework.Samples.Click"); Register(settings, group, Root + "/Scenes/Gameplay.unity", "GFramework.Samples.Game");
+            var group = settings.FindGroup("GFramework Starter") ?? settings.CreateGroup("GFramework Starter", false, false, true, null, typeof(BundledAssetGroupSchema));
+            foreach (var pair in Panels) Register(settings, group, AssetDatabase.GetAssetPath(pair.Value), "GFramework.Starter." + pair.Key);
+            Register(settings, group, AssetDatabase.GetAssetPath(config), "GFramework.Starter.Config"); Register(settings, group, AssetDatabase.GetAssetPath(player), "GFramework.Starter.Player"); Register(settings, group, AssetDatabase.GetAssetPath(sound), "GFramework.Starter.Click"); Register(settings, group, Root + "/Scenes/Gameplay.unity", "GFramework.Starter.Game");
         }
         private static void Register(AddressableAssetSettings settings, AddressableAssetGroup group, string path, string address)
         {

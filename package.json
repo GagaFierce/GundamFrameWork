@@ -32,11 +32,6 @@
       "displayName": "UI module",
       "description": "uGUI root, direct-reference panels, modal stack and Presentation refresh.",
       "path": "Samples~/Modules/UI"
-    },
-    {
-      "displayName": "Combined modules",
-      "description": "Input to fixed-step gameplay, Physics bridge, HUD and modal settings integration.",
-      "path": "Samples~/Modules/Combined"
     }
   ]
 }

@@ -5,7 +5,10 @@
     "GFramework.Starter",
     "WFrameWork.UI",
     "WFrameWork.UI.Unity",
+    "WFrameWork.Physics.Unity",
+    "WFrameWork.Audio.Unity",
     "Unity.TextMeshPro",
+    "Unity.Addressables.Editor",
     "UnityEngine.UI"
   ],
   "includePlatforms": ["Editor"],
@@ -14,7 +17,7 @@
   "overrideReferences": false,
   "precompiledReferences": [],
   "autoReferenced": false,
-  "defineConstraints": [],
-  "versionDefines": [],
+  "defineConstraints": ["WFRAMEWORK_ADDRESSABLES"],
+  "versionDefines": [{"name": "com.unity.addressables", "expression": "1.0.0", "define": "WFRAMEWORK_ADDRESSABLES"}],
   "noEngineReferences": false
 }

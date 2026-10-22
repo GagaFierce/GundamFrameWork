@@ -2,6 +2,7 @@
   "dependencies": {
     "com.gagafierce.gundamframework": "file:../../",
     "com.unity.2d.animation": "9.2.2",
+    "com.unity.addressables": "1.22.3",
     "com.unity.animation.rigging": "1.2.1",
     "com.unity.cinemachine": "3.1.7",
     "com.unity.collab-proxy": "2.12.4",
@@ -19,7 +20,7 @@
     "com.unity.test-framework": "1.1.33",
     "com.unity.textmeshpro": "3.0.7",
     "com.unity.timeline": "1.7.7",
-    "com.unity.ugui": "2.0.0",
+    "com.unity.ugui": "1.0.0",
     "com.unity.visualeffectgraph": "14.0.12",
     "com.unity.visualscripting": "1.9.4",
     "com.unity.modules.ai": "1.0.0",

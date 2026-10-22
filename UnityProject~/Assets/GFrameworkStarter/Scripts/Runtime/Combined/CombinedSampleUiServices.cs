@@ -169,7 +169,7 @@ namespace WFrameWork.Samples.Combined
         }
 
         /// <summary>
-        /// The combined sample has one playable scene, so advancing to the next level
+        /// The Starter flow has one playable scene, so advancing to the next level
         /// deliberately reloads that scene through the normal menu/loading transition.
         /// It is a real flow action rather than a completed task placeholder, and gives
         /// a future multi-level sample one clear extension point.

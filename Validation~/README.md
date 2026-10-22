@@ -1,8 +1,8 @@
 # GFramework validation
 
-`validate-package.ps1` runs the two pure C# regression suites and checks assembly names/references. It does not claim Unity compilation or Addressables content validation.
+`validate-package.ps1` checks assembly names/references and can optionally invoke the Unity Addressables validator. It does not claim Unity compilation or PlayMode validation.
 
-For a host Unity project with the Combined sample imported:
+For the repository Unity host project:
 
 ```powershell
 ./Validation~/validate-package.ps1 `
@@ -10,4 +10,4 @@ For a host Unity project with the Combined sample imported:
   -UnityProjectPath 'D:/Projects/MyUnityHost'
 ```
 
-The script invokes `CombinedSampleAddressablesValidator.ValidateCommandLine`. The host owns Addressables Settings and must build local content separately. Unity EditMode/PlayMode and Player tests remain host-project responsibilities; no license, credentials, or success is fabricated by this package script.
+The script invokes the Starter Addressables validator. The host owns Addressables Settings and builds local content. Unity EditMode/PlayMode and Player tests remain host-project responsibilities; no license, credentials, or success is fabricated by this package script.

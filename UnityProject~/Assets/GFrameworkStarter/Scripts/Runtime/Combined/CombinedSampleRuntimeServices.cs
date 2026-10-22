@@ -51,9 +51,9 @@ namespace WFrameWork.Samples.Combined
         [SerializeField] private RigidbodyFixedStepBehaviour player;
         [SerializeField] private CombinedSampleConfig configuration;
         [SerializeField] private Transform poolRoot;
-        [SerializeField] private string playerPrefabAddress = "GFramework.Samples.Player";
-        [SerializeField] private string sfxAddress = "GFramework.Samples.Click";
-        [SerializeField] private string gameSceneAddress = "GFramework.Samples.Game";
+        [SerializeField] private string playerPrefabAddress = "GFramework.Starter.Player";
+        [SerializeField] private string sfxAddress = "GFramework.Starter.Click";
+        [SerializeField] private string gameSceneAddress = "GFramework.Starter.Game";
         private UnityGameRuntime _unityRuntime;
         private AddressablesResourceService _addressables;
         private AddressableGameObjectPool _playerPool;
@@ -399,7 +399,7 @@ namespace WFrameWork.Samples.Combined
         }
 
         private void EnsureReady()
-        { if (!_ready) throw new InvalidOperationException("Combined sample runtime is not ready."); }
+        { if (!_ready) throw new InvalidOperationException("Starter game runtime is not ready."); }
 
         public async Task ShutdownAsync()
         {
