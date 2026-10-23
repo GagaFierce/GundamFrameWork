@@ -15,3 +15,9 @@ Unity 2022.3 常用 C# 工具包。
 ## Input、Physics、UI 模块
 
 模块按纯逻辑层、Unity 适配层和可选桥接程序集拆分，统一复用显式 `UnityFrameUpdateHost`。完整的游戏 UI 流程已迁入 `UnityProject~`，输入系统适配默认使用 Legacy API，可选 Input System 单独导入。
+
+## 通用计时、状态、事件与 UI 组件
+
+新增 `WFrameWork.Scheduling`（计时器、顺序任务）、`WFrameWork.StateMachine`（通用状态机）和 `WFrameWork.Events`（强类型事件）。UI 提供固定行高虚拟列表、长按、拖拽和提示浮层，按钮防重复提交沿用 `AsyncUiCommand`。
+
+接入、生命周期约定和示例见 [通用模块使用说明](Documentation~/CommonModules.md)。Unity 自动测试位于宿主工程 `Assets/GFrameworkTests/Editor`。

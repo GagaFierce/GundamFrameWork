@@ -1,0 +1,7 @@
+{
+  "name": "WFrameWork.Scheduling",
+  "rootNamespace": "WFrameWork.Scheduling",
+  "references": ["WFrameWork.FrameUpdate", "WFrameWork.Diagnostics"],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

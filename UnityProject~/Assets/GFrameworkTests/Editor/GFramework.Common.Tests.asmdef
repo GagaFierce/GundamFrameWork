@@ -1,0 +1,7 @@
+{
+  "name": "GFramework.Common.Tests",
+  "references": ["WFrameWork.Scheduling", "WFrameWork.StateMachine", "WFrameWork.Events", "WFrameWork.FrameUpdate", "WFrameWork.Diagnostics", "WFrameWork.Application", "WFrameWork.Threading", "WFrameWork.UI", "WFrameWork.UI.Unity", "UnityEngine.UI", "Unity.TextMeshPro"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

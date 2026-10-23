@@ -3,6 +3,7 @@
   "rootNamespace": "WFrameWork.UI.Unity",
   "references": [
     "WFrameWork.UI",
+    "WFrameWork.Scheduling",
     "WFrameWork.Diagnostics",
     "WFrameWork.FrameUpdate.Unity",
     "WFrameWork.ResLoad",

@@ -1,0 +1,7 @@
+{
+  "name": "WFrameWork.StateMachine",
+  "rootNamespace": "WFrameWork.StateMachine",
+  "references": ["WFrameWork.FrameUpdate"],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}
